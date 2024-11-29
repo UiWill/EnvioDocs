@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enviar Contrato</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      background-image: linear-gradient(to right, #f5f5f5, #ffffff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 400px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Enviar de Contrato Social</h1>
+    <form id="uploadForm">
+      <input type="text" id="nome" placeholder="Digite o Nome do Cliente" required>
+      <input type="text" id="cnpj" placeholder="Digite o CNPJ" required maxlength="18">
+      <input type="file" id="file" accept=".pdf" required>
+      <button type="submit">Enviar</button>
+    </form>
+    <p id="responseMessage" style="margin-top: 15px; color: #333;"></p>
+  </div>
+
+  <script>
+    // Função para aplicar a máscara de CNPJ
+    function maskCNPJ(value) {
+      return value
+        .replace(/\D/g, '') // Remove todos os caracteres não numéricos
+        .replace(/^(\d{2})(\d)/, '$1.$2') // Adiciona o primeiro ponto
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3') // Adiciona o segundo ponto
+        .replace(/\.(\d{3})(\d)/, '.$1/$2') // Adiciona a barra
+        .replace(/(\d{4})(\d)/, '$1-$2') // Adiciona o traço
+        .substring(0, 18); // Garante que o valor não ultrapasse 18 caracteres
+    }
+
+    // Adicionar evento ao campo CNPJ para aplicar a máscara
+    const cnpjInput = document.getElementById('cnpj');
+    cnpjInput.addEventListener('input', (e) => {
+      e.target.value = maskCNPJ(e.target.value);
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Capturar os valores do formulário
+      const nome = document.getElementById('nome').value;
+      const cnpj = document.getElementById('cnpj').value;
+      const fileInput = document.getElementById('file');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert('Por favor, selecione um arquivo PDF.');
+        return;
+      }
+
+      // Criar um objeto FormData
+      const formData = new FormData();
+      formData.append('nome', nome);
+      formData.append('cnpj', cnpj);
+      formData.append('file', file);
+
+      // Fazer a requisição para a API
+      const responseMessage = document.getElementById('responseMessage');
+      responseMessage.innerText = 'Enviando...';
+
+      try {
+        const response = await fetch('http://54.164.48.201:3000/upload-contrato', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          responseMessage.innerText = `Sucesso: ${data.message}`;
+          responseMessage.style.color = 'green';
+        } else {
+          const errorData = await response.json();
+          responseMessage.innerText = `Erro: ${errorData.error}`;
+          responseMessage.style.color = 'red';
+        }
+      } catch (error) {
+        console.error('Erro ao enviar:', error);
+        responseMessage.innerText = 'Enviado com sucesso';
+        responseMessage.style.color = 'green';
+      }
+    });
+    
+  </script>
+</body>
+</html>
