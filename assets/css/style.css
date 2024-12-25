@@ -13,9 +13,9 @@
     --font-pequena: 'ClashGrotesk-Light', sans-serif;
     --color-black: #000;
     --color-gray1: #3d4143;
-    --color-gray2: #9c9d9d;
+    --color-gray2: #bfc7c7;
     --color-white: #f6f6f6;
-    --color-destaque1: #f48141;
+    --color-destaque1: #b9c5d4;
     --color-destaque2: #728e6f;
 }
 
@@ -262,6 +262,10 @@ a {
     padding: 0rem 1rem;
     z-index: 1;
     user-select: none;
+    background-image: url('/assets/img/fundo.png'); /* Caminho da sua imagem de fundo */
+    background-size: cover; /* Faz a imagem cobrir toda a área */
+    background-position: center; /* Centraliza a imagem */
+    background-repeat: no-repeat; /* Evita que a imagem se repita */
 }
 
 .container-inicio {
@@ -1251,7 +1255,7 @@ a {
     left: 0;
     width: 100%;
     height: 5px;
-    background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+    background: linear-gradient(90deg,  #7ed4e7 0%, #e0eee1 100%);
 }
 
 .plan-name {
@@ -1264,7 +1268,7 @@ a {
 .price {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #0984e3;
+    color: #8ea9bd;
     margin-bottom: 1.5rem;
 }
 
@@ -1282,13 +1286,13 @@ a {
 
 .features li::before {
     content: '✓';
-    color: #00b894;
+    color: #008db8;
     margin-right: 10px;
     font-weight: bold;
 }
 
 .cta-button {
-    background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+    background: linear-gradient(90deg, #c1d2d6 0%, #e0eee1 100%);
     color: white;
     border: none;
     padding: 1rem 2rem;
