@@ -41,13 +41,21 @@
                     body: formData,
                 });
 
-                const result = await response.json();
-                document.getElementById("status").innerText = result.message;
-                document.getElementById("status").classList.add("success");
-            } catch (error) {
-                console.error("Erro ao fazer upload:", error);
-                document.getElementById("status").innerText = "Erro ao fazer upload.";
-                document.getElementById("status").classList.add("error");
+                if (!response.ok) {
+    document.getElementById("status").innerText = "Erro ao fazer upload. Servidor retornou um erro.";
+    document.getElementById("status").classList.add("error");
+    return;
+}
+
+try {
+    const result = await response.json();
+    document.getElementById("status").innerText = result.message;
+    document.getElementById("status").classList.add("success");
+} catch (error) {
+    console.error("Erro ao fazer upload:", error);
+    document.getElementById("status").innerText = "Erro ao fazer upload. Resposta inesperada.";
+    document.getElementById("status").classList.add("error");
+}
             }
         });
     </script>
