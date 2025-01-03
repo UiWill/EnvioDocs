@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de PDFs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="explorer-container">
+    <div class="explorer-header">
+        <h1 class="explorer-title">Upload de Arquivos</h1>
+    </div>
+    <div class="explorer-content">
+        <div class="explorer-panel">
+            <p>Arraste e solte os arquivos aqui ou clique para selecionar.</p>
+            <form id="uploadForm" enctype="multipart/form-data" class="upload-form">
+                <label for="file" class="upload-label">
+                    <input type="file" id="file" name="file" accept=".pdf" required class="upload-input" />
+                </label>
+                <button type="submit" class="upload-button">Enviar</button>
+            </form>
+        </div>
+        <div id="status" class="upload-status"></div>
+    </div>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById("file");
+            if (!fileInput.files[0]) {
+                alert("Por favor, selecione um arquivo.");
+                return;
+            }
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                const response = await fetch("/upload-to-shared-folder", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const result = await response.json();
+                document.getElementById("status").innerText = result.message;
+                document.getElementById("status").classList.add("success");
+            } catch (error) {
+                console.error("Erro ao fazer upload:", error);
+                document.getElementById("status").innerText = "Erro ao fazer upload.";
+                document.getElementById("status").classList.add("error");
+            }
+        });
+    </script>
+</body>
+</html>
