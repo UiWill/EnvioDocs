@@ -26,38 +26,49 @@
     <script>
         document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-
+    
             const formData = new FormData();
             const fileInput = document.getElementById("file");
+    
             if (!fileInput.files[0]) {
                 alert("Por favor, selecione um arquivo.");
                 return;
             }
+    
             formData.append("file", fileInput.files[0]);
-
+    
             try {
                 const response = await fetch("/upload-to-shared-folder", {
                     method: "POST",
                     body: formData,
                 });
-
+    
+                // Verifica se a resposta do servidor foi bem-sucedida
                 if (!response.ok) {
-    document.getElementById("status").innerText = "Erro ao fazer upload. Servidor retornou um erro.";
-    document.getElementById("status").classList.add("error");
-    return;
-}
-
-try {
-    const result = await response.json();
-    document.getElementById("status").innerText = result.message;
-    document.getElementById("status").classList.add("success");
-} catch (error) {
-    console.error("Erro ao fazer upload:", error);
-    document.getElementById("status").innerText = "Erro ao fazer upload. Resposta inesperada.";
-    document.getElementById("status").classList.add("error");
-}
+                    console.error("Erro do servidor:", response.status, response.statusText);
+                    document.getElementById("status").innerText = "Erro ao fazer upload. Servidor retornou um erro.";
+                    document.getElementById("status").classList.add("error");
+                    return;
+                }
+    
+                // Tenta interpretar a resposta como JSON
+                try {
+                    const result = await response.json();
+                    document.getElementById("status").innerText = result.message;
+                    document.getElementById("status").classList.add("success");
+                } catch (error) {
+                    console.error("Erro ao interpretar a resposta do servidor:", error);
+                    document.getElementById("status").innerText = "Erro ao fazer upload. Resposta inesperada.";
+                    document.getElementById("status").classList.add("error");
+                }
+            } catch (error) {
+                // Lida com erros de conexão ou outros problemas de rede
+                console.error("Erro ao fazer upload:", error);
+                document.getElementById("status").innerText = "Erro ao fazer upload. Não foi possível conectar ao servidor.";
+                document.getElementById("status").classList.add("error");
             }
         });
     </script>
+    
 </body>
 </html>
