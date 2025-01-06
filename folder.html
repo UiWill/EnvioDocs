@@ -38,10 +38,10 @@
             formData.append("file", fileInput.files[0]);
     
             try {
-                const response = await fetch("/upload-to-shared-folder", {
-                    method: "POST",
-                    body: formData,
-                });
+                const response = await fetch("http://IP_DO_SERVIDOR:PORTA/upload-to-shared-folder", {
+    method: "POST",
+    body: formData,
+});
     
                 // Verifica se a resposta do servidor foi bem-sucedida
                 if (!response.ok) {
