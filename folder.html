@@ -87,6 +87,12 @@
             color: #721c24;
         }
     </style>
+    <script>
+        // Redireciona para HTTP se a página estiver em HTTPS
+        if (window.location.protocol === "https:") {
+            window.location.href = "http://" + window.location.hostname + window.location.pathname;
+        }
+    </script>
 </head>
 <body class="explorer-container">
     <div class="explorer-header">
@@ -94,7 +100,7 @@
     </div>
     <div class="explorer-content">
         <div class="explorer-panel">
-            <p>Arrastee solte os arquivos aqui ou clique para selecionar.</p>
+            <p>Arraste e solte os arquivos aqui ou clique para selecionar.</p>
             <form id="uploadForm" enctype="multipart/form-data" class="upload-form">
                 <label for="file" class="upload-label">
                     Escolher Arquivo
@@ -122,10 +128,9 @@
     
             try {
                 const response = await fetch("http://54.164.48.201:3000/upload-to-shared-folder", {
-    method: "POST",
-    body: formData,
-});
-
+                    method: "POST",
+                    body: formData,
+                });
     
                 if (!response.ok) {
                     throw new Error("Erro ao enviar o arquivo.");
