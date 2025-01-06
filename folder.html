@@ -5,6 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload de PDFs</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .explorer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .explorer-header {
+            margin-bottom: 20px;
+        }
+
+        .explorer-title {
+            font-size: 2em;
+            color: #333;
+        }
+
+        .explorer-panel {
+            border: 2px dashed #aaa;
+            background: #fff;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+
+        .explorer-panel:hover {
+            border-color: #007bff;
+        }
+
+        .upload-form {
+            margin-top: 15px;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .upload-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            color: #fff;
+            background: #28a745;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .upload-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .upload-status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .upload-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
 </head>
 <body class="explorer-container">
     <div class="explorer-header">
@@ -15,6 +97,7 @@
             <p>Arraste e solte os arquivos aqui ou clique para selecionar.</p>
             <form id="uploadForm" enctype="multipart/form-data" class="upload-form">
                 <label for="file" class="upload-label">
+                    Escolher Arquivo
                     <input type="file" id="file" name="file" accept=".pdf" required class="upload-input" />
                 </label>
                 <button type="submit" class="upload-button">Enviar</button>
@@ -38,37 +121,24 @@
             formData.append("file", fileInput.files[0]);
     
             try {
-                const response = await fetch("http://IP_DO_SERVIDOR:PORTA/upload-to-shared-folder", {
-    method: "POST",
-    body: formData,
-});
+                const response = await fetch("http://54.164.48.201:3000/upload-to-shared-folder", {
+                    method: "POST",
+                    body: formData,
+                });
     
-                // Verifica se a resposta do servidor foi bem-sucedida
                 if (!response.ok) {
-                    console.error("Erro do servidor:", response.status, response.statusText);
-                    document.getElementById("status").innerText = "Erro ao fazer upload. Servidor retornou um erro.";
-                    document.getElementById("status").classList.add("error");
-                    return;
+                    throw new Error("Erro ao enviar o arquivo.");
                 }
     
-                // Tenta interpretar a resposta como JSON
-                try {
-                    const result = await response.json();
-                    document.getElementById("status").innerText = result.message;
-                    document.getElementById("status").classList.add("success");
-                } catch (error) {
-                    console.error("Erro ao interpretar a resposta do servidor:", error);
-                    document.getElementById("status").innerText = "Erro ao fazer upload. Resposta inesperada.";
-                    document.getElementById("status").classList.add("error");
-                }
+                const result = await response.json();
+                document.getElementById("status").innerText = result.message;
+                document.getElementById("status").classList.add("success");
             } catch (error) {
-                // Lida com erros de conexão ou outros problemas de rede
                 console.error("Erro ao fazer upload:", error);
-                document.getElementById("status").innerText = "Erro ao fazer upload. Não foi possível conectar ao servidor.";
+                document.getElementById("status").innerText = "Erro ao fazer upload.";
                 document.getElementById("status").classList.add("error");
             }
         });
     </script>
-    
 </body>
 </html>
