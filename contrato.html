@@ -72,7 +72,8 @@
     <h1> Documento</h1>
     <form id="uploadForm">
       <input type="text" id="nome" placeholder="Insira o nome do documento" required>
-      <input type="text" id="cnpj" placeholder="Digite o CNPJ" required maxlength="18">
+      <!-- Campo de CNPJ oculto -->
+      <input type="hidden" id="cnpj">
       <input type="file" id="file" accept=".pdf" required>
       <button type="submit">Enviar</button>
     </form>
@@ -81,40 +82,23 @@
   </div>
 
   <script>
-    // Função para mascarar o CNPJ
-    function maskCNPJ(value) {
-      return value
-        .replace(/\D/g, '')
-        .replace(/^(\d{2})(\d)/, '$1.$2')
-        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-        .replace(/\.(\d{3})(\d)/, '.$1/$2')
-        .replace(/(\d{4})(\d)/, '$1-$2')
-        .substring(0, 18);
-    }
-
-    // Preenche o CNPJ automaticamente ao carregar a página
+    // Função para buscar e preencher o CNPJ
     async function fetchAndFillCNPJ() {
-  try {
-    // Faz uma requisição para buscar o último CNPJ armazenado
-    const response = await fetch('https://api.enviodocs.com.br:3000/get-last-cnpj');
+      try {
+        // Faz uma requisição para buscar o último CNPJ armazenado
+        const response = await fetch('https://api.enviodocs.com.br:3000/get-last-cnpj');
 
-    if (response.ok) {
-      const data = await response.json();
-      // Define o CNPJ no campo
-      document.getElementById('cnpj').value = maskCNPJ(data.cnpj);
-    } else {
-      console.error('Erro ao buscar o último CNPJ:', await response.json());
+        if (response.ok) {
+          const data = await response.json();
+          // Define o CNPJ no campo oculto
+          document.getElementById('cnpj').value = data.cnpj;
+        } else {
+          console.error('Erro ao buscar o último CNPJ:', await response.json());
+        }
+      } catch (error) {
+        console.error('Erro na requisição:', error);
+      }
     }
-  } catch (error) {
-    console.error('Erro na requisição:', error);
-  }
-}
-
-    // Adiciona a máscara de CNPJ enquanto o usuário digita
-    const cnpjInput = document.getElementById('cnpj');
-    cnpjInput.addEventListener('input', (e) => {
-      e.target.value = maskCNPJ(e.target.value);
-    });
 
     // Evento para enviar o formulário
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
@@ -167,8 +151,10 @@
       }
     });
 
-    // Chama a função para buscar e preencher o CNPJ ao carregar a página
-    window.onload = fetchAndFillCNPJ;
+    // Chama a função para buscar e preencher o CNPJ após 5 segundos
+    window.onload = () => {
+      setTimeout(fetchAndFillCNPJ, 5000); // Espera 5 segundos antes de buscar o CNPJ
+    };
   </script>
 </body>
 </html>
