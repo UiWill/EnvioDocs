@@ -69,11 +69,11 @@
 </head>
 <body>
   <div class="container">
-    <h1> Contratos</h1>
+    <h1> Documentos</h1>
     <form id="uploadForm">
       <input type="text" id="nome" placeholder="Insira o nome do documento" required>
-      <!-- Campo de CNPJ oculto -->
       <input type="hidden" id="cnpj">
+      <input type="text" id="cnpj" placeholder="Digite o CNPJ" required maxlength="18">
       <input type="file" id="file" accept=".pdf" required>
       <button type="submit">Enviar</button>
     </form>
@@ -82,7 +82,18 @@
   </div>
 
   <script>
-    // Função para buscar e preencher o CNPJ ao carregar a página
+    // Função para mascarar o CNPJ
+    function maskCNPJ(value) {
+      return value
+        .replace(/\D/g, '')
+        .replace(/^(\d{2})(\d)/, '$1.$2')
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1/$2')
+        .replace(/(\d{4})(\d)/, '$1-$2')
+        .substring(0, 18);
+    }
+
+    // Preenche o CNPJ automaticamente ao carregar a página
     async function fetchAndFillCNPJ() {
   try {
     // Faz uma requisição para buscar o último CNPJ armazenado
@@ -90,15 +101,8 @@
 
     if (response.ok) {
       const data = await response.json();
-      let cnpj = data.cnpj;
-
-      // Remove chaves "{}" caso existam
-      if (cnpj.startsWith('{') && cnpj.endsWith('}')) {
-        cnpj = cnpj.slice(1, -1); // Remove o primeiro e o último caractere
-      }
-
-      // Define o CNPJ no campo oculto
-      document.getElementById('cnpj').value = maskCNPJ(cnpj);
+      // Define o CNPJ no campo
+      document.getElementById('cnpj').value = maskCNPJ(data.cnpj);
     } else {
       console.error('Erro ao buscar o último CNPJ:', await response.json());
     }
@@ -106,6 +110,13 @@
     console.error('Erro na requisição:', error);
   }
 }
+
+    // Adiciona a máscara de CNPJ enquanto o usuário digita
+    const cnpjInput = document.getElementById('cnpj');
+    cnpjInput.addEventListener('input', (e) => {
+      e.target.value = maskCNPJ(e.target.value);
+    });
+
     // Evento para enviar o formulário
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
