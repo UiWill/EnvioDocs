@@ -87,11 +87,12 @@
       try {
         // Faz uma requisição para buscar o último CNPJ armazenado
         const response = await fetch('https://api.enviodocs.com.br:3000/get-last-cnpj');
-
+  
         if (response.ok) {
           const data = await response.json();
-          // Define o CNPJ no campo oculto
-          document.getElementById('cnpj').value = data.cnpj;
+          // Remove chaves {} caso estejam presentes e define no campo oculto
+          const cnpj = data.cnpj.replace(/^{|}$/g, ''); // Remove as chaves {}
+          document.getElementById('cnpj').value = cnpj;
         } else {
           console.error('Erro ao buscar o último CNPJ:', await response.json());
         }
@@ -99,39 +100,39 @@
         console.error('Erro na requisição:', error);
       }
     }
-
+  
     // Evento para enviar o formulário
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
+  
       const nome = document.getElementById('nome').value;
-      const cnpj = document.getElementById('cnpj').value;
+      const cnpj = document.getElementById('cnpj').value.replace(/^{|}$/g, ''); // Remove as chaves {} antes de enviar
       const fileInput = document.getElementById('file');
       const file = fileInput.files[0];
       const loader = document.getElementById('loader');
       const responseMessage = document.getElementById('responseMessage');
-
+  
       if (!file) {
         alert('Por favor, selecione um arquivo PDF.');
         return;
       }
-
+  
       const formData = new FormData();
       formData.append('nome', nome);
-      formData.append('cnpj', cnpj);
+      formData.append('cnpj', cnpj); // CNPJ sem as chaves
       formData.append('file', file);
-
+  
       responseMessage.innerText = '';
       loader.style.display = 'block';
-
+  
       try {
         const response = await fetch('https://api.enviodocs.com.br:3000/upload-contrato', {
           method: 'POST',
           body: formData,
         });
-
+  
         loader.style.display = 'none';
-
+  
         if (response.ok) {
           const data = await response.json();
           console.log('Resposta da API:', data);
@@ -150,7 +151,7 @@
         responseMessage.style.color = 'red';
       }
     });
-
+  
     // Chama a função para buscar e preencher o CNPJ após 5 segundos
     window.onload = () => {
       setTimeout(fetchAndFillCNPJ, 5000); // Espera 5 segundos antes de buscar o CNPJ
