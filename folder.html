@@ -96,6 +96,17 @@
             font-size: 0.9em;
             color: #555;
         }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .loading.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="explorer-container">
@@ -115,11 +126,14 @@
             </form>
         </div>
         <div id="status" class="upload-status"></div>
+        <div id="loading" class="loading">Carregando...</div>
     </div>
 
     <script>
         const fileInput = document.getElementById("file");
         const fileInfo = document.getElementById("fileInfo");
+        const loading = document.getElementById("loading");
+        const status = document.getElementById("status");
 
         fileInput.addEventListener("change", () => {
             if (fileInput.files[0]) {
@@ -160,6 +174,10 @@
             formData.append("file", file);
 
             try {
+                loading.classList.add("active");
+                status.classList.remove("success", "error");
+                status.innerText = "";
+
                 console.log(`Iniciando envio do arquivo: ${fileName} (Tipo: ${fileType}) para o endpoint: ${endpoint}`);
 
                 const response = await fetch(endpoint, {
@@ -174,14 +192,14 @@
                 const result = await response.json();
                 console.log(`Arquivo enviado com sucesso: ${fileName} (Tipo: ${fileType}). Resposta do servidor:`, result);
 
-                document.getElementById("status").innerText = `Sucesso: ${result.message}`;
-                document.getElementById("status").classList.remove("error");
-                document.getElementById("status").classList.add("success");
+                status.innerText = `Sucesso: ${result.message}`;
+                status.classList.add("success");
             } catch (error) {
                 console.error(`Erro ao enviar o arquivo: ${fileName} (Tipo: ${fileType}).`, error);
-                document.getElementById("status").innerText = `Erro ao enviar o arquivo: ${fileName}`;
-                document.getElementById("status").classList.remove("success");
-                document.getElementById("status").classList.add("error");
+                status.innerText = `Erro ao enviar o arquivo: ${fileName}`;
+                status.classList.add("error");
+            } finally {
+                loading.classList.remove("active");
             }
         });
     </script>
