@@ -90,7 +90,7 @@
 </head>
 <body class="explorer-container">
     <div class="explorer-header">
-        <h1 class="explorer-title">Uploadd de Arquivos</h1>
+        <h1 class="explorer-title">Upload de Arquivos</h1>
     </div>
     <div class="explorer-content">
         <div class="explorer-panel">
@@ -119,8 +119,7 @@
             }
 
             const file = fileInput.files[0];
-            const fileName = file.name;
-            const fileType = fileName.split(".").pop().toLowerCase();
+            const fileType = file.name.split(".").pop().toLowerCase();
 
             // Definir o endpoint com base no tipo do arquivo
             let endpoint;
@@ -136,8 +135,6 @@
             formData.append("file", file);
 
             try {
-                console.log(`Iniciando envio do arquivo: ${fileName} (Tipo: ${fileType}) para o endpoint: ${endpoint}`);
-
                 const response = await fetch(endpoint, {
                     method: "POST",
                     body: formData,
@@ -148,15 +145,11 @@
                 }
 
                 const result = await response.json();
-                console.log(`Arquivo enviado com sucesso: ${fileName} (Tipo: ${fileType}). Resposta do servidor:`, result);
-
-                document.getElementById("status").innerText = `Sucesso: ${result.message}`;
-                document.getElementById("status").classList.remove("error");
+                document.getElementById("status").innerText = result.message;
                 document.getElementById("status").classList.add("success");
             } catch (error) {
-                console.error(`Erro ao enviar o arquivo: ${fileName} (Tipo: ${fileType}).`, error);
-                document.getElementById("status").innerText = `Erro ao enviar o arquivo: ${fileName}`;
-                document.getElementById("status").classList.remove("success");
+                console.error("Erro ao fazer upload:", error);
+                document.getElementById("status").innerText = "Erro ao fazer upload.";
                 document.getElementById("status").classList.add("error");
             }
         });
