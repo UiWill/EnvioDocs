@@ -135,14 +135,26 @@
         const loading = document.getElementById("loading");
         const status = document.getElementById("status");
 
-        fileInput.addEventListener("change", () => {
-            if (fileInput.files[0]) {
-                const file = fileInput.files[0];
-                fileInfo.style.display = "block";
-                fileInfo.innerText = `Arquivo selecionado: ${file.name} (Tamanho: ${(file.size / 1024).toFixed(2)} KB)`;
-            } else {
-                fileInfo.style.display = "none";
-                fileInfo.innerText = "";
+        fileInput.addEventListener("change", async () => {
+            fileInfo.style.display = "none";
+            fileInfo.innerText = "";
+            loading.classList.add("active");
+
+            try {
+                if (fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    // Simula o carregamento do arquivo
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    fileInfo.style.display = "block";
+                    fileInfo.innerText = `Arquivo selecionado: ${file.name} (Tamanho: ${(file.size / 1024).toFixed(2)} KB)`;
+                } else {
+                    fileInfo.style.display = "none";
+                    fileInfo.innerText = "";
+                }
+            } catch (error) {
+                console.error("Erro ao carregar o arquivo", error);
+            } finally {
+                loading.classList.remove("active");
             }
         });
 
