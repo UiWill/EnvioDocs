@@ -119,7 +119,8 @@
             }
 
             const file = fileInput.files[0];
-            const fileType = file.name.split(".").pop().toLowerCase();
+            const fileName = file.name;
+            const fileType = fileName.split(".").pop().toLowerCase();
 
             // Definir o endpoint com base no tipo do arquivo
             let endpoint;
@@ -135,6 +136,8 @@
             formData.append("file", file);
 
             try {
+                console.log(`Iniciando envio do arquivo: ${fileName} (Tipo: ${fileType}) para o endpoint: ${endpoint}`);
+
                 const response = await fetch(endpoint, {
                     method: "POST",
                     body: formData,
@@ -145,11 +148,15 @@
                 }
 
                 const result = await response.json();
-                document.getElementById("status").innerText = result.message;
+                console.log(`Arquivo enviado com sucesso: ${fileName} (Tipo: ${fileType}). Resposta do servidor:`, result);
+
+                document.getElementById("status").innerText = `Sucesso: ${result.message}`;
+                document.getElementById("status").classList.remove("error");
                 document.getElementById("status").classList.add("success");
             } catch (error) {
-                console.error("Erro ao fazer upload:", error);
-                document.getElementById("status").innerText = "Erro ao fazer upload.";
+                console.error(`Erro ao enviar o arquivo: ${fileName} (Tipo: ${fileType}).`, error);
+                document.getElementById("status").innerText = `Erro ao enviar o arquivo: ${fileName}`;
+                document.getElementById("status").classList.remove("success");
                 document.getElementById("status").classList.add("error");
             }
         });
