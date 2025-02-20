@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Política de Privacidade</h1>
+    <p>Última atualização: [Data]</p>
+    <p>Bem-vindo à Política de Privacidade do nosso aplicativo. Seu uso do aplicativo implica na aceitação desta política.</p>
+    
+    <h2>1. Informações Coletadas</h2>
+    <p>Podemos coletar as seguintes informações quando você usa nosso aplicativo:</p>
+    <ul>
+        <li>Dados fornecidos pelo usuário (nome, e-mail, telefone, etc.).</li>
+        <li>Dados de uso e estatísticas do aplicativo.</li>
+        <li>Informações sobre o dispositivo (modelo, sistema operacional, etc.).</li>
+    </ul>
+    
+    <h2>2. Uso das Informações</h2>
+    <p>As informações coletadas são utilizadas para:</p>
+    <ul>
+        <li>Melhorar a experiência do usuário.</li>
+        <li>Fornecer suporte e assistência técnica.</li>
+        <li>Funcionalidade para controle da Contabilidade do cliente.</li>
+        <li>Cumprir obrigações legais.</li>
+    </ul>
+    
+    <h2>3. Compartilhamento de Dados</h2>
+    <p>Não compartilhamos suas informações com terceiros, exceto quando necessário para:</p>
+    <ul>
+        <li>Cumprir exigências legais.</li>
+        <li>Proteger nossos direitos.</li>
+        <li>Melhorar a funcionalidade do aplicativo através de serviços parceiros.</li>
+    </ul>
+    
+    <h2>4. Segurança</h2>
+    <p>Adotamos medidas de segurança para proteger suas informações, mas não podemos garantir 100% de segurança contra acessos não autorizados.</p>
+    
+    <h2>5. Seus Direitos</h2>
+    <p>Você pode solicitar a exclusão dos seus dados ou a revisão das informações coletadas entrando em contato conosco.</p>
+    
+    <h2>6. Alterações na Política</h2>
+    <p>Podemos atualizar esta política periodicamente. Recomendamos revisar regularmente para se manter informado.</p>
+    
+    <h2>7. Contato</h2>
+    <p>Se tiver dúvidas sobre esta política, entre em contato pelo e-mail: <strong>[william@enviodocs.com.br]</strong></p>
+</body>
+</html>
