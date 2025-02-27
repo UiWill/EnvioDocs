@@ -89,25 +89,26 @@
         }
 
         function preencherTabela(clientes) {
-            const tbody = document.querySelector("#tabelaClientes tbody");
-            tbody.innerHTML = "";
+    const tbody = document.querySelector("#tabelaClientes tbody");
+    tbody.innerHTML = "";
 
-            clientes.forEach(cliente => {
-                const row = document.createElement("tr");
+    clientes.forEach(cliente => {
+        const row = document.createElement("tr");
 
-                row.innerHTML = `
-                    <td>${cliente.NOME_CLIENTE}</td>
-                    <td class="${cliente.HONORARIOS === 'Enviado' ? 'enviado' : 'pendente'}">${cliente.HONORARIOS}</td>
-                    <td class="${cliente.DARF === 'Enviado' ? 'enviado' : 'pendente'}">${cliente.DARF}</td>
-                    <td class="${cliente.FGTS === 'Enviado' ? 'enviado' : 'pendente'}">${cliente.FGTS}</td>
-                    <td class="${cliente.HOLERITE === 'Enviado' ? 'enviado' : 'pendente'}">${cliente.HOLERITE}</td>
-                    <td class="${cliente.DAE === 'Enviado' ? 'enviado' : 'pendente'}">${cliente.DAE}</td>
-                    <td class="${cliente.PGDAS === 'Enviado' ? 'enviado' : 'pendente'}">${cliente.PGDAS}</td>
-                `;
+        row.innerHTML = `
+            <td>${cliente.NOME_CLIENTE}</td>
+            <td class="${cliente.HONORARIOS !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.HONORARIOS}</td>
+            <td class="${cliente.DARF !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.DARF}</td>
+            <td class="${cliente.FGTS !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.FGTS}</td>
+            <td class="${cliente.HOLERITE !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.HOLERITE}</td>
+            <td class="${cliente.DAE !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.DAE}</td>
+            <td class="${cliente.PGDAS !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.PGDAS}</td>
+        `;
 
-                tbody.appendChild(row);
-            });
-        }
+        tbody.appendChild(row);
+    });
+}
+
 
         async function fetchLastCNPJ() {
             try {
