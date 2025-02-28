@@ -97,17 +97,30 @@
 
         row.innerHTML = `
             <td>${cliente.NOME_CLIENTE}</td>
-            <td class="${cliente.HONORARIOS !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.HONORARIOS}</td>
-            <td class="${cliente.DARF !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.DARF}</td>
-            <td class="${cliente.FGTS !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.FGTS}</td>
-            <td class="${cliente.HOLERITE !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.HOLERITE}</td>
-            <td class="${cliente.DAE !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.DAE}</td>
-            <td class="${cliente.PGDAS !== 'Pendente' ? 'enviado' : 'pendente'}">${cliente.PGDAS}</td>
+            <td class="${cliente.HONORARIOS !== 'Pendente' ? 'enviado' : 'pendente'}">
+                ${cliente.HONORARIOS !== 'Pendente' ? cliente.HONORARIOS : 'Pendente'}
+            </td>
+            <td class="${cliente.DARF !== 'Pendente' ? 'enviado' : 'pendente'}">
+                ${cliente.DARF !== 'Pendente' ? cliente.DARF : 'Pendente'}
+            </td>
+            <td class="${cliente.FGTS !== 'Pendente' ? 'enviado' : 'pendente'}">
+                ${cliente.FGTS !== 'Pendente' ? cliente.FGTS : 'Pendente'}
+            </td>
+            <td class="${cliente.HOLERITE !== 'Pendente' ? 'enviado' : 'pendente'}">
+                ${cliente.HOLERITE !== 'Pendente' ? cliente.HOLERITE : 'Pendente'}
+            </td>
+            <td class="${cliente.DAE !== 'Pendente' ? 'enviado' : 'pendente'}">
+                ${cliente.DAE !== 'Pendente' ? cliente.DAE : 'Pendente'}
+            </td>
+            <td class="${cliente.PGDAS !== 'Pendente' ? 'enviado' : 'pendente'}">
+                ${cliente.PGDAS !== 'Pendente' ? cliente.PGDAS : 'Pendente'}
+            </td>
         `;
 
         tbody.appendChild(row);
     });
 }
+
 
 
 
