@@ -4,22 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EnvioDocs</title>
+    <title>EnvioDocs - Como Funciona</title>
 
     <!--CSS-->
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/responsividade.css">
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!--Bootstrap Icons-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-        integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- AOS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
     
+    <!-- GSAP para animações avançadas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.27/bundled/lenis.min.js"></script>
 </head>
 
+
 <body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation" id="loaderAnimation"></div>
+        </div>
+    </div>
 
     <!--Botão voltar ao topo-->
     <div id="backToTop" class="fixed-button">
@@ -37,7 +54,7 @@
         <!--Header-->
         <header class="header">
             <div class="logo">
-                <img src="assets/img/SUA-LOGO-AQUI.png" alt="">
+                <img src="assets/img/logo.PNG" alt="EnvioDocs Logo">
             </div>
             <div class="menu">
                 <label class="hamburger">
@@ -52,78 +69,281 @@
             </div>
             <div class="menu-aberto">
                 <nav class="nav-menu">
-                    <a href="#inicio">INÍCIO</a>
-                    <a href="#sobre">SOBRE</a>
-                    <a href="#servicos">SERVIÇOS</a>
-                    <a href="#portfolio">CLIENTES</a>
-                    <a href="#contato">CONTATO</a>
+                    <a href="index.html#inicio">INÍCIO</a>
+                    <a href="index.html#sobre">SOBRE</a>
+                    <a href="index.html#portfolio">PLANOS</a>
+                    <a href="index.html#contato">CONTATO</a>
                 </nav>
             </div>
-
         </header>
         <!--Fim Header-->
-        <main id="inicio" class="inicio">
-            <div class="container-inicio">
-                <div class="conteudo-inicio" data-aos="fade-up" data-aos-duration="1000">
-                    <div class="titulo-inicio">
-                        <h1>Como funciona?</h1>
-                    </div>
-                    <div class="paragrafo-inicio" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
-                        <p>1. Liberamos o Site para sua Contabilidade e o App para seus clientes</p>
-                        <br>
-                        <p>2. Com o site você tera controle sobre os codumentos enviados para seu clientes e sobre os comprovates dos pagamentos de seus honoriros e etc</p>
-                            <br>
-                            <p>3. Com o app seus clientes poderam visualizar os seus respectivos Boletos, documentos e etc</p>
-                           
-                            <br>
-            </div>
-        </main>
-      
-      
 
-        <footer class="footer" id="footer">
+        <!-- Hero -->
+        <section class="page-hero">
+            <div class="page-hero-content">
+                <h1 data-aos="fade-up" data-aos-duration="1000">Como Funciona o <span class="text-gradient">EnvioDocs</span></h1>
+                <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Entenda o processo completo de compartilhamento de documentos contábeis com seus clientes</p>
+            </div>
+            <div class="page-hero-pattern" data-aos="fade" data-aos-duration="1500"></div>
+        </section>
+
+        <!-- Fluxo de Trabalho -->
+        <section class="workflow-section">
+            <div class="workflow-container">
+                <div class="section-title" data-aos="fade-up">
+                    <h2>Fluxo de Trabalho</h2>
+                    <p>Um processo simplificado em poucos passos</p>
+                </div>
+
+                <div class="workflow-timeline">
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="100">
+                        <div class="timeline-icon">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h3>1. Cadastro</h3>
+                            <p>O escritório contábil se cadastra na plataforma EnvioDocs e adiciona seus clientes.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="200">
+                        <div class="timeline-icon">
+                            <i class="bi bi-folder-plus"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h3>2. Organização</h3>
+                            <p>Crie pastas e subpastas para organizar os documentos por cliente, categoria ou período.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="300">
+                        <div class="timeline-icon">
+                            <i class="bi bi-cloud-upload"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h3>3. Upload</h3>
+                            <p>Faça o upload dos documentos contábeis de cada cliente de forma rápida e simples.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="400">
+                        <div class="timeline-icon">
+                            <i class="bi bi-envelope-check"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h3>4. Notificação</h3>
+                            <p>Os clientes recebem notificações por e-mail quando novos documentos são disponibilizados.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="500">
+                        <div class="timeline-icon">
+                            <i class="bi bi-laptop"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h3>5. Acesso</h3>
+                            <p>Clientes acessam a plataforma com login e senha para visualizar seus documentos.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="600">
+                        <div class="timeline-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h3>6. Relatórios</h3>
+                            <p>Monitore quais documentos foram visualizados e baixados pelos clientes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recursos -->
+        <section class="features-section">
+            <div class="section-pattern-top"></div>
+            <div class="features-container">
+                <div class="section-title" data-aos="fade-up">
+                    <h2>Recursos Exclusivos</h2>
+                    <p>Ferramentas que facilitam seu trabalho</p>
+                </div>
+
+                <div class="features-cards">
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="feature-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h3>Segurança Avançada</h3>
+                        <p>Criptografia de ponta a ponta, autenticação de dois fatores e controle detalhado de permissões.</p>
+                    </div>
+
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="feature-icon">
+                            <i class="bi bi-grid-1x2"></i>
+                        </div>
+                        <h3>Interface Intuitiva</h3>
+                        <p>Design moderno e fácil de usar, adaptado para todos os dispositivos móveis e desktop.</p>
+                    </div>
+
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="feature-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <h3>Histórico Completo</h3>
+                        <p>Mantenha um registro completo de todos os documentos enviados e acessados.</p>
+                    </div>
+
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+                        <div class="feature-icon">
+                            <i class="bi bi-tags"></i>
+                        </div>
+                        <h3>Categorização</h3>
+                        <p>Organize documentos por tags, categorias ou períodos para facilitar a busca.</p>
+                    </div>
+
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                        <div class="feature-icon">
+                            <i class="bi bi-arrows-angle-expand"></i>
+                        </div>
+                        <h3>Escalabilidade</h3>
+                        <p>Cresça conforme sua necessidade, desde pequenos escritórios até grandes empresas.</p>
+                    </div>
+
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
+                        <div class="feature-icon">
+                            <i class="bi bi-buildings"></i>
+                        </div>
+                        <h3>Multi-empresa</h3>
+                        <p>Gerencie múltiplos clientes e empresas em uma única plataforma centralizada.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="section-pattern-bottom"></div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <div class="cta-container">
+                <h2 data-aos="fade-up">Pronto para começar?</h2>
+                <p data-aos="fade-up" data-aos-delay="100">Transforme a forma como você compartilha documentos com seus clientes</p>
+                <div class="cta-buttons" data-aos="fade-up" data-aos-delay="200">
+                    <a href="#" class="btn-primary">Experimente Grátis</a>
+                    <a href="#" class="btn-secondary">Agendar Demonstração</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
             <div class="container-footer">
                 <div class="footer-column logo-column">
-                    <img src="assets/img/SUA-LOGO-AQUI.png" alt="">
+                    <img src="assets/img/logo.PNG" alt="EnvioDocs Logo">
                 </div>
                 <div class="footer-column menu-column">
-                    <ul class="social-links">
-                        <li><a href="index.html"><i class=""></i> EnvioDocs </a></li>
-                        <li><a href="comoFunciona.html"><i class=""></i> Como funciona</a></li>
-                        <li><a href="funcoes.html"><i class=""></i> Funções</a></li>
-                       
-                    </ul>
+                    <nav class="footer-nav">
+                        <a href="index.html">Início</a>
+                        <a href="comoFunciona.html">Como Funciona</a>
+                        <a href="funcoes.html">Funções</a>
+                        <a href="index.html#contato">Contato</a>
+                    </nav>
                 </div>
                 <div class="footer-column social-column">
-                    <ul class="social-links">
-                    </ul>
+                    <div class="social-links">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column credits-column">
+                    <p>&copy; 2023 EnvioDocs. Todos os direitos reservados.</p>
                 </div>
             </div>
-            <div class="footer-column credits-column">
-                <p>&copy; 2024 Todos os direitos reservados.</p>
-                <p>Desenvolvido por William Martins│Dev.</p>
-            </div>
         </footer>
-
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-
-    <!-- AOS -->
+    <!-- Script AOS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-    <!-- Inicialização do AOS -->
-    <script>
-        AOS.init();
-    </script>
-
-    <!--JavaScript-->
-    <script src="assets/js/header.js"></script>
-    <script src="assets/js/actionButton.js"></script>
+    <!-- Scripts personalizados -->
     <script src="assets/js/menu.js"></script>
-    <script src="assets/js/slideSobre.js"></script>
-    <script src="assets/js/slidePortfolio.js"></script>
+    <script src="assets/js/actionButton.js"></script>
+    
+    <script>
+        // Inicializar AOS
+        AOS.init({
+            duration: 800,
+            once: false
+        });
+        
+        // Inicializar Smooth Scroll com Lenis
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
 
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+        
+        // Loader
+        window.addEventListener('load', () => {
+            const loaderWrapper = document.querySelector('.loader-wrapper');
+            setTimeout(() => {
+                loaderWrapper.classList.add('loader-hidden');
+            }, 1000);
+        });
+        
+        // Animações GSAP para elementos na página
+        document.addEventListener('DOMContentLoaded', () => {
+            // Timeline animation
+            gsap.registerPlugin(ScrollTrigger);
+            
+            gsap.from('.timeline-item', {
+                scrollTrigger: {
+                    trigger: '.workflow-timeline',
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none none'
+                },
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                duration: 1,
+                ease: 'power3.out'
+            });
+            
+            // Feature cards hover effect
+            const cards = document.querySelectorAll('.feature-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(card, {
+                        y: -10,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, {
+                        y: 0,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

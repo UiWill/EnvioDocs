@@ -1,9 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Ajusta para garantir que o site comece no topo ao recarregar
-    if (window.location.hash !== '#inicio') {
-        window.location.hash = '#inicio';
-    }
-
+    // Botões fixos
     const backToTopButton = document.getElementById('backToTop');
     const whatsappButton = document.getElementById('whatsappButton');
 
@@ -27,8 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Inicializa os botões
+    toggleButtons();
+
     // Adiciona o evento de scroll para exibir ou esconder os botões
-    document.addEventListener('scroll', toggleButtons);
+    window.addEventListener('scroll', toggleButtons);
 
     // Ação ao clicar no botão "Voltar ao Topo"
     backToTopButton.addEventListener('click', function () {

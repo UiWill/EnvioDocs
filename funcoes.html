@@ -1,220 +1,499 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnvioDocs - Funções</title>
 
-    <!-- FAVICON -->
-    <link rel="icon" type="image/x-icon" href="assets/image/favicon-rmdev.ico">
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
 
-    <title>Envio Docs │ Funções</title>
-    <meta name="description"
-        content="">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="assets/css/style2.css">
-    <link rel="stylesheet" href="assets/css/responsividade2.css">
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <!--AOS CSS-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-
-    <!--EmailJS-->
-    <script type="text/javascript" src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80XVHS2NWN">
-    </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-80XVHS2NWN');
-    </script>
-
-    <!-- Meta Pixel Code -->
-    <script>
-        !function (f, b, e, v, n, t, s) {
-            if (f.fbq) return; n = f.fbq = function () {
-                n.callMethod ?
-                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-            };
-            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-            n.queue = []; t = b.createElement(e); t.async = !0;
-            t.src = v; s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s)
-        }(window, document, 'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '756368293168994');
-        fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-            src="https://www.facebook.com/tr?id=756368293168994&ev=PageView&noscript=1" /></noscript>
-    <!-- End Meta Pixel Code -->
-
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    
+    <!-- GSAP para animações avançadas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Lottie para animações vetoriais -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    
+    <!-- Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.27/bundled/lenis.min.js"></script>
 </head>
 
 <body>
-    
-    <div class="loader"></div>
-    <!--End HEADER-->
-
-    <!--Start Section Services-->
-    <section id="services" class="services">
-        <div class="container-services">
-
-            <div class="headline" data-aos="fade-up" data-aos-delay="100">
-                <span class="destaque">Envio Docs</span>
-                <h1>Descubra nossas funcionalidades</h1>
-            </div>
-
-         <!--start services content-->
-<div class="content-services">
-    <div class="card-service" data-aos="zoom-in" data-aos-delay="150">
-        <i class="fa fa-laptop-code"></i>
-        <h2>Envio Rápido e Seguro de Documentos</h2>
-        <p>Realize o upload de arquivos de maneira ágil, protegida e sem complicações, garantindo máxima eficiência no envio de documentos.</p>
-    </div>
-    
-    <div class="card-service" data-aos="zoom-in" data-aos-delay="200">
-        <i class="fa fa-mobile-alt"></i>
-        <h2>App Exclusivo para seus Clientes</h2>
-        <p>Seus clientes podem acessar, baixar documentos  e enviar comprovantes diretamente para a contabilidade, tudo em um só lugar.</p>
-    </div>
-    
-    <div class="card-service" data-aos="zoom-in" data-aos-delay="250">
-        <i class="fa fa-tools"></i>
-        <h2>Máxima Segurança e Privacidade</h2>
-        <p>Seus arquivos são protegidos por criptografia avançada, garantindo total sigilo e segurança no armazenamento e compartilhamento de informações.</p>
-    </div>
-
-    <div class="card-service" data-aos="zoom-in" data-aos-delay="300">
-        <i class="fa fa-headset"></i>
-        <h2>Suporte Técnico Especializado</h2>
-        <p>Conte com uma equipe sempre disponível para oferecer suporte rápido e eficiente, garantindo que seus processos funcionem sem interrupções.</p>
-    </div>
-
-    <div class="card-service" data-aos="zoom-in" data-aos-delay="400">
-        <i class="fa fa-cloud"></i>
-        <h2>Gestão Inteligente de Documentos</h2>
-        <p>Com o Envio-Docs, acompanhe em tempo real quais documentos já foram enviados e identifique facilmente os arquivos que ainda precisam ser enviados.</p>
-    </div>
-</div>
-
-                
-            </div>
-            <!--end services content-->
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation" id="loaderAnimation"></div>
         </div>
+    </div>
 
-        <!--Scroll animation-->
-        <div class="chevron-down">
-            <img src="assets/image/scroll-icon.png" alt="image">
-        </div>
+    <!--Botão voltar ao topo-->
+    <div id="backToTop" class="fixed-button">
+        <i class="bi bi-chevron-up"></i>
+    </div>
 
-    </section>
-    <!--End Section Services-->
+    <!--Botão WhatsApp-->
+    <div id="whatsappButton" class="fixed-button">
+        <i class="bi bi-whatsapp"></i>
+    </div>
 
-    <!--Start Section Testimonial-->
-    <section id="testimonial" class="testimonial" data-aos="fade-up">
-        <div class="container-testimonial">
-            <div class="headline" data-aos="fade-up" data-aos-delay="100">
-                <span class="destaque">O que dizem sobre o Envio-Docs</span>
-                <h1>Depoimentos</h1>
+    <!--Container Geral-->
+    <div class="container">
+
+        <!--Header-->
+        <header class="header">
+            <div class="logo">
+                <img src="assets/img/logo.PNG" alt="EnvioDocs Logo">
             </div>
+            <div class="menu">
+                <label class="hamburger">
+                    <input type="checkbox" id="menuToggle">
+                    <svg viewBox="0 0 32 32">
+                        <path class="line line-top-bottom"
+                            d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22">
+                        </path>
+                        <path class="line" d="M7 16 27 16"></path>
+                    </svg>
+                </label>
+            </div>
+            <div class="menu-aberto">
+                <nav class="nav-menu">
+                    <a href="index.html#inicio">INÍCIO</a>
+                    <a href="index.html#sobre">SOBRE</a>
+                    <a href="index.html#portfolio">PLANOS</a>
+                    <a href="index.html#contato">CONTATO</a>
+                </nav>
+            </div>
+        </header>
+        <!--Fim Header-->
 
-            <div class="content-testmonial">
-                <!--Headline Skills-->
-               
-                <div class="testimonial-info" data-aos="fade-left" data-aos-delay="175">
-                    <div class="owl-carousel owl-theme">
-                        <div class="item" data-aos="fade-up" data-aos-delay="200">
-                                   <!--Imagem da pessoa-->
-                            <img src="assets/img/roberto-adv.jpg" alt="user">
-                                   <!--Nome da pessoa-->
-                            <h2>Am Contabilidade</h2>
-                            <!--oque faz essa pessoa-->
-                            <span></span>
-                            <!--depoimento-->
-                            <p>Excelente trabalho! Site e app inovador e Dinamico. automatizou meus processos da empresa em 100%, parabéns pelo trabalho</p>
+        <!-- Hero -->
+        <section class="page-hero" style="margin-bottom: 0; padding-bottom: 0; background: transparent;">
+            <div class="page-hero-content">
+                <h1 data-aos="fade-up" data-aos-duration="1000">Funções do <span class="text-gradient">EnvioDocs</span></h1>
+                <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Conheça todas as funcionalidades que tornam o EnvioDocs a solução ideal para seu escritório contábil</p>
+            </div>
+        </section>
+
+        <div style="margin-top: -200px; padding: 0;">
+            <!-- Funções -->
+            <section class="features-section" style="padding: 0; background: transparent; margin: 0;">
+                <div class="features-container" style="background: transparent; padding: 0; margin-bottom: -100px;">
+                    <div class="features-cards" style="margin: 0; padding: 0; background: transparent;">
+                        <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                            <div class="feature-icon">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <h3>Envio Rápido de Documentos</h3>
+                            <p>Compartilhe documentos contábeis com seus clientes de forma rápida, segura e organizada.</p>
                         </div>
 
-                        <div class="item" data-aos="fade-up" data-aos-delay="225">
-                            <img src="assets/img/Luisa-Consultora.jpg" alt="user">
-                            <h2>Diego Contabilidade</h2>
-                            <span></span>
-                            <p>Parabéns pela excelência! com a nova API meus proscessos de documentos ficaram divinos.</p>
+                        <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="feature-icon">
+                                <i class="bi bi-folder-check"></i>
+                            </div>
+                            <h3>Organização Inteligente</h3>
+                            <p>Crie pastas e categorias personalizadas para manter todos os documentos organizados por cliente.</p>
+                        </div>
+
+                        <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                            <div class="feature-icon">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <h3>Gestão de Boletos</h3>
+                            <p>Envie boletos automaticamente para seus clientes e acompanhe o status de pagamento.</p>
+                        </div>
+
+                        <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-lock"></i>
+                            </div>
+                            <h3>Segurança Avançada</h3>
+                            <p>Proteção de dados com criptografia e controle de acesso personalizado para cada cliente.</p>
+                        </div>
+
+                        <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                            <div class="feature-icon">
+                                <i class="bi bi-phone"></i>
+                            </div>
+                            <h3>Aplicativo Mobile</h3>
+                            <p>Seus clientes podem acessar documentos e enviar comprovantes pelo smartphone a qualquer momento.</p>
+                        </div>
+
+                        <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
+                            <div class="feature-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <h3>Relatórios Detalhados</h3>
+                            <p>Acompanhe quais documentos foram visualizados, baixados ou estão pendentes de pagamento.</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Funcionalidades Específicas -->
+            <section class="workflow-section" style="padding-top: 0; margin-top: 0;">
+                <div class="workflow-container" style="padding-top: 0;">
+                    <div class="section-title" data-aos="fade-up" style="margin-top: 0;">
+                        <h2>Plataforma Completa</h2>
+                        <p>Conheça as funcionalidades específicas do site e do aplicativo</p>
+                    </div>
+
+                    <div class="features-container" style="margin-top: 50px;">
+                        <div class="row" style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+                            <!-- Funcionalidades do Site (Escritório Contábil) -->
+                            <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-right">
+                                <div style="text-align: center; margin-bottom: 30px;">
+                                    <i class="bi bi-laptop" style="font-size: 3rem; color: var(--color-destaque1);"></i>
+                                    <h3 style="font-family: var(--font-grande); font-size: 1.8rem; margin: 15px 0; color: var(--color-white);">Site para Escritórios</h3>
+                                    <p style="color: var(--color-gray2); margin-bottom: 20px;">Painel administrativo completo para gerenciar todos os seus clientes</p>
+                                </div>
+                                
+                                <ul style="list-style: none; padding: 0;">
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Cadastro e gerenciamento de múltiplos clientes</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Upload em massa de documentos e boletos</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Organização de documentos por categorias e pastas</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Controle de vencimentos e pagamentos de boletos</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Envio de notificações para clientes</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Relatórios de visualização e download de documentos</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Histórico completo de atividades por cliente</span>
+                                    </li>
+                                    <li style="display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Configurações de permissões e níveis de acesso</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Funcionalidades do App (Clientes) -->
+                            <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-left">
+                                <div style="text-align: center; margin-bottom: 30px;">
+                                    <i class="bi bi-phone" style="font-size: 3rem; color: var(--color-destaque2);"></i>
+                                    <h3 style="font-family: var(--font-grande); font-size: 1.8rem; margin: 15px 0; color: var(--color-white);">App para Clientes</h3>
+                                    <p style="color: var(--color-gray2); margin-bottom: 20px;">Acesso simplificado a todos os documentos e boletos</p>
+                                </div>
+                                
+                                <ul style="list-style: none; padding: 0;">
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Login seguro com autenticação de dois fatores</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Visualização de documentos contábeis em qualquer lugar</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Notificações push sobre novos documentos e boletos</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Download de boletos para pagamento no banco</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Envio de comprovantes de pagamento com foto</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Histórico completo de documentos e pagamentos</span>
+                                    </li>
+                                    <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                        <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); flex-shrink: 0; margin-top: 5px;"></i>
+                                        <span style="color: var(--color-white);">Download de documentos para visualização offline</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Benefícios e Controle -->
+            <section class="features-section" style="background-color: var(--color-black);">
+                <div class="features-container">
+                    <div class="section-title" data-aos="fade-up">
+                        <h2>Controle Total do Seu Negócio</h2>
+                        <p>Transforme a gestão documental do seu escritório contábil</p>
+                    </div>
+
+                    <div style="margin-top: 60px;" data-aos="fade-up">
+                        <!-- Controle de Documentos -->
+                        <div style="margin-bottom: 80px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 30px; border-left: 4px solid var(--color-destaque1); padding-left: 20px;">
+                                <i class="bi bi-file-earmark-check" style="font-size: 2.5rem; color: var(--color-destaque1); margin-right: 20px;"></i>
+                                <h3 style="font-family: var(--font-grande); font-size: 2rem; color: var(--color-white); margin: 0;">Controle Completo de Documentos</h3>
+                            </div>
+                            
+                            <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 30px;">
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="100">
+                                    <h4 style="color: var(--color-destaque1); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Rastreamento em Tempo Real
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Acompanhe o status de cada documento enviado aos seus clientes. Saiba exatamente quais foram pagos,  ou ainda não foram pagos, permitindo follow-ups direcionados.</p>
+                                </div>
+                                
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="200">
+                                    <h4 style="color: var(--color-destaque1); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Organização Inteligente
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Estruture seus documentos em categorias personalizadas por cliente, tipo ou período. Encontre qualquer arquivo em segundos com o sistema de busca avançada e filtros inteligentes.</p>
+                                </div>
+                                
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="300">
+                                    <h4 style="color: var(--color-destaque1); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Histórico Completo
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Mantenha um registro detalhado de todos os envios de documentos. Saiba quais foram enviados, garantindo total transparência e conformidade.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gestão de Clientes -->
+                        <div style="margin-bottom: 80px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 30px; border-left: 4px solid var(--color-destaque2); padding-left: 20px;">
+                                <i class="bi bi-people" style="font-size: 2.5rem; color: var(--color-destaque2); margin-right: 20px;"></i>
+                                <h3 style="font-family: var(--font-grande); font-size: 2rem; color: var(--color-white); margin: 0;">Gestão Eficiente de Clientes</h3>
+                            </div>
+                            
+                            <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 30px;">
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="100">
+                                    <h4 style="color: var(--color-destaque2); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Perfis Personalizados
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Crie perfis detalhados para cada cliente com informações relevantes, preferências de comunicação e histórico completo de interações, centralizando todos os dados importantes.</p>
+                                </div>
+                                
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="200">
+                                    <h4 style="color: var(--color-destaque2); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Segmentação Avançada
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Envie documentos diversificados para clientes, setores ou necessidades específicas. Otimizando seu fluxo de trabalho diário.</p>
+                                </div>
+                                
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="300">
+                                    <h4 style="color: var(--color-destaque2); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Comunicação Integrada
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Mantenha canais de comunicação diretos com seus clientes através da plataforma, e envie lembretes, tudo em um único ambiente.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Controle Financeiro -->
+                        <div>
+                            <div style="display: flex; align-items: center; margin-bottom: 30px; border-left: 4px solid var(--color-destaque1); padding-left: 20px;">
+                                <i class="bi bi-cash-stack" style="font-size: 2.5rem; color: var(--color-destaque1); margin-right: 20px;"></i>
+                                <h3 style="font-family: var(--font-grande); font-size: 2rem; color: var(--color-white); margin: 0;">Controle Financeiro Completo</h3>
+                            </div>
+                            
+                            <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 30px;">
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="100">
+                                    <h4 style="color: var(--color-destaque1); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Gestão de Boletos
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Acompanhe o status de cada boleto enviado, reduza inadimplência com lembretes e avisos para seus clientes.</p>
+                                </div>
+                                
+                                <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1);" data-aos="fade-up" data-aos-delay="200">
+                                    <h4 style="color: var(--color-destaque1); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center;">
+                                        <i class="bi bi-arrow-right-circle-fill" style="margin-right: 10px;"></i>
+                                        Comprovantes Digitais
+                                    </h4>
+                                    <p style="color: var(--color-gray2); line-height: 1.6;">Receba e organize comprovantes de pagamento enviados pelos clientes diretamente pelo aplicativo. Vincule-os automaticamente aos respectivos boletos para controle simplificado.</p>
+                                </div>
+                                
+                            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA -->
+            <section class="cta-section">
+                <div class="cta-container">
+                    <h2 data-aos="fade-up">Pronto para começar?</h2>
+                    <p data-aos="fade-up" data-aos-delay="100">Transforme a forma como você compartilha documentos com seus clientes</p>
+                    <div class="cta-buttons" data-aos="fade-up" data-aos-delay="200">
+                        <a href="#" class="btn-primary">Experimente Grátis</a>
+                        <a href="#" class="btn-secondary">Agendar Demonstração</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="container-footer">
+                    <div class="footer-column logo-column">
+                        <img src="assets/img/logo.PNG" alt="EnvioDocs Logo">
+                    </div>
+                    <div class="footer-column menu-column">
+                        <nav class="footer-nav">
+                            <a href="index.html">Início</a>
+                            <a href="funcoes.html">Funções</a>
+                            <a href="index.html#contato">Contato</a>
+                        </nav>
+                    </div>
+                    <div class="footer-column social-column">
+                        <div class="social-links">
+                            <a href="#"><i class="bi bi-facebook"></i></a>
+                            <a href="#"><i class="bi bi-instagram"></i></a>
+                            <a href="#"><i class="bi bi-linkedin"></i></a>
+                            <a href="#"><i class="bi bi-whatsapp"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-column credits-column">
+                        <p>suporte@enviodocs.com.br</p>
+                        <p>Rua Doutor Miguel Gontijo, 181, Centro, Bom despacho CEP: 35630-016</p>
+                        <p>&copy; 2023 EnvioDocs. Todos os direitos reservados.</p>
+                    </div>
+                </div>
+            </footer>
         </div>
-    </section>
-    <!--End Section Testimonial-->
+    </div>
 
-    <!--Footer-->
-    <footer class="footer" id="footer">
-        <div class="container-footer">
-            <div class="footer-column logo-column">
-                <img src="assets/img/SUA-LOGO-AQUI.png" alt="">
-            </div>
-            <div class="footer-column menu-column">
-                <ul class="social-links">
-                    <li><a href="index.html"><i class=""></i> EnvioDocs </a></li>
-                    <li><a href="comoFunciona.html"><i class=""></i> Como funciona</a></li>
-                    <li><a href="funcoes.html"><i class=""></i> Funções</a></li>
-                   
-                </ul>
-            </div>
-            <div class="footer-column social-column">
-                <ul class="social-links">
-                </ul>
-            </div>
-        </div>
-    </footer>
-    <!--End Footer-->
+    <!-- Script AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-
-    <!--OwlCarousel-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-
+    <!-- Scripts personalizados -->
+    <script src="assets/js/menu.js"></script>
+    <script src="assets/js/actionButton.js"></script>
+    
     <script>
-        $(document).ready(function() {
-            $('.owl-carousel').owlCarousel({
+        // Inicializar AOS
+        AOS.init({
+            duration: 800,
+            once: false
+        });
+        
+        // Inicializar Smooth Scroll com Lenis
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+        
+        // Loader
+        window.addEventListener('load', () => {
+            const loaderWrapper = document.querySelector('.loader-wrapper');
+            setTimeout(() => {
+                loaderWrapper.classList.add('loader-hidden');
+            }, 1000);
+        });
+        
+        // Inicializar Lottie para animação do loader
+        document.addEventListener('DOMContentLoaded', () => {
+            const animation = lottie.loadAnimation({
+                container: document.getElementById('loaderAnimation'),
+                renderer: 'svg',
                 loop: true,
-                margin: 32,
-                nav: false,
-                dots: true,
                 autoplay: true,
-                autoplayTimeout: 3000,
-                autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 1 },
-                    768: { items: 2 },
-                    1025: { items: 2 },
-                    1500: { items: 3 }
-                }
+                path: 'https://assets5.lottiefiles.com/packages/lf20_yyjasr1f.json'
+            });
+            
+            // Animações GSAP para elementos na página
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Feature cards animation
+            gsap.from('.feature-card', {
+                scrollTrigger: {
+                    trigger: '.features-cards',
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none none'
+                },
+                y: 50,
+                opacity: 0,
+                stagger: 0.1,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+            
+            // Timeline animation
+            gsap.from('.timeline-item', {
+                scrollTrigger: {
+                    trigger: '.workflow-timeline',
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none none'
+                },
+                x: -50,
+                opacity: 0,
+                stagger: 0.2,
+                duration: 1,
+                ease: 'power3.out'
+            });
+            
+            // Testimonial cards animation
+            gsap.from('.testimonial-card', {
+                scrollTrigger: {
+                    trigger: '.testimonials-grid',
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                },
+                y: 30,
+                opacity: 0,
+                stagger: 0.3,
+                duration: 1,
+                ease: 'power2.out'
             });
         });
     </script>
-    
-    <!--Scripts-->
-    <script src="assets/js/imageScroll.js"></script>
-    <script src="assets/js/menu.js"></script>
-    <script src="assets/js/headerAnimation.js"></script>
-    <script src="assets/js/textAnimation.js"></script>
-    <script src="assets/js/particles.js"></script>
-    <script src="assets/js/changePagesAnimation.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script>
-        AOS.init();
-    </script>
-
 </body>
 
 </html>
+
