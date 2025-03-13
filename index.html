@@ -474,8 +474,6 @@
 
     <!-- Inicialização do AOS -->
     <script>
-        AOS.init();
-        
         // Loader
         window.addEventListener('load', () => {
             const loaderWrapper = document.querySelector('.loader-wrapper');
@@ -494,25 +492,66 @@
                 path: 'https://assets5.lottiefiles.com/packages/lf20_yyjasr1f.json'
             });
             
-            // Inicializar Smooth Scroll com Lenis
-            const lenis = new Lenis({
-                duration: 1.2,
-                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                orientation: 'vertical',
-                gestureOrientation: 'vertical',
-                smoothWheel: true,
-                wheelMultiplier: 1,
-                smoothTouch: false,
-                touchMultiplier: 2,
-                infinite: false,
-            });
-
-            function raf(time) {
-                lenis.raf(time);
-                requestAnimationFrame(raf);
+            // Detectar dispositivos de baixo desempenho
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isLowPerformance = isMobile || window.matchMedia('(max-width: 768px)').matches;
+            
+            // Reduzir animações em dispositivos de baixo desempenho
+            if (isLowPerformance) {
+                // Desativar algumas animações AOS para melhorar o desempenho
+                const animatedElements = document.querySelectorAll('[data-aos]');
+                animatedElements.forEach((el, index) => {
+                    // Manter apenas algumas animações essenciais
+                    if (index % 3 !== 0) {
+                        el.removeAttribute('data-aos');
+                        el.removeAttribute('data-aos-delay');
+                        el.removeAttribute('data-aos-duration');
+                    }
+                });
+                
+                // Otimizar parallax e efeitos de fundo
+                const parallaxSection = document.querySelector('.parallax-section');
+                if (parallaxSection) {
+                    parallaxSection.style.backgroundAttachment = 'scroll';
+                    const parallaxBg = parallaxSection.querySelector('.parallax-bg');
+                    if (parallaxBg) {
+                        parallaxBg.style.transform = 'none';
+                        parallaxBg.style.position = 'absolute';
+                    }
+                }
+                
+                // Reduzir a qualidade das animações
+                document.body.classList.add('reduced-motion');
+                
+                // Configurar AOS com valores mais leves para dispositivos de baixo desempenho
+                AOS.init({
+                    disable: false,
+                    startEvent: 'DOMContentLoaded',
+                    offset: 120,
+                    delay: 0,
+                    duration: 400,
+                    easing: 'ease',
+                    once: true,
+                    mirror: false,
+                    anchorPlacement: 'top-bottom'
+                });
+            } else {
+                // Configuração otimizada do AOS para todos os dispositivos
+                AOS.init({
+                    disable: false,
+                    startEvent: 'DOMContentLoaded',
+                    offset: 100,
+                    delay: 0,
+                    duration: 600,
+                    easing: 'ease',
+                    once: true,
+                    mirror: false,
+                    anchorPlacement: 'top-bottom'
+                });
             }
-
-            requestAnimationFrame(raf);
+            
+            // Desativar completamente o smooth scroll para todos os dispositivos
+            document.documentElement.style.scrollBehavior = 'auto';
         });
     </script>
 
