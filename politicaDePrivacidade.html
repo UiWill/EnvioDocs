@@ -3,107 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Política de Privacidade</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        h1, h2 {
-            color: #333;
-        }
-    </style>
+    <title>EnvioDocs - Política de Privacidade</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 </head>
 <body>
-    <h1>Política de Privacidade</h1>
-    <p></p>
-    <p>Bem-vindo à Política de Privacidade do nosso aplicativo. Seu uso do aplicativo implica na aceitação desta política.</p>
+    <!--Container Geral-->
+    <div class="container">
+        <!--Header-->
+        <header class="header">
+            <div class="logo">
+                <img src="assets/img/logo.PNG" alt="EnvioDocs Logo">
+            </div>
+            <div class="menu">
+                <label class="hamburger">
+                    <input type="checkbox" id="menuToggle">
+                    <svg viewBox="0 0 32 32">
+                        <path class="line line-top-bottom"
+                            d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22">
+                        </path>
+                        <path class="line" d="M7 16 27 16"></path>
+                    </svg>
+                </label>
+            </div>
+            <div class="menu-aberto">
+                <nav class="nav-menu">
+                    <a href="index.html#inicio">INÍCIO</a>
+                    <a href="index.html#sobre">SOBRE</a>
+                    <a href="index.html#portfolio">PLANOS</a>
+                    <a href="index.html#contato">CONTATO</a>
+                </nav>
+            </div>
+        </header>
+        <!--Fim Header-->
+
+        <!-- Hero -->
+        <section class="page-hero" style="margin-bottom: 0; padding-bottom: 0;">
+            <div class="page-hero-content">
+                <h1 data-aos="fade-up" data-aos-duration="1000">Política de <span class="text-gradient">Privacidade</span></h1>
+                <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Seu uso do aplicativo implica na aceitação desta política</p>
+            </div>
+        </section>
+
+        <!-- Política de Privacidade -->
+        <section class="privacy-policy" style="padding: 50px 20px; margin-top: 30px;">
+            <div class="container-privacy" style="max-width: 900px; margin: 0 auto;">
+                <div class="privacy-content" style="background: rgba(255, 255, 255, 0.03); border-radius: 15px; padding: 40px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div class="privacy-item" data-aos="fade-up" data-aos-delay="100">
+                        <h2 style="color: var(--color-destaque1); margin-bottom: 15px; font-size: 1.5rem;">1. Informações Coletadas</h2>
+                        <p style="margin-bottom: 10px;">Podemos coletar as seguintes informações quando você usa nosso aplicativo:</p>
+                        <ul style="list-style: none; padding-left: 20px;">
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Dados fornecidos pelo usuário (nome, e-mail, telefone, etc.).</span>
+                            </li>
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Dados de uso e estatísticas do aplicativo.</span>
+                            </li>
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Informações sobre o dispositivo (modelo, sistema operacional, etc.).</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="privacy-item" data-aos="fade-up" data-aos-delay="200" style="margin-top: 30px;">
+                        <h2 style="color: var(--color-destaque2); margin-bottom: 15px; font-size: 1.5rem;">2. Uso das Informações</h2>
+                        <p style="margin-bottom: 10px;">As informações coletadas são utilizadas para:</p>
+                        <ul style="list-style: none; padding-left: 20px;">
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Melhorar a experiência do usuário.</span>
+                            </li>
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Fornecer suporte e assistência técnica.</span>
+                            </li>
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Funcionalidade para controle da Contabilidade do cliente.</span>
+                            </li>
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque2); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Cumprir obrigações legais.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="privacy-item" data-aos="fade-up" data-aos-delay="300" style="margin-top: 30px;">
+                        <h2 style="color: var(--color-destaque1); margin-bottom: 15px; font-size: 1.5rem;">3. Compartilhamento de Dados</h2>
+                        <p style="margin-bottom: 10px;">Não compartilhamos suas informações com terceiros, exceto quando necessário para:</p>
+                        <ul style="list-style: none; padding-left: 20px;">
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Cumprir exigências legais.</span>
+                            </li>
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Proteger nossos direitos.</span>
+                            </li>
+                            <li style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                <i class="bi bi-check-circle-fill" style="color: var(--color-destaque1); margin-right: 10px; flex-shrink: 0;"></i>
+                                <span>Melhorar a funcionalidade do aplicativo através de serviços parceiros.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="privacy-item" data-aos="fade-up" data-aos-delay="400" style="margin-top: 30px;">
+                        <h2 style="color: var(--color-destaque2); margin-bottom: 15px; font-size: 1.5rem;">4. Segurança</h2>
+                        <p>Nosso aplicativo utiliza um sistema de criptografia avançado e APIs especializadas para garantir a segurança dos seus dados, protegendo suas informações contra acessos não autorizados.</p>
+                    </div>
+                    
+                    <div class="privacy-item" data-aos="fade-up" data-aos-delay="500" style="margin-top: 30px;">
+                        <h2 style="color: var(--color-destaque1); margin-bottom: 15px; font-size: 1.5rem;">5. Seus Direitos</h2>
+                        <p>Você pode solicitar a exclusão dos seus dados ou a revisão das informações coletadas entrando em contato conosco.</p>
+                    </div>
+                    
+                    <div class="privacy-item" data-aos="fade-up" data-aos-delay="600" style="margin-top: 30px;">
+                        <h2 style="color: var(--color-destaque2); margin-bottom: 15px; font-size: 1.5rem;">6. Alterações na Política</h2>
+                        <p>Podemos atualizar esta política periodicamente. Recomendamos revisar regularmente para se manter informado.</p>
+                    </div>
+                    
+                    <div class="privacy-item" data-aos="fade-up" data-aos-delay="700" style="margin-top: 30px;">
+                        <h2 style="color: var(--color-destaque1); margin-bottom: 15px; font-size: 1.5rem;">7. Contato</h2>
+                        <p>Se tiver dúvidas sobre esta política, entre em contato pelo e-mail: <strong>william@enviodocs.com.br</strong></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Fim Política de Privacidade -->
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container-footer">
+                <div class="footer-column logo-column">
+                    <img src="assets/img/logo.PNG" alt="EnvioDocs Logo">
+                </div>
+                <div class="footer-column menu-column">
+                    <nav class="footer-nav">
+                        <a href="index.html">Início</a>
+                        <a href="funcoes.html">Funções</a>
+                        <a href="index.html#contato">Contato</a>
+                    </nav>
+                </div>
+                <div class="footer-column social-column">
+                    <div class="social-links">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column credits-column">
+                    <p>suporte@enviodocs.com.br</p>
+                    <p>Rua Doutor Miguel Gontijo, 181, Centro, Bom despacho CEP: 35630-016</p>
+                    <p>&copy; 2023 EnvioDocs. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </footer>
+        <!-- Fim Footer -->
+    </div>
+    <!-- Fim Container Geral -->
+
+    <!--Botão voltar ao topo-->
+    <div id="backToTop" class="fixed-button">
+        <i class="bi bi-chevron-up"></i>
+    </div>
+
+    <!--Botão WhatsApp-->
+    <div id="whatsappButton" class="fixed-button">
+        <i class="bi bi-whatsapp"></i>
+    </div>
+
+    <!-- Script AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
-    <h2>1. Informações Coletadas</h2>
-    <p>Podemos coletar as seguintes informações quando você usa nosso aplicativo:</p>
-    <ul>
-        <li>Dados fornecidos pelo usuário (nome, e-mail, telefone, etc.).</li>
-        <li>Dados de uso e estatísticas do aplicativo.</li>
-        <li>Informações sobre o dispositivo (modelo, sistema operacional, etc.).</li>
-    </ul>
+    <!-- Scripts personalizados -->
+    <script src="assets/js/menu.js"></script>
+    <script src="assets/js/actionButton.js"></script>
     
-    <h2>2. Uso das Informações</h2>
-    <p>As informações coletadas são utilizadas para:</p>
-    <ul>
-        <li>Melhorar a experiência do usuário.</li>
-        <li>Fornecer suporte e assistência técnica.</li>
-        <li>Funcionalidade para controle da Contabilidade do cliente.</li>
-        <li>Cumprir obrigações legais.</li>
-    </ul>
-    
-    <h2>3. Compartilhamento de Dados</h2>
-    <p>Não compartilhamos suas informações com terceiros, exceto quando necessário para:</p>
-    <ul>
-        <li>Cumprir exigências legais.</li>
-        <li>Proteger nossos direitos.</li>
-        <li>Melhorar a funcionalidade do aplicativo através de serviços parceiros.</li>
-    </ul>
-    
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Política de Privacidade</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 20px;
-                padding: 20px;
-                line-height: 1.6;
-            }
-            h1, h2 {
-                color: #333;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Política de Privacidade</h1>
-        <p></p>
-        <p>Bem-vindo à Política de Privacidade do nosso aplicativo. Seu uso do aplicativo implica na aceitação desta política.</p>
-        
-        <h2>1. Informações Coletadas</h2>
-        <p>Podemos coletar as seguintes informações quando você usa nosso aplicativo:</p>
-        <ul>
-            <li>Dados fornecidos pelo usuário (nome, e-mail, telefone, etc.).</li>
-            <li>Dados de uso e estatísticas do aplicativo.</li>
-            <li>Informações sobre o dispositivo (modelo, sistema operacional, etc.).</li>
-        </ul>
-        
-        <h2>2. Uso das Informações</h2>
-        <p>As informações coletadas são utilizadas para:</p>
-        <ul>
-            <li>Melhorar a experiência do usuário.</li>
-            <li>Fornecer suporte e assistência técnica.</li>
-            <li>Funcionalidade para controle da Contabilidade do cliente.</li>
-            <li>Cumprir obrigações legais.</li>
-        </ul>
-        
-        <h2>3. Compartilhamento de Dados</h2>
-        <p>Não compartilhamos suas informações com terceiros, exceto quando necessário para:</p>
-        <ul>
-            <li>Cumprir exigências legais.</li>
-            <li>Proteger nossos direitos.</li>
-            <li>Melhorar a funcionalidade do aplicativo através de serviços parceiros.</li>
-        </ul>
-        
-        <h2>4. Segurança</h2>
-        <p>Nosso aplicativo utiliza um sistema de criptografia avançado e APIs especializadas para garantir a segurança dos seus dados, protegendo suas informações contra acessos não autorizados.</p>
-        
-        <h2>5. Seus Direitos</h2>
-    <p>Você pode solicitar a exclusão dos seus dados ou a revisão das informações coletadas entrando em contato conosco.</p>
-    
-    <h2>6. Alterações na Política</h2>
-    <p>Podemos atualizar esta política periodicamente. Recomendamos revisar regularmente para se manter informado.</p>
-    
-    <h2>7. Contato</h2>
-    <p>Se tiver dúvidas sobre esta política, entre em contato pelo e-mail: <strong>[william@enviodocs.com.br]</strong></p>
+    <script>
+        // Inicializar AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
 </body>
 </html>
