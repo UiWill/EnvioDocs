@@ -11,9 +11,9 @@
     <style>
         :root {
             --color-white: #ffffff;
-            --color-black: #0a0a0a;
-            --color-gray1: #1a1a1a;
-            --color-gray2: #cccccc;
+            --color-black: #333333;
+            --color-gray1: #f5f5f5;
+            --color-gray2: #666666;
             --color-destaque1: #ED6F3B;
             --color-destaque2: #3BADAC;
             --font-grande: 'Syne', sans-serif;
@@ -22,8 +22,8 @@
         
         body {
             font-family: var(--font-pequena);
-            background-color: var(--color-black);
-            color: var(--color-white);
+            background-color: var(--color-white);
+            color: var(--color-black);
             margin: 0;
             padding: 0;
         }
@@ -32,16 +32,16 @@
             max-width: 600px;
             margin: 50px auto;
             padding: 40px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--color-white);
             border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
         
         .page-title {
             text-align: center;
             margin-bottom: 30px;
-            color: var(--color-white);
+            color: var(--color-black);
             font-family: var(--font-grande);
         }
         
@@ -57,9 +57,9 @@
             flex-direction: column;
             align-items: center;
             padding: 50px 30px;
-            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border: 2px dashed #e0e0e0;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--color-gray1);
             transition: all 0.3s ease;
             cursor: pointer;
             margin-bottom: 20px;
@@ -107,9 +107,9 @@
         
         .file-info {
             padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--color-gray1);
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid #e0e0e0;
             margin-top: 20px;
             display: none;
         }
@@ -136,7 +136,7 @@
         
         .file-name {
             font-weight: 600;
-            color: var(--color-white);
+            color: var(--color-black);
             margin-bottom: 5px;
         }
         
@@ -186,12 +186,12 @@
         }
         
         .upload-status.success {
-            background: rgba(50, 205, 50, 0.2);
+            background: rgba(50, 205, 50, 0.1);
             color: #32cd32;
         }
         
         .upload-status.error {
-            background: rgba(255, 99, 71, 0.2);
+            background: rgba(255, 99, 71, 0.1);
             color: #ff6347;
         }
         
@@ -210,9 +210,9 @@
             display: inline-block;
             width: 30px;
             height: 30px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top: 3px solid white;
+            border-top: 3px solid var(--color-destaque1);
             animation: spin 1s linear infinite;
             margin-bottom: 10px;
         }

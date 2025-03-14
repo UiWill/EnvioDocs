@@ -11,9 +11,9 @@
     <style>
         :root {
             --color-white: #ffffff;
-            --color-black: #0a0a0a;
-            --color-gray1: #1a1a1a;
-            --color-gray2: #cccccc;
+            --color-black: #333333;
+            --color-gray1: #f5f5f5;
+            --color-gray2: #666666;
             --color-destaque1: #ED6F3B;
             --color-destaque2: #3BADAC;
             --font-grande: 'Syne', sans-serif;
@@ -22,8 +22,8 @@
         
         body {
             font-family: var(--font-pequena);
-            background-color: var(--color-black);
-            color: var(--color-white);
+            background-color: var(--color-white);
+            color: var(--color-black);
             margin: 0;
             padding: 0;
         }
@@ -32,9 +32,10 @@
             max-width: 1200px;
             margin: 30px auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--color-white);
             border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
         
         .search-form {
@@ -49,16 +50,16 @@
         .search-form select {
             padding: 12px 15px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--color-white);
+            border: 1px solid #e0e0e0;
+            background: var(--color-white);
+            color: var(--color-black);
             font-size: 16px;
             min-width: 200px;
         }
         
         .search-form select option {
-            background-color: var(--color-black);
-            color: var(--color-white);
+            background-color: var(--color-white);
+            color: var(--color-black);
         }
         
         .search-form button {
@@ -83,6 +84,7 @@
             margin-top: 20px;
             overflow: hidden;
             border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
         }
         
         .relatorios-table th {
@@ -96,31 +98,34 @@
         .relatorios-table td {
             padding: 12px;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #e0e0e0;
+            color: var(--color-black);
         }
         
         .relatorios-table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: #f9f9f9;
         }
         
         .pendente {
-            background-color: rgba(255, 99, 71, 0.2);
+            background-color: rgba(255, 99, 71, 0.1);
             color: #ff6347;
             padding: 5px 10px;
             border-radius: 5px;
+            font-weight: 500;
         }
         
         .enviado {
-            background-color: rgba(50, 205, 50, 0.2);
+            background-color: rgba(50, 205, 50, 0.1);
             color: #32cd32;
             padding: 5px 10px;
             border-radius: 5px;
+            font-weight: 500;
         }
         
         .page-title {
             text-align: center;
             margin-bottom: 30px;
-            color: var(--color-white);
+            color: var(--color-black);
             font-family: var(--font-grande);
         }
         
