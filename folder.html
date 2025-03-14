@@ -1,164 +1,381 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload de Arquivos</title>
-    <link rel="stylesheet" href="style.css">
+    <title>EnvioDocs - Upload de Arquivos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
+        :root {
+            --color-white: #ffffff;
+            --color-black: #0a0a0a;
+            --color-gray1: #1a1a1a;
+            --color-gray2: #cccccc;
+            --color-destaque1: #ED6F3B;
+            --color-destaque2: #3BADAC;
+            --font-grande: 'Syne', sans-serif;
+            --font-pequena: 'Inter', sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: var(--font-pequena);
+            background-color: var(--color-black);
+            color: var(--color-white);
             margin: 0;
             padding: 0;
         }
-
-        .explorer-container {
+        
+        .upload-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--color-white);
+            font-family: var(--font-grande);
+        }
+        
+        .page-title span {
+            background: linear-gradient(45deg, var(--color-destaque1), var(--color-destaque2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .upload-area {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .explorer-header {
+            padding: 50px 30px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            cursor: pointer;
             margin-bottom: 20px;
         }
-
-        .explorer-title {
-            font-size: 2em;
-            color: #333;
+        
+        .upload-area:hover {
+            border-color: var(--color-destaque1);
+            background: rgba(237, 111, 59, 0.05);
         }
-
-        .explorer-panel {
-            border: 2px dashed #aaa;
-            background: #fff;
-            padding: 20px;
-            width: 300px;
+        
+        .upload-area.drag-over {
+            border-color: var(--color-destaque2);
+            background: rgba(59, 173, 172, 0.05);
+        }
+        
+        .upload-area i {
+            font-size: 64px;
+            color: var(--color-destaque1);
+            margin-bottom: 20px;
+        }
+        
+        .upload-area p {
+            color: var(--color-gray2);
+            margin: 0;
             text-align: center;
-            border-radius: 10px;
-            transition: border-color 0.3s;
+            font-size: 16px;
         }
-
-        .explorer-panel:hover {
-            border-color: #007bff;
-        }
-
+        
         .upload-form {
-            margin-top: 15px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-
+        
         .upload-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-info {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
             display: none;
         }
-
-        .upload-label {
-            display: inline-block;
-            padding: 10px 20px;
-            color: #fff;
-            background: #007bff;
-            border-radius: 5px;
-            cursor: pointer;
+        
+        .file-info.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
         }
-
+        
+        .file-info-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .file-icon {
+            font-size: 32px;
+            color: var(--color-destaque2);
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: var(--color-white);
+            margin-bottom: 5px;
+        }
+        
+        .file-size {
+            font-size: 14px;
+            color: var(--color-gray2);
+        }
+        
         .upload-button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            color: #fff;
-            background: #28a745;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--color-destaque1), var(--color-destaque2));
+            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
-
+        
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 111, 59, 0.3);
+        }
+        
+        .upload-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         .upload-status {
             margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
         }
-
+        
+        .upload-status.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
         .upload-status.success {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(50, 205, 50, 0.2);
+            color: #32cd32;
         }
-
+        
         .upload-status.error {
-            background: #f8d7da;
-            color: #721c24;
+            background: rgba(255, 99, 71, 0.2);
+            color: #ff6347;
         }
-
-        .file-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f1f1f1;
-            border-radius: 5px;
-            text-align: left;
-            font-size: 0.9em;
-            color: #555;
-        }
-
+        
         .loading {
             display: none;
             margin-top: 20px;
-            font-size: 1.2em;
-            color: #555;
+            text-align: center;
         }
-
+        
         .loading.active {
             display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        .loading-text {
+            color: var(--color-gray2);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .upload-container {
+                padding: 30px 20px;
+                margin: 30px 15px;
+            }
+            
+            .upload-area {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
-<body class="explorer-container">
-    <div class="explorer-header">
-        <h1 class="explorer-title">Upload de Arquivos</h1>
-    </div>
-    <div class="explorer-content">
-        <div class="explorer-panel">
-            <p>Arraste e solte os arquivos aqui ou clique para selecionar.</p>
+<body>
+    <div class="upload-container">
+        <h2 class="page-title">Upload de <span>Arquivos</span></h2>
+        
+        <div class="upload-area" id="dropArea">
+            <i class="bi bi-cloud-upload"></i>
+            <p>Arraste e solte os arquivos aqui ou clique para selecionar</p>
+            <p style="margin-top: 10px; font-size: 14px;">Formatos aceitos: PDF, Excel (.xlsx, .xls)</p>
+            
             <form id="uploadForm" enctype="multipart/form-data" class="upload-form">
-                <label for="file" class="upload-label">
-                    Escolher Arquivo
-                    <input type="file" id="file" name="file" accept=".pdf,.xlsx,.xls" required class="upload-input" />
-                </label>
-                <div id="fileInfo" class="file-info" style="display: none;"></div>
-                <button type="submit" class="upload-button">Enviar</button>
+                <input type="file" id="file" name="file" accept=".pdf,.xlsx,.xls" required class="upload-input" />
             </form>
         </div>
+        
+        <div id="fileInfo" class="file-info">
+            <div class="file-info-content">
+                <div class="file-icon">
+                    <i class="bi bi-file-earmark"></i>
+                </div>
+                <div class="file-details">
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" id="submitButton" class="upload-button" disabled>
+            <i class="bi bi-upload"></i>
+            <span>Enviar Arquivo</span>
+        </button>
+        
         <div id="status" class="upload-status"></div>
-        <div id="loading" class="loading">Carregando...</div>
+        
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Processando arquivo...</div>
+        </div>
     </div>
 
     <script>
         const fileInput = document.getElementById("file");
         const fileInfo = document.getElementById("fileInfo");
+        const fileName = document.getElementById("fileName");
+        const fileSize = document.getElementById("fileSize");
         const loading = document.getElementById("loading");
         const status = document.getElementById("status");
-
-        fileInput.addEventListener("change", async () => {
-            fileInfo.style.display = "none";
-            fileInfo.innerText = "";
-            loading.classList.add("active");
-
-            try {
-                if (fileInput.files[0]) {
-                    const file = fileInput.files[0];
-                    // Simula o carregamento do arquivo
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    fileInfo.style.display = "block";
-                    fileInfo.innerText = `Arquivo selecionado: ${file.name} (Tamanho: ${(file.size / 1024).toFixed(2)} KB)`;
-                } else {
-                    fileInfo.style.display = "none";
-                    fileInfo.innerText = "";
-                }
-            } catch (error) {
-                console.error("Erro ao carregar o arquivo", error);
-            } finally {
-                loading.classList.remove("active");
-            }
+        const submitButton = document.getElementById("submitButton");
+        const dropArea = document.getElementById("dropArea");
+        
+        // Configurar drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
         });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('drag-over');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('drag-over');
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        }
 
-        document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+        fileInput.addEventListener("change", handleFileSelect);
+        
+        function handleFileSelect() {
+            if (fileInput.files[0]) {
+                const file = fileInput.files[0];
+                showFileInfo(file);
+                submitButton.disabled = false;
+            } else {
+                hideFileInfo();
+                submitButton.disabled = true;
+            }
+        }
+        
+        function showFileInfo(file) {
+            // Determinar o ícone com base no tipo de arquivo
+            const fileIconElement = fileInfo.querySelector('.file-icon i');
+            if (file.name.endsWith('.pdf')) {
+                fileIconElement.className = 'bi bi-file-earmark-pdf';
+                fileIconElement.style.color = '#ff6347';
+            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                fileIconElement.className = 'bi bi-file-earmark-excel';
+                fileIconElement.style.color = '#1D6F42';
+            } else {
+                fileIconElement.className = 'bi bi-file-earmark';
+                fileIconElement.style.color = 'var(--color-destaque2)';
+            }
+            
+            // Atualizar informações do arquivo
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.add('active');
+        }
+        
+        function hideFileInfo() {
+            fileInfo.classList.remove('active');
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        submitButton.addEventListener("click", async (e) => {
             e.preventDefault();
 
             const formData = new FormData();
@@ -187,8 +404,9 @@
 
             try {
                 loading.classList.add("active");
-                status.classList.remove("success", "error");
+                status.classList.remove("active", "success", "error");
                 status.innerText = "";
+                submitButton.disabled = true;
 
                 console.log(`Iniciando envio do arquivo: ${fileName} (Tipo: ${fileType}) para o endpoint: ${endpoint}`);
 
@@ -205,11 +423,17 @@
                 console.log(`Arquivo enviado com sucesso: ${fileName} (Tipo: ${fileType}). Resposta do servidor:`, result);
 
                 status.innerText = `Sucesso: ${result.message}`;
-                status.classList.add("success");
+                status.classList.add("active", "success");
+                
+                // Limpar o formulário após o envio bem-sucedido
+                fileInput.value = '';
+                hideFileInfo();
+                submitButton.disabled = true;
             } catch (error) {
                 console.error(`Erro ao enviar o arquivo: ${fileName} (Tipo: ${fileType}).`, error);
                 status.innerText = `Erro ao enviar o arquivo: ${fileName}`;
-                status.classList.add("error");
+                status.classList.add("active", "error");
+                submitButton.disabled = false;
             } finally {
                 loading.classList.remove("active");
             }

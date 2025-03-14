@@ -3,41 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificaçãoo de Relatório</title>
+    <title>EnvioDocs - Verificação de Relatórios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
+        :root {
+            --color-white: #ffffff;
+            --color-black: #0a0a0a;
+            --color-gray1: #1a1a1a;
+            --color-gray2: #cccccc;
+            --color-destaque1: #ED6F3B;
+            --color-destaque2: #3BADAC;
+            --font-grande: 'Syne', sans-serif;
+            --font-pequena: 'Inter', sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            text-align: center;
+            font-family: var(--font-pequena);
+            background-color: var(--color-black);
+            color: var(--color-white);
+            margin: 0;
+            padding: 0;
         }
-        h2 {
-            margin-bottom: 20px;
+        
+        .relatorios-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        input, select, button {
-            padding: 10px;
-            margin: 5px;
+        
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .search-form input, 
+        .search-form select {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-white);
             font-size: 16px;
+            min-width: 200px;
         }
-        table {
+        
+        .search-form select option {
+            background-color: var(--color-black);
+            color: var(--color-white);
+        }
+        
+        .search-form button {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, var(--color-destaque1), var(--color-destaque2));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 111, 59, 0.3);
+        }
+        
+        .relatorios-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            overflow: hidden;
+            border-radius: 10px;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #0B67BC;
+        
+        .relatorios-table th {
+            background: linear-gradient(45deg, var(--color-destaque1), var(--color-destaque2));
             color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
         }
+        
+        .relatorios-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .relatorios-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
         .pendente {
-            background-color: #ffcccc;
+            background-color: rgba(255, 99, 71, 0.2);
+            color: #ff6347;
+            padding: 5px 10px;
+            border-radius: 5px;
         }
+        
         .enviado {
-            background-color: #ccffcc;
+            background-color: rgba(50, 205, 50, 0.2);
+            color: #32cd32;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--color-white);
+            font-family: var(--font-grande);
+        }
+        
+        .page-title span {
+            background: linear-gradient(45deg, var(--color-destaque1), var(--color-destaque2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .search-form input, 
+            .search-form select,
+            .search-form button {
+                width: 100%;
+            }
+            
+            .relatorios-table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
     <script>
@@ -89,40 +197,37 @@
         }
 
         function preencherTabela(clientes) {
-    const tbody = document.querySelector("#tabelaClientes tbody");
-    tbody.innerHTML = "";
+            const tbody = document.querySelector("#tabelaClientes tbody");
+            tbody.innerHTML = "";
 
-    clientes.forEach(cliente => {
-        const row = document.createElement("tr");
+            clientes.forEach(cliente => {
+                const row = document.createElement("tr");
 
-        row.innerHTML = `
-            <td>${cliente.NOME_CLIENTE}</td>
-            <td class="${cliente.HONORARIOS !== 'Pendente' ? 'enviado' : 'pendente'}">
-                ${cliente.HONORARIOS !== 'Pendente' ? cliente.HONORARIOS : 'Pendente'}
-            </td>
-            <td class="${cliente.DARF !== 'Pendente' ? 'enviado' : 'pendente'}">
-                ${cliente.DARF !== 'Pendente' ? cliente.DARF : 'Pendente'}
-            </td>
-            <td class="${cliente.FGTS !== 'Pendente' ? 'enviado' : 'pendente'}">
-                ${cliente.FGTS !== 'Pendente' ? cliente.FGTS : 'Pendente'}
-            </td>
-            <td class="${cliente.HOLERITE !== 'Pendente' ? 'enviado' : 'pendente'}">
-                ${cliente.HOLERITE !== 'Pendente' ? cliente.HOLERITE : 'Pendente'}
-            </td>
-            <td class="${cliente.DAE !== 'Pendente' ? 'enviado' : 'pendente'}">
-                ${cliente.DAE !== 'Pendente' ? cliente.DAE : 'Pendente'}
-            </td>
-            <td class="${cliente.PGDAS !== 'Pendente' ? 'enviado' : 'pendente'}">
-                ${cliente.PGDAS !== 'Pendente' ? cliente.PGDAS : 'Pendente'}
-            </td>
-        `;
+                row.innerHTML = `
+                    <td>${cliente.NOME_CLIENTE}</td>
+                    <td><span class="${cliente.HONORARIOS !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.HONORARIOS !== 'Pendente' ? cliente.HONORARIOS : 'Pendente'}
+                    </span></td>
+                    <td><span class="${cliente.DARF !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.DARF !== 'Pendente' ? cliente.DARF : 'Pendente'}
+                    </span></td>
+                    <td><span class="${cliente.FGTS !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.FGTS !== 'Pendente' ? cliente.FGTS : 'Pendente'}
+                    </span></td>
+                    <td><span class="${cliente.HOLERITE !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.HOLERITE !== 'Pendente' ? cliente.HOLERITE : 'Pendente'}
+                    </span></td>
+                    <td><span class="${cliente.DAE !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.DAE !== 'Pendente' ? cliente.DAE : 'Pendente'}
+                    </span></td>
+                    <td><span class="${cliente.PGDAS !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.PGDAS !== 'Pendente' ? cliente.PGDAS : 'Pendente'}
+                    </span></td>
+                `;
 
-        tbody.appendChild(row);
-    });
-}
-
-
-
+                tbody.appendChild(row);
+            });
+        }
 
         async function fetchLastCNPJ() {
             try {
@@ -137,51 +242,78 @@
             }
         }
 
-        setTimeout(fetchLastCNPJ, 5000);
+        // Definir o mês atual como padrão
+        function setCurrentMonth() {
+            const now = new Date();
+            const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+            const currentYear = now.getFullYear().toString();
+            
+            document.getElementById("mesSelect").value = currentMonth;
+            
+            // Encontrar e selecionar o ano atual ou o mais próximo disponível
+            const anoSelect = document.getElementById("anoSelect");
+            const anos = Array.from(anoSelect.options).map(opt => opt.value);
+            
+            if (anos.includes(currentYear)) {
+                anoSelect.value = currentYear;
+            }
+        }
+
+        window.onload = function() {
+            setCurrentMonth();
+            setTimeout(fetchLastCNPJ, 5000);
+        };
     </script>
 </head>
 <body>
-    <h2>Verificação de Relatório</h2>
-    <input type="text" id="cnpjInput" placeholder="CNPJ da Contabilidade" oninput="applyCNPJMask(event)">
-    
-    <select id="mesSelect">
-        <option value="01">Janeiro</option>
-        <option value="02">Fevereiro</option>
-        <option value="03">Março</option>
-        <option value="04">Abril</option>
-        <option value="05">Maio</option>
-        <option value="06">Junho</option>
-        <option value="07">Julho</option>
-        <option value="08">Agosto</option>
-        <option value="09">Setembro</option>
-        <option value="10">Outubro</option>
-        <option value="11">Novembro</option>
-        <option value="12">Dezembro</option>
-    </select>
+    <div class="relatorios-container">
+        <h2 class="page-title">Verificação de <span>Relatórios</span></h2>
+        
+        <div class="search-form">
+            <input type="text" id="cnpjInput" placeholder="CNPJ da Contabilidade" oninput="applyCNPJMask(event)">
+            
+            <select id="mesSelect">
+                <option value="01">Janeiro</option>
+                <option value="02">Fevereiro</option>
+                <option value="03">Março</option>
+                <option value="04">Abril</option>
+                <option value="05">Maio</option>
+                <option value="06">Junho</option>
+                <option value="07">Julho</option>
+                <option value="08">Agosto</option>
+                <option value="09">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+            </select>
 
-    <select id="anoSelect">
-        <option value="2023">2023</option>
-        <option value="2024">2024</option>
-        <option value="2025" selected>2025</option>
-    </select>
+            <select id="anoSelect">
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+            </select>
 
-    <button onclick="buscarClientes()">Pesquisar</button>
-    <br><br>
-    
-    <table id="tabelaClientes">
-        <thead>
-            <tr>
-                <th>NOME CLIENTE</th>
-                <th>HONORÁRIOS</th>
-                <th>DARF</th>
-                <th>FGTS</th>
-                <th>HOLERITE</th>
-                <th>DAE</th>
-                <th>PGDAS</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+            <button onclick="buscarClientes()">
+                <i class="bi bi-search"></i> Pesquisar
+            </button>
+        </div>
+        
+        <table id="tabelaClientes" class="relatorios-table">
+            <thead>
+                <tr>
+                    <th>NOME CLIENTE</th>
+                    <th>HONORÁRIOS</th>
+                    <th>DARF</th>
+                    <th>FGTS</th>
+                    <th>HOLERITE</th>
+                    <th>DAE</th>
+                    <th>PGDAS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dados serão preenchidos via JavaScript -->
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
