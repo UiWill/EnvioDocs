@@ -206,6 +206,11 @@
             tbody.innerHTML = "";
 
             clientes.forEach(cliente => {
+                // Log para depuração
+                console.log("Cliente:", cliente.NOME_CLIENTE);
+                console.log("DAM:", cliente.DAM);
+                console.log("ESOCIAL:", cliente.ESOCIAL);
+                
                 const row = document.createElement("tr");
 
                 row.innerHTML = `
@@ -228,11 +233,11 @@
                     <td><span class="${cliente.PGDAS !== 'Pendente' ? 'enviado' : 'pendente'}">
                         ${cliente.PGDAS !== 'Pendente' ? cliente.PGDAS : 'Pendente'}
                     </span></td>
-                    <td><span class="${cliente.DAM !== 'Pendente' ? 'enviado' : 'pendente'}">
-                        ${cliente.DAM !== 'Pendente' ? cliente.DAM : 'Pendente'}
+                    <td><span class="${cliente.DAM !== undefined && cliente.DAM !== null && cliente.DAM !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.DAM !== undefined && cliente.DAM !== null && cliente.DAM !== 'Pendente' ? cliente.DAM : 'Pendente'}
                     </span></td>
-                    <td><span class="${cliente.ESOCIAL !== 'Pendente' ? 'enviado' : 'pendente'}">
-                        ${cliente.ESOCIAL !== 'Pendente' ? cliente.ESOCIAL : 'Pendente'}
+                    <td><span class="${cliente.ESOCIAL !== undefined && cliente.ESOCIAL !== null && cliente.ESOCIAL !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.ESOCIAL !== undefined && cliente.ESOCIAL !== null && cliente.ESOCIAL !== 'Pendente' ? cliente.ESOCIAL : 'Pendente'}
                     </span></td>
                 `;
 
