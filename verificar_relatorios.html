@@ -228,6 +228,12 @@
                     <td><span class="${cliente.PGDAS !== 'Pendente' ? 'enviado' : 'pendente'}">
                         ${cliente.PGDAS !== 'Pendente' ? cliente.PGDAS : 'Pendente'}
                     </span></td>
+                    <td><span class="${cliente.DAM !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.DAM !== 'Pendente' ? cliente.DAM : 'Pendente'}
+                    </span></td>
+                    <td><span class="${cliente.ESOCIAL !== 'Pendente' ? 'enviado' : 'pendente'}">
+                        ${cliente.ESOCIAL !== 'Pendente' ? cliente.ESOCIAL : 'Pendente'}
+                    </span></td>
                 `;
 
                 tbody.appendChild(row);
@@ -313,6 +319,8 @@
                     <th>HOLERITE</th>
                     <th>DAE</th>
                     <th>PGDAS</th>
+                    <th>DAM</th>
+                    <th>ESOCIAL</th>
                 </tr>
             </thead>
             <tbody>
