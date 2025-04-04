@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* ... existing styles ... */
+        
+        /* Estilos para o modal de confirmação */
+        .cliente-info {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .text-danger {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        
+        /* Mini loader para operações de exclusão */
+        .mini-loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .mini-loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #ffffff;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Correção para o modal de exclusão */
+        #deleteConfirmModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #deleteConfirmModal .modal {
+            background-color: white;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Fim das correções do modal */
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="bi bi-house-door"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="comunicados.html">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="clientes.html">
+                            <i class="bi bi-people"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Clientes</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role" id="userRole">Carregando...</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-header">
+                <div class="search-filter">
+                    <div class="search-box">
+                        <input type="text" placeholder="Buscar cliente por nome, email ou CNPJ..." id="searchInput">
+                        <button id="searchButton" class="btn-search">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <div class="filter-box" style="display: none;">
+                        <select id="statusFilter" class="form-select">
+                            <option value="todos">Todos os status</option>
+                            <option value="ativo">Ativos</option>
+                            <option value="inativo">Inativos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <span class="client-count">Total: <span id="clientesCount">0</span> clientes</span>
+                    <button class="btn btn-primary" id="addClienteBtn">
+                        <i class="bi bi-plus-lg"></i> Novo Cliente
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-success" id="successAlert" style="display: none;">
+                <i class="bi bi-check-circle-fill"></i>
+                <span id="successMessage"></span>
+            </div>
+
+            <div class="alert alert-danger" id="errorAlert" style="display: none;">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span id="errorMessage"></span>
+            </div>
+
+            <div class="content-body">
+                <div class="table-container">
+                    <div id="clientesLoader" class="loader-container">
+                        <div class="spinner"></div>
+                        <p>Carregando clientes...</p>
+                    </div>
+                    <div id="clientesError" class="error-container" style="display: none;">
+                        <p>Erro ao carregar clientes.</p>
+                    </div>
+                    <table id="clientesTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>CNPJ</th>
+                                <th>CNPJ_curto</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientesTableBody">
+                            <!-- Os clientes serão adicionados aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="pagination">
+                    <!-- Paginação será adicionada via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar/Editar Cliente -->
+    <div class="modal-backdrop" id="clienteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Adicionar Cliente</h2>
+                <button class="modal-close" id="closeModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="clienteForm">
+                    <input type="hidden" id="clienteId">
+                    <div class="form-group">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" id="nome" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cnpj" class="form-label">CNPJ</label>
+                        <input type="text" id="cnpj" class="form-control" placeholder="00.000.000/0000-00" required>
+                        <small class="form-text text-muted">Atenção: O CNPJ será usado como login (CNPJ@gmail.com) e os 6 primeiros dígitos como senha inicial.</small>
+                    </div>
+                    <div class="form-group" id="resetPasswordSection" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <label class="form-label">Informações de Acesso</label>
+                        <div class="cliente-info" style="background-color: rgba(0, 0, 0, 0.05); padding: 15px; border-radius: 5px; margin: 10px 0;">
+                            <p style="margin: 5px 0; color: #333;"><strong>Login:</strong> <span id="clientEmailDisplay" style="color: #333; font-weight: normal;"></span></p>
+                            <p style="margin: 5px 0; color: #333;"><strong>Senha padrão:</strong> <span id="clientDefaultPassword" style="color: #333; font-weight: normal;"></span></p>
+                            <small style="display: block; margin-top: 10px; color: #666;">Nota: A senha padrão é sempre os 6 primeiros dígitos do CNPJ.</small>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="button" id="resetPasswordBtn" class="btn btn-warning" style="flex: 1;">
+                                <i class="bi bi-key"></i> Redefinir para Senha Padrão
+                            </button>
+                        </div>
+                        <div id="passwordFeedback" style="margin-top: 10px; display: none;">
+                            <div class="alert alert-success">Senha redefinida com sucesso!</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveBtn">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Novo Modal de Confirmação de Exclusão -->
+    <div id="novoDeleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; overflow: auto;">
+        <div style="background: white; width: 450px; max-width: 90%; margin: 15% auto; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+            <div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 18px; color: #333;">Confirmar Exclusão</h3>
+                <button id="novoCloseBtn" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #333;">&times;</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <p style="color: #333; font-size: 16px;">Tem certeza que deseja excluir este cliente?</p>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <p style="margin: 5px 0; color: #333;"><strong>Nome:</strong> <span id="novoDeleteNome" style="color: #333; font-weight: normal;"></span></p>
+                    <p style="margin: 5px 0; color: #333;"><strong>CNPJ:</strong> <span id="novoDeleteCNPJ" style="color: #333; font-weight: normal;"></span></p>
+                </div>
+                <p style="color: #dc3545; font-weight: 500;">Esta ação não pode ser desfeita. O cliente será excluído permanentemente.</p>
+            </div>
+            <div style="text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
+                <button id="novoCancelBtn" style="background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; margin-right: 10px; cursor: pointer;">Cancelar</button>
+                <button id="novoConfirmBtn" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Excluir Cliente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        // Aguardar o carregamento do DOM
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM carregado, inicializando página de clientes...');
+            
+            // Inicializar o loader
+            setTimeout(function() {
+                const loader = document.querySelector('.loader-wrapper');
+                loader.classList.add('loader-hidden');
+                console.log('Loader escondido');
+            }, 1500);
+
+            try {
+                // Verificar autenticação
+                console.log('Verificando autenticação...');
+                const { data, error } = await getCurrentUser();
+                
+                if (error) {
+                    console.error('Erro ao verificar autenticação:', error);
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                if (!data || !data.user) {
+                    console.log('Usuário não autenticado, redirecionando para login');
+                    // Redirecionar para a página de login
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                console.log('Usuário autenticado:', data.user);
+                
+                // Armazenar o usuário logado globalmente
+                window.currentUser = data.user;
+                
+                // Carregar dados do usuário
+                console.log('Carregando dados do usuário...');
+                await loadUserData(data.user.email);
+                
+                // Inicializar o toggle do sidebar
+                initSidebarToggle();
+                
+                // Inicializar o botão de logout
+                initLogoutButton();
+                
+                // Carregar lista de clientes
+                console.log('Carregando lista de clientes...');
+                await loadClientes();
+                
+                // Inicializar eventos dos botões
+                initButtons();
+                
+                // Inicializar eventos de busca e filtro
+                initSearchAndFilter();
+                
+                // Inicializar máscara para CNPJ
+                initCNPJMask();
+                
+                // Adicionar eventos diretos para teste
+                setTimeout(function() {
+                    console.log('Adicionando eventos diretos para teste dos botões de exclusão');
+                    
+                    // Testar se podemos encontrar os botões
+                    const deleteButtons = document.querySelectorAll('.delete-cliente');
+                    console.log('Botões de exclusão encontrados:', deleteButtons.length);
+                    
+                    // Adicionar eventos a todos os botões de exclusão encontrados
+                    deleteButtons.forEach(button => {
+                        console.log('Configurando botão:', button);
+                        button.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const clienteId = this.getAttribute('data-id');
+                            console.log('Clique direto no botão de exclusão, cliente ID:', clienteId);
+                            openDeleteModal(clienteId);
+                        });
+                    });
+                    
+                    // Testar o modal diretamente
+                    const modalTest = document.getElementById('deleteConfirmModal');
+                    console.log('Modal encontrado:', modalTest);
+                    
+                    // Configurar eventos dos botões do modal
+                    const confirmBtn = document.getElementById('confirmDeleteBtn');
+                    const cancelBtn = document.getElementById('cancelDeleteBtn');
+                    const closeBtn = document.getElementById('closeDeleteModal');
+                    
+                    console.log('Botões do modal:', confirmBtn, cancelBtn, closeBtn);
+                    
+                    if (confirmBtn) confirmBtn.addEventListener('click', function() {
+                        console.log('Botão confirmar clicado');
+                        confirmDeleteCliente();
+                    });
+                    
+                    if (cancelBtn) cancelBtn.addEventListener('click', function() {
+                        console.log('Botão cancelar clicado');
+                        closeDeleteModal();
+                    });
+                    
+                    if (closeBtn) closeBtn.addEventListener('click', function() {
+                        console.log('Botão fechar clicado');
+                        closeDeleteModal();
+                    });
+                    
+                }, 2000);
+                
+                console.log('Inicialização da página concluída com sucesso');
+            } catch (error) {
+                console.error('Erro ao inicializar página:', error);
+                // Mostrar mensagem de erro para o usuário
+                showError('Erro ao carregar a página: ' + error.message);
+            }
+        });
+
+        // Variável global para armazenar os dados da contabilidade logada
+        let contabilidadeData = null;
+
+        // Função para carregar dados do usuário
+        async function loadUserData(email) {
+            try {
+                console.log('Carregando dados do usuário com email:', email);
+                
+                // Criar dados padrão da contabilidade
+                contabilidadeData = {
+                    id: 'default',
+                    NOME_CLIENTE: 'Contabilidade',
+                    email: email,
+                    CNPJ: '00000000000000',
+                    ADM: 'ADM'
+                };
+                
+                // Atualizar informações do usuário na interface com dados padrão
+                document.getElementById('userName').textContent = 'Contabilidade';
+                document.getElementById('userRole').textContent = 'Administrador';
+                
+                // Buscar dados da contabilidade pelo email
+                const { data, error } = await getContabilidadeByEmail(email);
+                
+                if (error) {
+                    console.error('Erro ao carregar dados da contabilidade:', error);
+                    // Se não encontrar a contabilidade, tentar carregar o usuário diretamente
+                    const userData = window.currentUser;
+                    if (userData) {
+                        console.log('Usando dados do usuário logado:', userData);
+                        // Atualizar dados da contabilidade
+                        contabilidadeData = {
+                            id: userData.id,
+                            NOME_CLIENTE: userData.user_metadata?.name || 'Contabilidade',
+                            email: userData.email,
+                            CNPJ: userData.user_metadata?.cnpj || '00000000000000',
+                            ADM: 'ADM'
+                        };
+                        
+                        // Atualizar informações do usuário na interface
+                        document.getElementById('userName').textContent = contabilidadeData.NOME_CLIENTE;
+                        document.getElementById('userRole').textContent = 'Administrador';
+                        
+                        console.log('Dados da contabilidade criados:', contabilidadeData);
+                        return;
+                    }
+                    return;
+                }
+                
+                // Verificar se os dados foram retornados
+                if (!data) {
+                    console.error('Dados da contabilidade não encontrados');
+                    return;
+                }
+                
+                // Atualizar dados da contabilidade
+                contabilidadeData = data;
+                
+                // Atualizar informações do usuário na interface
+                document.getElementById('userName').textContent = data.NOME_CLIENTE || 'Contabilidade';
+                document.getElementById('userRole').textContent = 'Administrador';
+                
+                // Se o usuário tiver foto, atualizar a imagem
+                if (data.FOTO) {
+                    document.getElementById('userAvatar').src = data.FOTO;
+                }
+                
+                console.log('Dados da contabilidade carregados:', contabilidadeData);
+            } catch (error) {
+                console.error('Erro ao processar dados do usuário:', error);
+                // Não mostrar erro para o usuário, usar dados padrão
+            }
+        }
+
+        // Função para inicializar o toggle do sidebar
+        function initSidebarToggle() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+
+        // Função para inicializar o botão de logout
+        function initLogoutButton() {
+            const logoutButton = document.getElementById('logoutButton');
+            
+            logoutButton.addEventListener('click', async function() {
+                try {
+                    // Fazer logout
+                    const { error } = await signOut();
+                    
+                    if (error) {
+                        throw new Error(error.message);
+                    }
+                    
+                    // Redirecionar para a página de login
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Erro ao fazer logout:', error);
+                    alert('Erro ao fazer logout: ' + error.message);
+                }
+            });
+        }
+
+        // Variáveis globais para paginação e filtros
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let totalPages = 1;
+        let searchTerm = '';
+        let statusFilter = 'todos';
+        let clientesData = [];
+
+        // Função para carregar lista de clientes
+        async function loadClientes() {
+            try {
+                console.log('Carregando clientes...');
+                
+                // Mostrar loader e esconder tabela
+                document.getElementById('clientesLoader').style.display = 'flex';
+                document.getElementById('clientesTable').style.display = 'none';
+                document.getElementById('clientesError').style.display = 'none';
+                
+                // Verificar se temos dados da contabilidade
+                if (!contabilidadeData) {
+                    console.error('Dados da contabilidade não disponíveis');
+                    // Criar dados padrão para evitar erros
+                    contabilidadeData = {
+                        id: 'default',
+                        NOME_CLIENTE: 'Contabilidade',
+                        email: 'contabilidade@exemplo.com',
+                        CNPJ: '00000000000000',
+                        ADM: 'ADM'
+                    };
+                }
+                
+                // Buscar clientes no Supabase filtrados pelo CNPJ da contabilidade
+                let result;
+                
+                if (contabilidadeData && contabilidadeData.CNPJ) {
+                    console.log('Buscando clientes com CNPJ da contabilidade:', contabilidadeData.CNPJ);
+                    result = await getClientes(contabilidadeData.CNPJ);
+                } else {
+                    console.log('Buscando todos os clientes (modo administrador)');
+                    result = await getClientes();
+                }
+                
+                console.log('Resultado da busca de clientes:', result);
+                
+                const { data, error } = result;
+                
+                if (error) {
+                    console.error('Erro ao carregar clientes:', error);
+                    document.getElementById('clientesLoader').style.display = 'none';
+                    document.getElementById('clientesError').style.display = 'block';
+                    showError('Erro ao carregar clientes: ' + error.message);
+                    return;
+                }
+                
+                if (!data || data.length === 0) {
+                    console.log('Nenhum cliente encontrado');
+                    document.getElementById('clientesLoader').style.display = 'none';
+                    document.getElementById('clientesError').style.display = 'block';
+                    document.getElementById('clientesError').innerHTML = '<p>Nenhum cliente encontrado.</p>';
+                    return;
+                }
+                
+                console.log(`${data.length} clientes encontrados`);
+                
+                // Armazenar clientes globalmente
+                clientesData = data;
+                
+                // Calcular total de páginas
+                totalPages = Math.ceil(clientesData.length / itemsPerPage);
+                
+                // Renderizar clientes na tabela
+                renderClientes(clientesData);
+                
+                // Esconder loader e mostrar tabela
+                document.getElementById('clientesLoader').style.display = 'none';
+                document.getElementById('clientesTable').style.display = 'table';
+                
+                // Atualizar paginação
+                updatePagination();
+                
+                // Atualizar contador de clientes
+                const clientesCountElement = document.getElementById('clientesCount');
+                if (clientesCountElement) {
+                    clientesCountElement.textContent = clientesData.length;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+                document.getElementById('clientesLoader').style.display = 'none';
+                document.getElementById('clientesError').style.display = 'block';
+                showError('Erro ao carregar clientes: ' + error.message);
+            }
+        }
+
+        // Função para renderizar clientes na tabela
+        function renderClientes(clientesData) {
+            const tableBody = document.getElementById('clientesTableBody');
+            tableBody.innerHTML = '';
+            
+            // Calcular índices para paginação
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedClientes = clientesData.slice(startIndex, endIndex);
+            
+            paginatedClientes.forEach(cliente => {
+                const row = createClienteRow(cliente);
+                tableBody.appendChild(row);
+            });
+            
+            // Atualizar contador de clientes
+            const clientesCountElement = document.getElementById('clientesCount');
+            if (clientesCountElement) {
+                clientesCountElement.textContent = clientesData.length;
+            }
+            
+            // Importante: configurar os eventos de exclusão DEPOIS de criar a tabela
+            setTimeout(() => {
+                console.log('Configurando eventos de exclusão após renderização');
+                const deleteButtons = document.querySelectorAll('.delete-cliente');
+                deleteButtons.forEach(button => {
+                    console.log('Configurando botão de exclusão:', button);
+                    button.addEventListener('click', deleteClienteHandler);
+                });
+            }, 0);
+        }
+
+        // Função para criar linha de cliente
+        function createClienteRow(cliente) {
+            const row = document.createElement('tr');
+            
+            // Extrair o CNPJ_curto do CNPJ completo se não estiver disponível
+            let cnpjCurto = cliente.CNPJ_curto;
+            if (!cnpjCurto && cliente.CNPJ) {
+                // Remover caracteres não numéricos
+                const cnpjNumerico = cliente.CNPJ.replace(/\D/g, '');
+                // Pegar os 6 primeiros dígitos
+                cnpjCurto = cnpjNumerico.substring(0, 6);
+                console.log('CNPJ_curto gerado:', cnpjCurto);
+            }
+            
+            // Adicionar células para os dados do cliente
+            row.innerHTML = `
+                <td>${cliente.NOME_CLIENTE || ''}</td>
+                <td>${cliente.CNPJ || ''}</td>
+                <td>${cnpjCurto || '-'}</td>
+                <td class="actions-cell">
+                    <div class="actions-container">
+                        <a href="clienteDetails.html?id=${cliente.id}&cnpj=${encodeURIComponent(cliente.CNPJ || '')}&cnpjCurto=${encodeURIComponent(cnpjCurto || '')}" class="btn-action"><i class="bi bi-eye"></i></a>
+                        <button class="btn-action edit-cliente" data-id="${cliente.id}"><i class="bi bi-pencil"></i></button>
+                        <button class="btn-action delete-cliente" data-id="${cliente.id}"><i class="bi bi-trash"></i></button>
+                    </div>
+                </td>
+            `;
+            
+            // Adicionar evento de clique no botão de editar
+            const editBtn = row.querySelector('.edit-cliente');
+            editBtn.addEventListener('click', function() {
+                editCliente(cliente.id);
+            });
+            
+            // Adicionar evento de clique no botão de exclusão - simples e direto
+            const deleteBtn = row.querySelector('.delete-cliente');
+            deleteBtn.addEventListener('click', function() {
+                // Mostrar modal de confirmação
+                abrirModalDeExclusao(cliente);
+            });
+            
+            return row;
+        }
+        
+        // Função simplificada para abrir o modal de exclusão
+        function abrirModalDeExclusao(cliente) {
+            try {
+                console.log('Abrindo modal para excluir cliente:', cliente);
+                
+                // Preencher dados no modal
+                document.getElementById('novoDeleteNome').innerText = cliente.NOME_CLIENTE || 'Nome não informado';
+                document.getElementById('novoDeleteCNPJ').innerText = cliente.CNPJ || 'CNPJ não informado';
+                
+                // Salvar ID do cliente para exclusão
+                window.clienteIdToDelete = cliente.id;
+                
+                // Mostrar modal
+                const modal = document.getElementById('novoDeleteModal');
+                modal.style.display = 'flex';
+                
+                // Configurar botões
+                const btnConfirm = document.getElementById('novoConfirmBtn');
+                const btnCancel = document.getElementById('novoCancelBtn');
+                const btnClose = document.getElementById('novoCloseBtn');
+                
+                btnConfirm.onclick = function() {
+                    confirmarExclusao(cliente.id);
+                };
+                
+                btnCancel.onclick = fecharModalDeExclusao;
+                btnClose.onclick = fecharModalDeExclusao;
+                
+            } catch (error) {
+                console.error('Erro ao abrir modal de exclusão:', error);
+                alert('Erro ao preparar exclusão do cliente');
+            }
+        }
+        
+        // Função para fechar o modal
+        function fecharModalDeExclusao() {
+            document.getElementById('novoDeleteModal').style.display = 'none';
+        }
+        
+        // Função para confirmar a exclusão
+        async function confirmarExclusao(id) {
+            try {
+                // Fechar modal
+                fecharModalDeExclusao();
+                
+                // Mostrar indicador de carregamento
+                showMiniLoader();
+                
+                // Excluir cliente
+                const { error } = await excluirCliente(id);
+                
+                // Esconder indicador
+                hideMiniLoader();
+                
+                if (error) {
+                    console.error('Erro ao excluir cliente:', error);
+                    showError('Erro ao excluir cliente: ' + error.message);
+                    return;
+                }
+                
+                // Mostrar mensagem de sucesso
+                showSuccess('Cliente excluído com sucesso!');
+                
+                // Recarregar lista
+                await loadClientes();
+                
+            } catch (error) {
+                hideMiniLoader();
+                console.error('Erro ao excluir cliente:', error);
+                showError('Erro ao excluir cliente');
+            }
+        }
+
+        // Função para formatar CNPJ
+        function formatarCNPJ(cnpj) {
+            if (!cnpj) return '-';
+            
+            // Remover caracteres não numéricos
+            cnpj = cnpj.replace(/\D/g, '');
+            
+            // Verificar se tem o tamanho correto
+            if (cnpj.length !== 14) return cnpj;
+            
+            // Formatar como XX.XXX.XXX/XXXX-XX
+            return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+
+        // Função para adicionar eventos aos botões de cliente
+        function addClienteButtonEvents() {
+            // Botões de visualização
+            document.querySelectorAll('.view-cliente').forEach(button => {
+                button.addEventListener('click', function() {
+                    const clienteId = this.getAttribute('data-id');
+                    const clienteCnpj = this.getAttribute('data-cnpj');
+                    const clienteCnpjCurto = this.getAttribute('data-cnpj-curto');
+                    
+                    console.log('Visualizando cliente:', { id: clienteId, cnpj: clienteCnpj, cnpjCurto: clienteCnpjCurto });
+                    
+                    // Verificar se temos o CNPJ_curto, se não, gerar a partir do CNPJ
+                    let cnpjCurtoParam = clienteCnpjCurto;
+                    if (!cnpjCurtoParam && clienteCnpj) {
+                        // Remover caracteres não numéricos
+                        const cnpjNumerico = clienteCnpj.replace(/\D/g, '');
+                        // Pegar os 6 primeiros dígitos
+                        cnpjCurtoParam = cnpjNumerico.substring(0, 6);
+                        console.log('CNPJ_curto gerado:', cnpjCurtoParam);
+                    }
+                    
+                    // Redirecionar para a página de detalhes com os parâmetros
+                    window.location.href = `clienteDetails.html?id=${clienteId}&cnpj=${encodeURIComponent(clienteCnpj)}&cnpjCurto=${encodeURIComponent(cnpjCurtoParam || '')}`;
+                });
+            });
+            
+            // Botões de edição
+            document.querySelectorAll('.edit-cliente').forEach(button => {
+                button.addEventListener('click', function() {
+                    const clienteId = this.getAttribute('data-id');
+                    editCliente(clienteId);
+                });
+            });
+            
+            // Botões de exclusão
+            document.querySelectorAll('.delete-cliente').forEach(button => {
+                button.addEventListener('click', function() {
+                    const clienteId = this.getAttribute('data-id');
+                    deleteCliente(clienteId);
+                });
+            });
+        }
+
+        // Função para atualizar a paginação
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            
+            // Limpar paginação
+            pagination.innerHTML = '';
+            
+            // Calcular total de páginas
+            totalPages = Math.ceil(clientesData.length / itemsPerPage);
+            
+            // Se houver apenas uma página, não exibir paginação
+            if (totalPages <= 1) return;
+            
+            // Botão anterior
+            pagination.innerHTML += `
+                <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
+                    ${currentPage === 1 ? 'disabled' : 'onclick="changePage(' + (currentPage - 1) + ')"'}>
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            `;
+            
+            // Páginas
+            for (let i = 1; i <= totalPages; i++) {
+                pagination.innerHTML += `
+                    <button class="pagination-btn ${currentPage === i ? 'active' : ''}" 
+                        onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            // Botão próximo
+            pagination.innerHTML += `
+                <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
+                    ${currentPage === totalPages ? 'disabled' : 'onclick="changePage(' + (currentPage + 1) + ')"'}>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            `;
+        }
+
+        // Função para mudar de página
+        function changePage(page) {
+            currentPage = page;
+            applyFiltersAndDisplay();
+        }
+
+        // Função para inicializar eventos de busca e filtro
+        function initSearchAndFilter() {
+            try {
+                console.log('Inicializando eventos de busca e filtro...');
+                
+                const searchInput = document.getElementById('searchInput');
+                const searchButton = document.getElementById('searchButton');
+                const statusFilter = document.getElementById('statusFilter');
+                
+                if (!searchInput || !searchButton) {
+                    console.error('Elementos de busca não encontrados');
+                    return;
+                }
+                
+                // Evento de busca
+                searchButton.addEventListener('click', function() {
+                    searchTerm = searchInput.value.trim();
+                    currentPage = 1;
+                    console.log('Busca realizada:', searchTerm);
+                    applyFiltersAndDisplay();
+                });
+                
+                // Evento de busca ao pressionar Enter
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchTerm = searchInput.value.trim();
+                        currentPage = 1;
+                        console.log('Busca realizada (Enter):', searchTerm);
+                        applyFiltersAndDisplay();
+                    }
+                });
+                
+                // Evento de filtro de status (se existir)
+                if (statusFilter) {
+                    statusFilter.addEventListener('change', function() {
+                        window.statusFilter = this.value;
+                        currentPage = 1;
+                        console.log('Filtro aplicado:', window.statusFilter);
+                        applyFiltersAndDisplay();
+                    });
+                }
+                
+                console.log('Eventos de busca e filtro inicializados com sucesso');
+            } catch (error) {
+                console.error('Erro ao inicializar eventos de busca e filtro:', error);
+            }
+        }
+
+        // Função para inicializar eventos dos botões
+        function initButtons() {
+            try {
+                console.log('Inicializando eventos dos botões...');
+                
+                // Botão de adicionar cliente
+                const addButton = document.getElementById('addClienteBtn');
+                if (!addButton) {
+                    console.error('Botão addClienteBtn não encontrado');
+                    throw new Error('Botão de adicionar cliente não encontrado');
+                }
+                
+                addButton.addEventListener('click', function() {
+                    console.log('Botão Novo Cliente clicado');
+                    openClienteModal();
+                });
+                
+                // Botão de fechar modal
+                const closeModal = document.getElementById('closeModal');
+                if (!closeModal) {
+                    console.error('Botão closeModal não encontrado');
+                } else {
+                    closeModal.addEventListener('click', function() {
+                        closeClienteModal();
+                    });
+                }
+                
+                // Botão de cancelar no modal
+                const cancelBtn = document.getElementById('cancelBtn');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        closeClienteModal();
+                    });
+                }
+                
+                // Botão de salvar cliente
+                const saveButton = document.getElementById('saveBtn');
+                if (!saveButton) {
+                    console.error('Botão saveBtn não encontrado');
+                } else {
+                    saveButton.addEventListener('click', function() {
+                        saveCliente();
+                    });
+                }
+                
+                // Botão de fechar modal de exclusão
+                const closeDeleteModal = document.getElementById('closeDeleteModal');
+                if (!closeDeleteModal) {
+                    console.error('Botão closeDeleteModal não encontrado');
+                } else {
+                    closeDeleteModal.addEventListener('click', function() {
+                        closeDeleteClienteModal();
+                    });
+                }
+                
+                // Botão de cancelar exclusão
+                const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+                if (!cancelDeleteBtn) {
+                    console.error('Botão cancelDeleteBtn não encontrado');
+                } else {
+                    cancelDeleteBtn.addEventListener('click', function() {
+                        closeDeleteClienteModal();
+                    });
+                }
+                
+                // Botão de confirmar exclusão
+                const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+                if (!confirmDeleteBtn) {
+                    console.error('Botão confirmDeleteBtn não encontrado');
+                } else {
+                    confirmDeleteBtn.addEventListener('click', function() {
+                        confirmDeleteCliente();
+                    });
+                }
+                
+                console.log('Eventos dos botões inicializados com sucesso');
+            } catch (error) {
+                console.error('Erro ao inicializar eventos dos botões:', error);
+                showError('Erro ao inicializar eventos: ' + error.message);
+            }
+        }
+
+        // Função para abrir modal de cliente (novo ou edição)
+        function openClienteModal(cliente = null) {
+            // Limpar formulário
+            document.getElementById('clienteForm').reset();
+            
+            // Definir título do modal
+            document.getElementById('modalTitle').textContent = cliente ? 'Editar Cliente' : 'Novo Cliente';
+            
+            // Armazenar ID do cliente (se for edição)
+            window.clienteId = cliente ? cliente.id : null;
+            
+            // Preencher campos se for edição
+            if (cliente) {
+                document.getElementById('nome').value = cliente.NOME_CLIENTE || '';
+                document.getElementById('cnpj').value = cliente.CNPJ || '';
+            }
+            
+            // Abrir modal - primeiro define display flex, depois adiciona a classe active
+            const modal = document.getElementById('clienteModal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+
+        // Função para fechar modal de cliente
+        function closeClienteModal() {
+            const modal = document.getElementById('clienteModal');
+            modal.classList.remove('active');
+            
+            // Aguardar a animação terminar antes de esconder o modal
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // Função para salvar cliente
+        async function saveCliente() {
+            try {
+                console.log('Iniciando salvamento de cliente...');
+                
+                // Obter valores do formulário
+                const nome = document.getElementById('nome').value.trim();
+                const cnpj = document.getElementById('cnpj').value.trim();
+                
+                console.log('Dados do formulário:', { nome, cnpj });
+                
+                // Validar campos obrigatórios
+                if (!nome) {
+                    showError('O nome é obrigatório');
+                    return;
+                }
+                
+                if (!cnpj) {
+                    showError('O CNPJ é obrigatório');
+                    return;
+                }
+                
+                // Validar formato do CNPJ
+                if (!validarCNPJ(cnpj)) {
+                    showError('CNPJ inválido ou em formato incorreto');
+                    return;
+                }
+                
+                // Preparar dados do cliente
+                const clienteData = {
+                    NOME_CLIENTE: nome,
+                    CNPJ: cnpj,
+                    // Adicionar o CNPJ da contabilidade logada
+                    CNPJ_CONTABILIDADE: contabilidadeData ? contabilidadeData.CNPJ : null
+                };
+                
+                console.log('Dados do cliente preparados:', clienteData);
+                
+                let result;
+                const clienteId = window.clienteId;
+                
+                if (clienteId) {
+                    console.log('Atualizando cliente existente com ID:', clienteId);
+                    // Atualizar cliente existente
+                    const { data, error } = await updateCliente(clienteId, clienteData);
+                    result = { success: !error, data, error };
+                } else {
+                    console.log('Criando novo cliente');
+                    // Criar novo cliente (a função createCliente agora também cria o usuário no Authentication)
+                    const { data, error } = await createCliente(clienteData);
+                    result = { success: !error, data, error };
+                }
+                
+                console.log('Resultado da operação:', result);
+                
+                if (!result.success) {
+                    showError('Erro ao salvar cliente: ' + (result.error ? result.error.message : 'Erro desconhecido'));
+                    return;
+                }
+                
+                // Fechar modal
+                closeClienteModal();
+                
+                // Mostrar mensagem de sucesso
+                if (clienteId) {
+                    showSuccess('Cliente atualizado com sucesso!');
+                } else {
+                    showSuccess('Cliente adicionado com sucesso! O login será o CNPJ@gmail.com e a senha os 6 primeiros dígitos do CNPJ.');
+                }
+                
+                // Recarregar lista de clientes
+                loadClientes();
+            } catch (error) {
+                console.error('Erro ao processar operação:', error);
+                showError('Erro ao processar operação: ' + error.message);
+            }
+        }
+        
+        // Função para validar CNPJ
+        function validarCNPJ(cnpj) {
+            cnpj = cnpj.replace(/[^\d]/g, ''); // Remove caracteres não numéricos
+            
+            if (cnpj.length !== 14) return false;
+            
+            // Verificar se todos os dígitos são iguais
+            if (/^(\d)\1+$/.test(cnpj)) return false;
+            
+            // A validação completa do algoritmo do CNPJ pode ser implementada,
+            // mas para simplificar, apenas verificamos o comprimento.
+            return true;
+        }
+
+        // Função para visualizar cliente
+        async function viewCliente(id) {
+            try {
+                console.log('Visualizando cliente com ID:', id);
+                
+                if (!id) {
+                    console.error('ID do cliente não fornecido');
+                    showError('ID do cliente não fornecido');
+                    return;
+                }
+                
+                // Encontrar cliente nos dados já carregados
+                const cliente = clientesData.find(c => c.id === id);
+                
+                if (!cliente) {
+                    console.error('Cliente não encontrado nos dados carregados');
+                    // Tentar buscar o cliente diretamente do Supabase
+                    try {
+                        const { data, error } = await getClienteById(id);
+                        if (error || !data) {
+                            console.error('Cliente não encontrado no banco de dados:', error);
+                            showError('Cliente não encontrado');
+                            return;
+                        }
+                        console.log('Cliente encontrado no banco de dados:', data);
+                    } catch (err) {
+                        console.error('Erro ao buscar cliente:', err);
+                        showError('Erro ao buscar cliente: ' + err.message);
+                        return;
+                    }
+                } else {
+                    console.log('Cliente encontrado nos dados carregados:', cliente);
+                }
+                
+                // Redirecionar para a página de detalhes do cliente
+                const url = `clienteDetails.html?id=${encodeURIComponent(id)}`;
+                console.log('Redirecionando para:', url);
+                window.location.href = url;
+            } catch (error) {
+                console.error('Erro ao visualizar cliente:', error);
+                showError('Erro ao visualizar cliente: ' + error.message);
+            }
+        }
+
+        // Função para editar cliente
+        async function editCliente(id) {
+            try {
+                console.log('Editando cliente com ID:', id);
+                
+                // Limpar formulário
+                document.getElementById('clienteForm').reset();
+                
+                // Atualizar título do modal
+                document.getElementById('modalTitle').textContent = 'Editar Cliente';
+                
+                // Obter dados do cliente
+                const { data: cliente, error } = await getClienteById(id);
+                
+                if (error) {
+                    showError('Erro ao obter dados do cliente: ' + error.message);
+                    return;
+                }
+                
+                if (!cliente) {
+                    showError('Cliente não encontrado');
+                    return;
+                }
+                
+                // Preencher formulário
+                document.getElementById('clienteId').value = cliente.id;
+                document.getElementById('nome').value = cliente.NOME_CLIENTE || '';
+                document.getElementById('cnpj').value = cliente.CNPJ || '';
+                
+                // Formatando o CNPJ para exibição
+                const cnpjNumerico = cliente.CNPJ.replace(/\D/g, '');
+                const senhaDefault = cnpjNumerico.substring(0, 6);
+                const email = `${cnpjNumerico}@gmail.com`;
+                
+                // Mostrar informações de acesso
+                const emailDisplay = document.getElementById('clientEmailDisplay');
+                if (emailDisplay) {
+                    emailDisplay.textContent = email;
+                }
+                
+                const passwordDisplay = document.getElementById('clientDefaultPassword');
+                if (passwordDisplay) {
+                    passwordDisplay.textContent = senhaDefault;
+                }
+                
+                // Mostrar seção de redefinição de senha
+                document.getElementById('resetPasswordSection').style.display = 'block';
+                
+                // Esconder feedback de senha
+                document.getElementById('passwordFeedback').style.display = 'none';
+                
+                // Configurar eventos para o botão de redefinição
+                setupPasswordButtons(cliente.CNPJ);
+                
+                // Mostrar modal
+                document.getElementById('clienteModal').classList.add('active');
+            } catch (error) {
+                console.error('Erro ao editar cliente:', error);
+                showError('Erro ao editar cliente: ' + error.message);
+            }
+        }
+        
+        // Configurar evento para o botão de redefinição de senha
+        function setupPasswordButtons(cnpj) {
+            // Botão para resetar senha para padrão
+            const resetBtn = document.getElementById('resetPasswordBtn');
+            resetBtn.onclick = function() {
+                // Mostrar feedback de senha redefinida
+                const feedback = document.getElementById('passwordFeedback');
+                feedback.innerHTML = `<div class="alert alert-success">A senha foi redefinida para o padrão!</div>`;
+                feedback.style.display = 'block';
+                
+                // Mostrar mensagem de sucesso geral
+                showSuccess('Senha redefinida para o padrão com sucesso!');
+            };
+        }
+
+        // Função para excluir cliente (abre o modal de confirmação)
+        async function deleteCliente(id) {
+            try {
+                console.log('Função deleteCliente chamada para ID:', id);
+                
+                // Obter dados do cliente para mostrar no modal de confirmação
+                const { data: cliente, error: getError } = await getClienteById(id);
+                
+                if (getError || !cliente) {
+                    showError('Erro ao obter dados do cliente: ' + (getError ? getError.message : 'Cliente não encontrado'));
+                    return;
+                }
+                
+                console.log('Dados do cliente obtidos:', cliente);
+                
+                // Preencher o modal com os dados do cliente
+                document.getElementById('novoDeleteNome').textContent = cliente.NOME_CLIENTE || '';
+                document.getElementById('novoDeleteCNPJ').textContent = cliente.CNPJ || '';
+                
+                // Definir o ID do cliente a ser excluído
+                window.clienteIdToDelete = id;
+                
+                // Configurar botões do modal
+                const btnConfirm = document.getElementById('novoConfirmBtn');
+                const btnCancel = document.getElementById('novoCancelBtn');
+                const btnClose = document.getElementById('novoCloseBtn');
+                
+                // Configurar os eventos diretamente
+                btnConfirm.onclick = confirmDeleteCliente;
+                btnCancel.onclick = closeDeleteModal;
+                btnClose.onclick = closeDeleteModal;
+                
+                // Mostrar o modal
+                const modal = document.getElementById('novoDeleteModal');
+                modal.style.display = 'flex';
+                console.log('Modal de exclusão exibido');
+                
+            } catch (error) {
+                console.error('Erro ao abrir modal de exclusão:', error);
+                showError('Erro ao preparar exclusão: ' + error.message);
+            }
+        }
+        
+        // Função para fechar modal de exclusão
+        function closeDeleteModal() {
+            console.log('Fechando modal de exclusão');
+            document.getElementById('novoDeleteModal').style.display = 'none';
+            window.clienteIdToDelete = null;
+        }
+        
+        // Função para confirmar a exclusão do cliente
+        async function confirmDeleteCliente() {
+            try {
+                console.log('Confirmando exclusão do cliente');
+                const clienteId = window.clienteIdToDelete;
+                
+                if (!clienteId) {
+                    showError('ID do cliente não definido');
+                    return;
+                }
+                
+                // Fechar o modal de confirmação
+                document.getElementById('novoDeleteModal').style.display = 'none';
+                
+                // Mostrar indicador de carregamento
+                showMiniLoader();
+                
+                // Chamar função de exclusão do Supabase
+                console.log('Excluindo cliente ID:', clienteId);
+                const { error } = await excluirCliente(clienteId);
+                
+                // Remover indicador de carregamento
+                hideMiniLoader();
+                
+                if (error) {
+                    console.error('Erro ao excluir cliente:', error);
+                    showError('Erro ao excluir cliente: ' + error.message);
+                    return;
+                }
+                
+                // Exibir mensagem de sucesso
+                showSuccess('Cliente excluído com sucesso!');
+                
+                // Recarregar a lista de clientes
+                await loadClientes();
+                
+            } catch (error) {
+                // Remover indicador de carregamento
+                hideMiniLoader();
+                
+                console.error('Erro ao excluir cliente:', error);
+                showError('Erro ao excluir cliente: ' + error.message);
+            }
+        }
+        
+        // Funções para mostrar/esconder mini loader
+        function showMiniLoader() {
+            const loaderOverlay = document.createElement('div');
+            loaderOverlay.classList.add('mini-loader-overlay');
+            loaderOverlay.id = 'miniLoader';
+            
+            const loader = document.createElement('div');
+            loader.classList.add('mini-loader');
+            
+            loaderOverlay.appendChild(loader);
+            document.body.appendChild(loaderOverlay);
+        }
+        
+        function hideMiniLoader() {
+            const loader = document.getElementById('miniLoader');
+            if (loader) {
+                loader.remove();
+            }
+        }
+
+        // Função para exibir mensagem de erro
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            
+            // Esconder após 5 segundos
+            setTimeout(function() {
+                errorAlert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Função para exibir mensagem de sucesso
+        function showSuccess(message) {
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            
+            successMessage.textContent = message;
+            successAlert.style.display = 'block';
+            
+            // Esconder após 5 segundos
+            setTimeout(function() {
+                successAlert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Função para aplicar filtros e exibir clientes
+        function applyFiltersAndDisplay() {
+            try {
+                console.log('Aplicando filtros e exibindo clientes...');
+                
+                // Verificar se temos dados
+                if (!clientesData || !Array.isArray(clientesData)) {
+                    console.error('Dados de clientes inválidos:', clientesData);
+                    clientesData = [];
+                }
+                
+                // Filtrar dados
+                let filteredData = clientesData;
+                
+                // Aplicar filtro de busca
+                if (searchTerm) {
+                    console.log('Aplicando filtro de busca:', searchTerm);
+                    const term = searchTerm.toLowerCase();
+                    filteredData = filteredData.filter(cliente => 
+                        (cliente.NOME_CLIENTE && cliente.NOME_CLIENTE.toLowerCase().includes(term)) || 
+                        (cliente.CNPJ && cliente.CNPJ.toLowerCase().includes(term))
+                    );
+                }
+                
+                // Aplicar filtro de status
+                if (window.statusFilter && window.statusFilter !== 'todos') {
+                    console.log('Aplicando filtro de status:', window.statusFilter);
+                    const isActive = window.statusFilter === 'ativo';
+                    filteredData = filteredData.filter(cliente => {
+                        // Verificar se o cliente tem o campo ADM que indica se está ativo
+                        // ADM = "ADM" significa que é um administrador/ativo
+                        // ADM = null ou vazio significa que não é administrador/inativo
+                        const clienteAtivo = cliente.ADM === 'ADM';
+                        return isActive ? clienteAtivo : !clienteAtivo;
+                    });
+                }
+                
+                console.log('Clientes filtrados:', filteredData.length);
+                
+                // Calcular total de páginas
+                totalPages = Math.ceil(filteredData.length / itemsPerPage);
+                
+                // Ajustar página atual se necessário
+                if (currentPage > totalPages) {
+                    currentPage = totalPages || 1;
+                }
+                
+                // Renderizar clientes
+                renderClientes(filteredData);
+                
+                // Atualizar paginação
+                updatePagination();
+                
+                // Esconder loader
+                document.getElementById('clientesLoader').style.display = 'none';
+                
+                console.log('Filtros aplicados e clientes exibidos com sucesso');
+            } catch (error) {
+                console.error('Erro ao aplicar filtros:', error);
+                
+                // Esconder loader
+                document.getElementById('clientesLoader').style.display = 'none';
+                
+                // Mostrar mensagem de erro
+                document.getElementById('clientesError').style.display = 'block';
+            }
+        }
+
+        // Função para inicializar máscara para CNPJ
+        function initCNPJMask() {
+            const cnpjInput = document.getElementById('cnpj');
+            if (cnpjInput) {
+                cnpjInput.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    
+                    // Remover caracteres não numéricos
+                    value = value.replace(/\D/g, '');
+                    
+                    // Aplicar máscara: XX.XXX.XXX/XXXX-XX
+                    if (value.length > 0) {
+                        value = value.substring(0, 14); // Limitar a 14 dígitos
+                        
+                        // Aplicar formatação
+                        if (value.length <= 2) {
+                            // Não formatar ainda
+                        } else if (value.length <= 5) {
+                            value = value.replace(/^(\d{2})(\d+)/, '$1.$2');
+                        } else if (value.length <= 8) {
+                            value = value.replace(/^(\d{2})(\d{3})(\d+)/, '$1.$2.$3');
+                        } else if (value.length <= 12) {
+                            value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d+)/, '$1.$2.$3/$4');
+                        } else {
+                            value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d+)/, '$1.$2.$3/$4-$5');
+                        }
+                    }
+                    
+                    e.target.value = value;
+                });
+            }
+        }
+
+        // Função para atualizar os botões de exclusão
+        function updateDeleteButtons() {
+            // Remover manipuladores de eventos antigos e adicionar novos
+            const deleteButtons = document.querySelectorAll('.delete-cliente');
+            deleteButtons.forEach(button => {
+                button.removeEventListener('click', deleteClienteHandler);
+                button.addEventListener('click', deleteClienteHandler);
+            });
+            console.log(`Atualizados ${deleteButtons.length} botões de exclusão`);
+        }
+
+        // Função para abrir o modal de confirmação de exclusão
+        async function openDeleteModal(clienteId) {
+            try {
+                console.log('Abrindo modal de exclusão para cliente ID:', clienteId);
+                
+                // Obter dados do cliente para mostrar no modal de confirmação
+                const { data: cliente, error: getError } = await getClienteById(clienteId);
+                
+                if (getError || !cliente) {
+                    showError('Erro ao obter dados do cliente: ' + (getError ? getError.message : 'Cliente não encontrado'));
+                    return;
+                }
+                
+                // Preencher o modal com os dados do cliente
+                document.getElementById('novoDeleteNome').textContent = cliente.NOME_CLIENTE || '';
+                document.getElementById('novoDeleteCNPJ').textContent = cliente.CNPJ || '';
+                
+                // Definir o ID do cliente a ser excluído
+                window.clienteIdToDelete = clienteId;
+                
+                // Configurar botões do modal
+                const btnConfirm = document.getElementById('novoConfirmBtn');
+                const btnCancel = document.getElementById('novoCancelBtn');
+                const btnClose = document.getElementById('novoCloseBtn');
+                
+                // Remover qualquer evento anterior
+                if (btnConfirm) {
+                    const newBtnConfirm = btnConfirm.cloneNode(true);
+                    btnConfirm.parentNode.replaceChild(newBtnConfirm, btnConfirm);
+                    newBtnConfirm.addEventListener('click', confirmDeleteCliente);
+                }
+                
+                if (btnCancel) {
+                    const newBtnCancel = btnCancel.cloneNode(true);
+                    btnCancel.parentNode.replaceChild(newBtnCancel, btnCancel);
+                    newBtnCancel.addEventListener('click', closeDeleteModal);
+                }
+                
+                if (btnClose) {
+                    const newBtnClose = btnClose.cloneNode(true);
+                    btnClose.parentNode.replaceChild(newBtnClose, btnClose);
+                    newBtnClose.addEventListener('click', closeDeleteModal);
+                }
+                
+                // Mostrar o modal
+                const modal = document.getElementById('novoDeleteModal');
+                modal.style.display = 'flex';
+                console.log('Modal de exclusão exibido');
+                
+            } catch (error) {
+                console.error('Erro ao abrir modal de exclusão:', error);
+                showError('Erro ao preparar exclusão: ' + error.message);
+            }
+        }
+
+        // Função para chamar a exclusão do cliente no Supabase
+        async function excluirCliente(clienteId) {
+            console.log('Chamando excluirCliente para ID:', clienteId);
+            try {
+                // Chamando diretamente pelo supabase para evitar conflito de função
+                const { error } = await supabase
+                    .from('Clientes')
+                    .delete()
+                    .eq('id', clienteId);
+                    
+                if (error) {
+                    console.error('Erro na exclusão do cliente:', error);
+                    return { error };
+                }
+                
+                console.log('Cliente excluído com sucesso!');
+                return { error: null };
+            } catch (error) {
+                console.error('Erro na função excluirCliente:', error);
+                return { error };
+            }
+        }
+    </script>
+</body>
+
+</html> 

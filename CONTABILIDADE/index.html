@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnvioDocs - Sistema de Contabilidade</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    
+    <!-- GSAP para animações avançadas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Lottie para animações vetoriais -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    
+    <!-- Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.27/bundled/lenis.min.js"></script>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+            </div>
+            <nav class="menu">
+                <div class="hamburger">
+                    <input type="checkbox" id="hamburger-input">
+                    <svg viewBox="0 0 32 32">
+                        <path class="line line-top-bottom" d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22"></path>
+                        <path class="line" d="M7 16 27 16"></path>
+                    </svg>
+                </div>
+            </nav>
+        </div>
+        <div class="menu-aberto">
+            <div class="nav-menu">
+                <a href="#inicio">Início</a>
+                <a href="#sobre">Sobre</a>
+                <a href="#funcionalidades">Funcionalidades</a>
+                <a href="#contato">Contato</a>
+                <a href="login.html" class="login-btn">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Seção Inicial -->
+    <section id="inicio" class="inicio">
+        <div class="container-inicio">
+            <div class="conteudo-inicio">
+                <div class="titulo-inicio">
+                    <h1>Sistema de <span class="destaque-inicio">Contabilidade</span> EnvioDocs</h1>
+                </div>
+                <div class="paragrafo-inicio">
+                    <p>Gerencie documentos contábeis, contratos e comunicados com seus clientes de forma simples e eficiente.</p>
+                </div>
+                <a href="login.html" class="cta">
+                    <span>Acessar Sistema</span>
+                    <svg width="13px" height="10px" viewBox="0 0 13 10">
+                        <path d="M1,5 L11,5"></path>
+                        <polyline points="8 1 12 5 8 9"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Sobre -->
+    <section id="sobre" class="sobre">
+        <div class="container-sobre">
+            <div class="headline-sobre">
+                <div class="headline-scroll">
+                    <span class="bold">EnvioDocs</span>
+                    <span class="divisor">•</span>
+                    <span class="light">Sistema de Contabilidade</span>
+                    <span class="divisor">•</span>
+                    <span class="bold">EnvioDocs</span>
+                    <span class="divisor">•</span>
+                    <span class="light">Sistema de Contabilidade</span>
+                </div>
+            </div>
+            <div class="conteudo-sobre">
+                <div class="left-sobre">
+                    <div class="textos-sobre">
+                        <h1>Simplifique a gestão de documentos contábeis</h1>
+                        <p>O EnvioDocs é uma plataforma completa para gerenciamento de documentos contábeis, contratos e comunicados com seus clientes. Com interface intuitiva e recursos avançados, você otimiza processos e melhora a comunicação com seus clientes.</p>
+                    </div>
+                </div>
+                <div class="right-sobre">
+                    <div class="imagem-sobre">
+                        <img src="assets/images/dashboard.png" alt="Dashboard EnvioDocs">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Funcionalidades -->
+    <section id="funcionalidades" class="skills">
+        <div class="container-skills">
+            <div class="headline-skills">
+                <div class="text-headline-skills">
+                    <h2>Funcionalidades</h2>
+                    <p>Conheça os principais recursos do sistema</p>
+                </div>
+            </div>
+            <div class="conteudo-skills">
+                <div class="box-skills">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <h3>Gestão de Documentos</h3>
+                    <p>Organize e compartilhe documentos contábeis com seus clientes de forma segura.</p>
+                </div>
+                <div class="box-skills">
+                    <i class="bi bi-people"></i>
+                    <h3>Cadastro de Clientes</h3>
+                    <p>Gerencie informações de clientes e personalize o acesso a documentos.</p>
+                </div>
+                <div class="box-skills">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    <h3>Visualização de PDFs</h3>
+                    <p>Visualize documentos PDF diretamente na plataforma sem necessidade de download.</p>
+                </div>
+                <div class="box-skills">
+                    <i class="bi bi-chat-dots"></i>
+                    <h3>Comunicados</h3>
+                    <p>Envie comunicados importantes para seus clientes diretamente pela plataforma.</p>
+                </div>
+                <div class="box-skills">
+                    <i class="bi bi-file-earmark-check"></i>
+                    <h3>Contratos</h3>
+                    <p>Gerencie contratos sociais e documentos legais de forma organizada.</p>
+                </div>
+                <div class="box-skills">
+                    <i class="bi bi-shield-check"></i>
+                    <h3>Segurança</h3>
+                    <p>Controle de acesso e proteção de dados para garantir a segurança das informações.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Contato -->
+    <section id="contato" class="contato">
+        <div class="container-contato">
+            <div class="headline-contato">
+                <div class="titulo-contato">
+                    <h1>Entre em contato</h1>
+                </div>
+                <div class="descricao-contato">
+                    <p>Tem dúvidas sobre o sistema? Entre em contato conosco.</p>
+                </div>
+            </div>
+            <div class="conteudo-contato">
+                <div class="formulario-contato">
+                    <h2>Envie uma mensagem</h2>
+                    <p>Preencha o formulário abaixo e entraremos em contato o mais breve possível.</p>
+                    <form class="form" id="contactForm">
+                        <input type="text" placeholder="Nome" id="nome" required>
+                        <input type="email" placeholder="E-mail" id="email" required>
+                        <textarea placeholder="Mensagem" id="mensagem" required></textarea>
+                        <button type="submit" class="btn">Enviar mensagem</button>
+                    </form>
+                </div>
+                <div class="logo-contato">
+                    <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container-footer">
+            <div class="footer-column logo-column">
+                <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+            </div>
+            <div class="footer-column menu-column">
+                <div class="footer-nav">
+                    <a href="#inicio">Início</a>
+                    <a href="#sobre">Sobre</a>
+                    <a href="#funcionalidades">Funcionalidades</a>
+                    <a href="#contato">Contato</a>
+                </div>
+            </div>
+            <div class="footer-column social-column">
+                <div class="social-links">
+                    <a href="#"><i class="bi bi-instagram"></i></a>
+                    <a href="#"><i class="bi bi-facebook"></i></a>
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+                    <a href="#"><i class="bi bi-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-column credits-column">
+                <p>&copy; 2025 EnvioDocs. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html> 

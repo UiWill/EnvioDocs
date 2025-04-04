@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contratos - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="clientes.html">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="documentos.html">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                            <span>Documentos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="comunicados.html">
+                            <i class="bi bi-chat-dots-fill"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="contratos.html">
+                            <i class="bi bi-file-earmark-check-fill"></i>
+                            <span>Contratos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="configuracoes.html">
+                            <i class="bi bi-gear-fill"></i>
+                            <span>Configurações</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Contratos Sociais</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role" id="userRole">Carregando...</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-header">
+                <div class="search-filter">
+                    <div class="search-box">
+                        <input type="text" placeholder="Buscar contrato por nome do cliente ou CNPJ..." id="searchInput">
+                        <button id="searchButton">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="addContratoBtn">
+                        <i class="bi bi-plus-lg"></i> Novo Contrato
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-success" id="successAlert" style="display: none;">
+                <i class="bi bi-check-circle-fill"></i>
+                <span id="successMessage"></span>
+            </div>
+
+            <div class="alert alert-danger" id="errorAlert" style="display: none;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span id="errorMessage"></span>
+            </div>
+
+            <div class="content-body">
+                <div class="table-container">
+                    <div id="contratosLoader" class="loader-container">
+                        <div class="spinner"></div>
+                        <p>Carregando contratos...</p>
+                    </div>
+                    <div id="contratosError" class="error-container" style="display: none;">
+                        <p>Erro ao carregar contratos.</p>
+                    </div>
+                    <table id="contratosTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome do Cliente</th>
+                                <th>CNPJ</th>
+                                <th>Data de Inclusão</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contratosTableBody">
+                            <!-- Os contratos serão adicionados aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="pagination">
+                    <!-- Paginação será adicionada via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar/Editar Contrato -->
+    <div class="modal-backdrop" id="contratoModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Adicionar Contrato Social</h2>
+                <button class="modal-close" id="closeModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="contratoForm">
+                    <input type="hidden" id="contratoId">
+                    <div class="form-group">
+                        <label for="clienteSelect" class="form-label">Cliente</label>
+                        <select id="clienteSelect" class="form-control form-select" required>
+                            <option value="">Selecione um cliente...</option>
+                            <!-- Os clientes serão adicionados aqui dinamicamente -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nomeContrato" class="form-label">Nome do Documento</label>
+                        <input type="text" id="nomeContrato" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fileUpload" class="form-label">Arquivo do Contrato (PDF)</label>
+                        <input type="file" id="fileUpload" class="form-control" accept="application/pdf">
+                        <div class="form-text">Selecione um arquivo PDF do contrato social.</div>
+                    </div>
+                    <div id="contratoExistente" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Contrato Atual</label>
+                            <div class="current-file-info">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                                <span id="currentFileName">arquivo.pdf</span>
+                                <a href="#" id="viewCurrentFileBtn" class="btn-link" target="_blank">
+                                    <i class="bi bi-eye"></i> Visualizar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveBtn">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Visualização de PDF -->
+    <div class="modal-backdrop" id="pdfViewModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h2 class="modal-title" id="pdfViewTitle">Visualizar Contrato Social</h2>
+                <button class="modal-close" id="closePdfModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="pdf-container">
+                    <iframe id="pdfViewer" src="" width="100%" height="500px"></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="downloadPdfBtn" class="btn btn-primary" download>
+                    <i class="bi bi-download"></i> Download
+                </a>
+                <button class="btn btn-secondary" id="closePdfBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal-backdrop" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirmar Exclusão</h2>
+                <button class="modal-close" id="closeDeleteModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o contrato <strong id="deleteContratoName"></strong>?</p>
+                <p>Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDeleteBtn">Cancelar</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/supabase.js"></script>
+    <script src="assets/js/contratos.js"></script>
+</body>
+
+</html> 

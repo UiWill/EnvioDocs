@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Cliente - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <!-- Alerta de erro -->
+    <div id="errorAlert" class="alert-error" style="display: none;">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span id="errorMessage"></span>
+        <button class="close-alert"><i class="bi bi-x"></i></button>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="bi bi-house-door"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="comunicados.html">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="clientes.html">
+                            <i class="bi bi-people"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Clientes</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role" id="userRole">Carregando...</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Cabeçalho do cliente -->
+                <div id="clienteLoader" class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Carregando informações do cliente...</p>
+                </div>
+
+                <div id="clienteHeader" class="client-header" style="display: none;">
+                    <div class="client-info">
+                        <h1 id="clienteNome" class="client-name">Nome do Cliente</h1>
+                        <p id="clienteCnpj" class="client-cnpj">00.000.000/0000-00</p>
+                    </div>
+                </div>
+
+                <!-- Botões de ação do cliente -->
+                <div class="client-actions">
+                    <button id="btnEnviarContrato" class="action-btn">
+                        <i class="bi bi-file-earmark-text"></i> Enviar contrato
+                    </button>
+                    <button id="btnVerContratos" class="action-btn">
+                        <i class="bi bi-file-earmark-text"></i> Ver Contratos
+                    </button>
+                    <button id="btnVerComprovantes" class="action-btn">
+                        <i class="bi bi-file-earmark-check"></i> Ver comprovantes
+                    </button>
+                </div>
+
+                <!-- Seção de impostos -->
+                <h2 class="section-title">Impostos para pagamentos</h2>
+                
+                <!-- Filtros de documentos -->
+                <div class="filters-container">
+                    <div class="filters-group">
+                        <label>Filtrar por:</label>
+                        <div class="filter-buttons">
+                            <button id="filterAll" class="filter-btn active">Todos</button>
+                            <button id="filterPending" class="filter-btn">Pendentes</button>
+                            <button id="filterPaid" class="filter-btn">Pagos</button>
+                            <button id="filterOverdue" class="filter-btn">Vencidos</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão de diagnóstico (escondido) -->
+                <div class="d-flex justify-content-end mb-3" style="display: none !important;">
+                    <button id="btnDiagnostico" class="btn btn-secondary ms-2" style="background-color: #ED6F3B; color: white; margin-left: 10px; border: 2px solid #ED6F3B; font-weight: bold;">
+                        <i class="bi bi-bug"></i> Diagnóstico
+                    </button>
+                </div>
+
+                <!-- Loader para impostos -->
+                <div id="impostosLoader" class="loading-data">
+                    <div class="spinner"></div>
+                    <p>Carregando impostos...</p>
+                </div>
+
+                <!-- Erro ao carregar impostos -->
+                <div id="impostosError" class="error-message" style="display: none;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h4>Erro ao carregar impostos</h4>
+                    <p>Não foi possível carregar os impostos. Por favor, tente novamente mais tarde.</p>
+                </div>
+
+                <!-- Estado vazio (nenhum imposto encontrado) -->
+                <div id="impostosEmpty" class="empty-state" style="display: none;">
+                    <i class="bi bi-file-earmark-x"></i>
+                    <h4>Nenhum imposto encontrado</h4>
+                    <p>Não foram encontrados impostos para este cliente.</p>
+                    <p>Verifique se o CNPJ <span id="cnpjClienteEmpty">-</span> está correto.</p>
+                    <p>CNPJ_CURTO utilizado: <span id="cnpjCurtoClienteEmpty">-</span></p>
+                </div>
+
+                <!-- Tabela de impostos -->
+                <div class="table-container">
+                    <table id="impostosTable" class="data-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Imposto</th>
+                                <th>Data do Pagamento</th>
+                                <th>Valor</th>
+                                <th>Data de Vencimento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="impostosTableBody">
+                            <!-- Os dados serão inseridos aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Aqui será inserido o total via JavaScript -->
+
+                <!-- Resultado do diagnóstico (escondido) -->
+                <div id="diagnosticoResultado" class="diagnostico-resultado">
+                    <h4>Informações de Diagnóstico</h4>
+                    <pre id="diagnosticoInfo"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script src="assets/js/clienteDetails.js"></script>
+    
+    <!-- Modal de Edição de Documento -->
+    <div id="editDocumentoModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Editar Documento</h2>
+                <button class="modal-close" id="closeEditModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editDocumentoForm">
+                    <input type="hidden" id="editDocumentoId">
+                    
+                    <div class="form-group">
+                        <label for="editNomePdf" class="form-label">Nome do Documento</label>
+                        <input type="text" id="editNomePdf" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editCnpjCliente" class="form-label">CNPJ do Cliente</label>
+                        <input type="text" id="editCnpjCliente" class="form-control" required>
+                        <small class="form-text">Formato: XX.XXX.XXX/XXXX-XX</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editDataArq" class="form-label">Data de Vencimento</label>
+                        <input type="text" id="editDataArq" class="form-control" required>
+                        <small class="form-text">Formato: DD/MM/AAAA</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editValorPfd" class="form-label">Valor</label>
+                        <input type="text" id="editValorPfd" class="form-control" required>
+                        <small class="form-text">Exemplo: 100,00</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelEditDocumento">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveEditDocumento">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

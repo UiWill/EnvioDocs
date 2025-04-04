@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprovantes do Cliente - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <!-- Alerta de erro -->
+    <div id="errorAlert" class="alert-error" style="display: none;">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span id="errorMessage"></span>
+        <button class="close-alert"><i class="bi bi-x"></i></button>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="bi bi-house-door"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="comunicados.html">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="clientes.html">
+                            <i class="bi bi-people"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Comprovantes do Cliente</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role" id="userRole">Carregando...</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Cabeçalho com informações do cliente -->
+                <div id="clienteHeader" class="client-header">
+                    <div class="client-info">
+                        <h1 id="clienteNome" class="client-name">Nome do Cliente</h1>
+                        <p id="clienteCnpj" class="client-cnpj">00.000.000/0000-00</p>
+                    </div>
+                </div>
+
+                <!-- Botão de voltar -->
+                <div class="action-buttons">
+                    <button id="btnVoltar" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar para Detalhes
+                    </button>
+                </div>
+
+                <!-- Filtro por data -->
+                <div class="section-title-container">
+                    <h2 class="section-title">Filtrar Comprovantes por Data</h2>
+                </div>
+                
+                <div class="filter-container">
+                    <div class="date-filters">
+                        <div class="date-filter-group">
+                            <label for="dataInicio">Data Inicial:</label>
+                            <input type="date" id="dataInicio" class="date-input">
+                        </div>
+                        <div class="date-filter-group">
+                            <label for="dataFim">Data Final:</label>
+                            <input type="date" id="dataFim" class="date-input">
+                        </div>
+                        <button id="btnFiltrar" class="btn btn-primary">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
+                        <button id="btnLimparFiltro" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Limpar Filtro
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de comprovantes -->
+                <div class="section-title-container">
+                    <h2 class="section-title">Comprovantes Disponíveis</h2>
+                </div>
+
+                <!-- Loader para comprovantes -->
+                <div id="comprovantesLoader" class="loading-data">
+                    <div class="spinner"></div>
+                    <p>Carregando comprovantes...</p>
+                </div>
+
+                <!-- Erro ao carregar comprovantes -->
+                <div id="comprovantesError" class="error-message" style="display: none;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h4>Erro ao carregar comprovantes</h4>
+                    <p>Não foi possível carregar os comprovantes. Por favor, tente novamente mais tarde.</p>
+                </div>
+
+                <!-- Estado vazio (nenhum comprovante encontrado) -->
+                <div id="comprovantesEmpty" class="empty-state" style="display: none;">
+                    <i class="bi bi-file-earmark-x"></i>
+                    <h4>Nenhum comprovante encontrado</h4>
+                    <p>Não foram encontrados comprovantes para este cliente.</p>
+                    <p>CNPJ pesquisado: <span id="cnpjClienteEmpty">-</span></p>
+                </div>
+
+                <!-- Tabela de comprovantes -->
+                <div class="table-container">
+                    <table id="comprovantesTable" class="data-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>CNPJ</th>
+                                <th>Data de Criação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comprovantesTableBody">
+                            <!-- Os dados serão inseridos aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esconder loader após carregar
+            setTimeout(function() {
+                const loader = document.querySelector('.loader-wrapper');
+                loader.classList.add('loader-hidden');
+            }, 500);
+            
+            // Obter parâmetros da URL
+            const params = new URLSearchParams(window.location.search);
+            const clienteCnpj = params.get('cnpj') ? decodeURIComponent(params.get('cnpj')) : '';
+            const clienteNome = params.get('nome') ? decodeURIComponent(params.get('nome')) : 'Cliente';
+            
+            // Carregar informações do usuário
+            carregarInfoUsuario();
+            
+            // Preencher dados do cliente
+            document.getElementById('clienteNome').textContent = clienteNome;
+            document.getElementById('clienteCnpj').textContent = formatarCNPJ(clienteCnpj);
+            
+            // Adicionar evento ao botão voltar
+            document.getElementById('btnVoltar').addEventListener('click', function() {
+                window.location.href = `clienteDetails.html?cnpj=${encodeURIComponent(clienteCnpj)}`;
+            });
+            
+            // Buscar comprovantes do cliente
+            buscarComprovantesCliente(formatarCNPJ(clienteCnpj));
+            
+            // Adicionar eventos para fechar alertas
+            document.querySelectorAll('.close-alert').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.parentElement.style.display = 'none';
+                });
+            });
+            
+            // Inicializar sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('collapsed');
+                document.querySelector('.main-content').classList.toggle('expanded');
+            });
+            
+            // Adicionar evento ao botão de filtrar
+            document.getElementById('btnFiltrar').addEventListener('click', function() {
+                const dataInicio = document.getElementById('dataInicio').value;
+                const dataFim = document.getElementById('dataFim').value;
+                
+                buscarComprovantesCliente(formatarCNPJ(clienteCnpj), dataInicio, dataFim);
+            });
+            
+            // Adicionar evento ao botão de limpar filtro
+            document.getElementById('btnLimparFiltro').addEventListener('click', function() {
+                document.getElementById('dataInicio').value = '';
+                document.getElementById('dataFim').value = '';
+                
+                buscarComprovantesCliente(formatarCNPJ(clienteCnpj));
+            });
+            
+            // Definir data atual para o campo de data final
+            const hoje = new Date();
+            const dataFormatada = hoje.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+            document.getElementById('dataFim').value = dataFormatada;
+            
+            // Definir data de um mês atrás para o campo de data inicial
+            const mesPassado = new Date();
+            mesPassado.setMonth(mesPassado.getMonth() - 1);
+            const dataInicialFormatada = mesPassado.toISOString().split('T')[0];
+            document.getElementById('dataInicio').value = dataInicialFormatada;
+        });
+        
+        // Função para carregar informações do usuário logado
+        async function carregarInfoUsuario() {
+            try {
+                const user = await supabase.auth.getUser();
+                if (user && user.data && user.data.user) {
+                    const { data, error } = await supabase
+                        .from('perfis')
+                        .select('*')
+                        .eq('id', user.data.user.id)
+                        .single();
+                    
+                    if (data) {
+                        document.getElementById('userName').textContent = data.nome || data.email;
+                        document.getElementById('userRole').textContent = data.cargo || 'Usuário';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuário:', error);
+            }
+        }
+        
+        // Função para buscar comprovantes do cliente
+        async function buscarComprovantesCliente(cnpj, dataInicio = null, dataFim = null) {
+            console.log('Buscando comprovantes para o CNPJ:', cnpj);
+            if (dataInicio && dataFim) {
+                console.log('Filtrando por período:', dataInicio, 'até', dataFim);
+            }
+            
+            // Mostrar loader e esconder outros elementos
+            document.getElementById('comprovantesLoader').style.display = 'flex';
+            document.getElementById('comprovantesTable').style.display = 'none';
+            document.getElementById('comprovantesError').style.display = 'none';
+            document.getElementById('comprovantesEmpty').style.display = 'none';
+            
+            try {
+                // Verificar se temos o CNPJ
+                if (!cnpj) {
+                    throw new Error('CNPJ não disponível para buscar comprovantes');
+                }
+                
+                // Iniciar consulta
+                let query = supabase
+                    .from('comprovantes')
+                    .select('*')
+                    .eq('CNPJ', cnpj);
+                
+                // Adicionar filtro de data se fornecido
+                if (dataInicio && dataFim) {
+                    const dataInicioObj = new Date(dataInicio + 'T00:00:00');
+                    const dataFimObj = new Date(dataFim + 'T23:59:59');
+                    
+                    query = query
+                        .gte('created_at', dataInicioObj.toISOString())
+                        .lte('created_at', dataFimObj.toISOString());
+                }
+                
+                // Executar consulta
+                const { data, error } = await query;
+                
+                if (error) {
+                    console.error('Erro ao buscar comprovantes:', error);
+                    document.getElementById('comprovantesLoader').style.display = 'none';
+                    document.getElementById('comprovantesError').style.display = 'block';
+                    document.getElementById('comprovantesError').querySelector('p').textContent = 'Erro ao carregar comprovantes: ' + error.message;
+                    return;
+                }
+                
+                // Verificar se encontrou comprovantes
+                if (!data || data.length === 0) {
+                    console.log('Nenhum comprovante encontrado com CNPJ:', cnpj);
+                    document.getElementById('comprovantesLoader').style.display = 'none';
+                    document.getElementById('comprovantesEmpty').style.display = 'block';
+                    document.getElementById('cnpjClienteEmpty').textContent = cnpj || '-';
+                    return;
+                }
+                
+                console.log(`Encontrados ${data.length} comprovantes para CNPJ ${cnpj}:`, data);
+                
+                // Renderizar comprovantes
+                renderizarComprovantes(data);
+            } catch (error) {
+                console.error('Erro na busca de comprovantes:', error);
+                document.getElementById('comprovantesLoader').style.display = 'none';
+                document.getElementById('comprovantesError').style.display = 'block';
+                document.getElementById('comprovantesError').querySelector('p').textContent = 'Erro: ' + error.message;
+            }
+        }
+        
+        // Função para renderizar comprovantes na tabela
+        function renderizarComprovantes(comprovantes) {
+            try {
+                const tableBody = document.getElementById('comprovantesTableBody');
+                if (!tableBody) {
+                    console.error('Elemento comprovantesTableBody não encontrado');
+                    return;
+                }
+                
+                tableBody.innerHTML = '';
+                
+                comprovantes.forEach((comprovante) => {
+                    // Criar nova linha na tabela
+                    const row = document.createElement('tr');
+                    
+                    // Formatar data de criação
+                    let dataCriacao = 'N/A';
+                    if (comprovante.created_at) {
+                        const data = new Date(comprovante.created_at);
+                        dataCriacao = data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+                    }
+                    
+                    // Adicionar células na linha
+                    row.innerHTML = `
+                        <td>${comprovante.CNPJ || 'N/A'}</td>
+                        <td>${dataCriacao}</td>
+                        <td class="actions-cell">
+                            <a href="${comprovante.URL_COMPROVANTE}" target="_blank" class="action-icon view-action" title="Visualizar comprovante">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </a>
+                            <a href="#" class="action-icon delete-action" title="Excluir comprovante" data-id="${comprovante.id}">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Mostrar tabela e esconder loader
+                document.getElementById('comprovantesLoader').style.display = 'none';
+                document.getElementById('comprovantesTable').style.display = 'table';
+                
+                // Adicionar eventos aos botões de exclusão
+                adicionarEventosExclusao();
+                
+            } catch (error) {
+                console.error('Erro ao renderizar comprovantes:', error);
+                document.getElementById('comprovantesLoader').style.display = 'none';
+                document.getElementById('comprovantesError').style.display = 'block';
+                document.getElementById('comprovantesError').querySelector('p').textContent = 'Erro ao exibir comprovantes: ' + error.message;
+            }
+        }
+        
+        // Função para mostrar mensagem de erro
+        function mostrarErro(mensagem) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = mensagem;
+            errorAlert.style.display = 'flex';
+            
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Função para formatar CNPJ
+        function formatarCNPJ(cnpj) {
+            if (!cnpj) return '00.000.000/0000-00';
+            
+            // Remover caracteres não numéricos
+            const cnpjClean = cnpj.replace(/\D/g, '');
+            
+            // Verificar se tem o tamanho correto
+            if (cnpjClean.length !== 14) return cnpj;
+            
+            // Formatar como XX.XXX.XXX/XXXX-XX
+            return cnpjClean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+        
+        // Função para adicionar eventos aos botões de exclusão
+        function adicionarEventosExclusao() {
+            const deleteButtons = document.querySelectorAll('.delete-action');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const comprovanteId = this.getAttribute('data-id');
+                    if (comprovanteId) {
+                        confirmarExclusao(comprovanteId);
+                    }
+                });
+            });
+        }
+        
+        // Função para confirmar exclusão
+        function confirmarExclusao(comprovanteId) {
+            if (confirm('Tem certeza que deseja excluir este comprovante? Esta ação não pode ser desfeita.')) {
+                excluirComprovante(comprovanteId);
+            }
+        }
+        
+        // Função para excluir comprovante
+        async function excluirComprovante(comprovanteId) {
+            try {
+                // Mostrar loader
+                document.getElementById('comprovantesLoader').style.display = 'flex';
+                document.getElementById('comprovantesTable').style.display = 'none';
+                
+                console.log('Excluindo comprovante ID:', comprovanteId);
+                
+                // Executar exclusão no Supabase
+                const { error } = await supabase
+                    .from('comprovantes')
+                    .delete()
+                    .eq('id', comprovanteId);
+                
+                if (error) {
+                    throw new Error(error.message);
+                }
+                
+                console.log('Comprovante excluído com sucesso');
+                
+                // Buscar comprovantes novamente para atualizar a tabela
+                const clienteCnpj = document.getElementById('clienteCnpj').textContent;
+                const dataInicio = document.getElementById('dataInicio').value;
+                const dataFim = document.getElementById('dataFim').value;
+                
+                if (dataInicio && dataFim) {
+                    buscarComprovantesCliente(clienteCnpj, dataInicio, dataFim);
+                } else {
+                    buscarComprovantesCliente(clienteCnpj);
+                }
+                
+                // Mostrar mensagem de sucesso
+                mostrarErro('Comprovante excluído com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao excluir comprovante:', error);
+                document.getElementById('comprovantesLoader').style.display = 'none';
+                document.getElementById('comprovantesTable').style.display = 'table';
+                mostrarErro('Erro ao excluir comprovante: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html> 

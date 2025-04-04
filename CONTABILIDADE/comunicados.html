@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunicados - EnvioDocs</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+</head>
+<body class="dashboard-page">
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <!-- Container principal -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="Logo EnvioDocs">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="bi bi-house-door"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="comunicados.html">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="clientes.html">
+                            <i class="bi bi-people"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role" id="userRole">Usuário</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+                <a href="#" id="logoutButton" class="logout-button">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Comunicados</h1>
+                </div>
+                    </div>
+
+            <!-- Alertas -->
+            <div id="successAlert" class="alert alert-success" style="display: none;">
+                <i class="bi bi-check-circle"></i>
+                <span id="successMessage"></span>
+                <button class="close-alert">
+                    <i class="bi bi-x"></i>
+                </button>
+                    </div>
+
+            <div id="errorAlert" class="alert alert-danger" style="display: none;">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span id="errorMessage"></span>
+                <button class="close-alert">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <!-- Filtros e busca -->
+                <div class="search-filter">
+                    <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar comunicados...">
+                    <button id="searchButton" class="btn-search">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <div class="filter-box">
+                    <select id="filtroSelect" class="form-select">
+                        <option value="todos">Todos</option>
+                        <option value="geral">Gerais</option>
+                        <option value="especifico">Específicos</option>
+                        </select>
+                </div>
+                <div class="action-buttons">
+                    <button id="novoComunicadoBtn" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Novo Comunicado
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seção da tabela -->
+            <div class="section">
+                <!-- Loader para a tabela -->
+                <div id="comunicadosLoader" class="loading-data">
+                    <div class="spinner"></div>
+            </div>
+
+                <!-- Mensagem de erro -->
+                <div id="comunicadosError" class="empty-state" style="display: none;"></div>
+                
+                <div class="section-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Tipo</th>
+                                <th>Data</th>
+                                <th>Cliente</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comunicadosTableBody">
+                            <!-- Conteúdo será preenchido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginação -->
+                <div id="pagination" class="pagination">
+                    <!-- Paginação será preenchida dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar comunicado -->
+    <div class="modal-backdrop" id="comunicadoModalBackdrop">
+        <div class="modal" id="comunicadoModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalTitle">Novo Comunicado</h2>
+                    <button id="closeModal" class="modal-close">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="comunicadoForm" class="form-container">
+                        <input type="hidden" id="comunicadoId">
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="titulo">Título:</label>
+                            <input type="text" id="titulo" class="form-control" placeholder="Título do comunicado" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="tipoFiltro">Tipo:</label>
+                            <select id="tipoFiltro" class="form-control custom-select">
+                                <option value="geral">Geral (para todos)</option>
+                                <option value="especifico">Específico (para um cliente)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="clienteEspecificoGroup" class="form-group" style="display: none;">
+                            <label class="form-label" for="clienteEspecifico">Cliente:</label>
+                            <select id="clienteEspecifico" class="form-control custom-select">
+                                <option value="">Selecione um cliente</option>
+                                <!-- Opções serão preenchidas dinamicamente -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="conteudo">Conteúdo:</label>
+                            <textarea id="conteudo" class="form-control custom-textarea" rows="5" placeholder="Conteúdo do comunicado" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelBtn" class="btn btn-secondary">Cancelar</button>
+                    <button id="saveBtn" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar comunicado -->
+    <div class="modal-backdrop" id="viewComunicadoModalBackdrop">
+        <div class="modal" id="viewComunicadoModal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="viewTitulo">Detalhes do Comunicado</h2>
+                <button id="closeViewModal" class="modal-close">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="cliente-info">
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label">Data:</span>
+                            <span id="viewData" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Tipo:</span>
+                            <span id="viewTipo" class="info-value"></span>
+                    </div>
+                        <div id="viewClienteContainer" class="info-item">
+                            <span class="info-label">Cliente:</span>
+                            <span id="viewCliente" class="info-value"></span>
+                    </div>
+                    </div>
+                    <div class="info-section">
+                        <div class="info-item full-width">
+                            <span class="info-label">Conteúdo:</span>
+                            <p id="viewConteudo" class="info-value"></p>
+                    </div>
+                    </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeViewBtn" class="btn btn-primary">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar exclusão -->
+    <div class="modal-backdrop" id="deleteModalBackdrop">
+        <div class="modal" id="deleteModal">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirmar Exclusão</h2>
+                <button id="closeDeleteModal" class="modal-close">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="comunicadoId">
+                <p>Tem certeza que deseja excluir o comunicado <strong id="deleteComunicadoTitle"></strong>?</p>
+                <p>Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmDeleteBtn" class="btn btn-primary">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script src="assets/js/comunicados.js"></script>
+    
+    <!-- AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            offset: 50
+        });
+
+        // Script para ativar/desativar modais
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funções para os modais
+            function setupModal(modalId, backdropId) {
+                const modal = document.getElementById(modalId);
+                const backdrop = document.getElementById(backdropId);
+                
+                if (!modal || !backdrop) return;
+                
+                function openModal() {
+                    backdrop.classList.add('active');
+                }
+                
+                function closeModal() {
+                    backdrop.classList.remove('active');
+                }
+                
+                return { openModal, closeModal };
+            }
+            
+            // Setup para cada modal
+            const comunicadoModalControls = setupModal('comunicadoModal', 'comunicadoModalBackdrop');
+            const viewModalControls = setupModal('viewComunicadoModal', 'viewComunicadoModalBackdrop');
+            const deleteModalControls = setupModal('deleteModal', 'deleteModalBackdrop');
+            
+            // Substituir as funções existentes no window para compatibilidade com o JS existente
+            window.openComunicadoModal = function(comunicado) {
+                // Preparar o form primeiro
+                const form = document.getElementById('comunicadoForm');
+                if (form) form.reset();
+                
+                // Preencher com dados se for edição
+                if (comunicado) {
+                    const modalTitle = document.getElementById('modalTitle');
+                    const comunicadoIdInput = document.getElementById('comunicadoId');
+                    const tituloInput = document.getElementById('titulo');
+                    const conteudoInput = document.getElementById('conteudo');
+                    const tipoFiltroSelect = document.getElementById('tipoFiltro');
+                    
+                    if (modalTitle) modalTitle.textContent = 'Editar Comunicado';
+                    if (comunicadoIdInput) comunicadoIdInput.value = comunicado.id;
+                    if (tituloInput) tituloInput.value = comunicado.titulo || '';
+                    if (conteudoInput) conteudoInput.value = comunicado.comunicado || '';
+                    
+                    if (tipoFiltroSelect) {
+                        const tipoValor = comunicado.tipo === 'especifico' ? 'especifico' : 'geral';
+                        tipoFiltroSelect.value = tipoValor;
+                        
+                        const clienteEspecificoGroup = document.getElementById('clienteEspecificoGroup');
+                        if (clienteEspecificoGroup) {
+                            clienteEspecificoGroup.style.display = tipoValor === 'especifico' ? 'block' : 'none';
+                        }
+                        
+                        if (tipoValor === 'especifico' && comunicado.cnpjCurtoESP) {
+                            const clienteSelect = document.getElementById('clienteEspecifico');
+                            if (clienteSelect) {
+                                setTimeout(() => {
+                                    // Encontrar cliente com o CNPJ correspondente
+                                    const clienteOption = Array.from(clienteSelect.options).find(
+                                        opt => opt.value && opt.value.includes(comunicado.cnpjCurtoESP)
+                                    );
+                                    
+                                    if (clienteOption) {
+                                        clienteSelect.value = clienteOption.value;
+                                    } else {
+                                        // Se não encontrar, criar uma opção temporária
+                                        const option = document.createElement('option');
+                                        option.value = comunicado.cnpjCurtoESP;
+                                        option.textContent = `Cliente (${comunicado.cnpjCurtoESP})`;
+                                        clienteSelect.appendChild(option);
+                                        clienteSelect.value = comunicado.cnpjCurtoESP;
+                                    }
+                                }, 100); // Pequeno delay para garantir que o dropdown foi carregado
+                            }
+                        }
+                    }
+                } else {
+                    // Novo comunicado
+                    const modalTitle = document.getElementById('modalTitle');
+                    const comunicadoIdInput = document.getElementById('comunicadoId');
+                    const clienteEspecificoGroup = document.getElementById('clienteEspecificoGroup');
+                    
+                    if (modalTitle) modalTitle.textContent = 'Novo Comunicado';
+                    if (comunicadoIdInput) comunicadoIdInput.value = '';
+                    if (clienteEspecificoGroup) clienteEspecificoGroup.style.display = 'none';
+                }
+                
+                // Abrir o modal
+                if (comunicadoModalControls) comunicadoModalControls.openModal();
+            };
+            
+            window.closeComunicadoModal = function() {
+                if (comunicadoModalControls) comunicadoModalControls.closeModal();
+            };
+            
+            window.viewComunicado = function(id) {
+                // Buscar comunicado pelo ID
+                const comunicado = window.comunicadosData?.find(c => c.id === id);
+                if (!comunicado) {
+                    alert('Comunicado não encontrado');
+                    return;
+                }
+                
+                // Preencher dados do modal
+                const viewTituloElem = document.getElementById('viewTitulo');
+                const viewDataElem = document.getElementById('viewData');
+                const viewTipoElem = document.getElementById('viewTipo');
+                const viewClienteContainerElem = document.getElementById('viewClienteContainer');
+                const viewClienteElem = document.getElementById('viewCliente');
+                const viewConteudoElem = document.getElementById('viewConteudo');
+                
+                if (viewTituloElem) viewTituloElem.textContent = comunicado.titulo || 'Sem título';
+                
+                // Formatar data
+                if (viewDataElem) {
+                    const data = comunicado.createdAt ? new Date(comunicado.createdAt) : new Date();
+                    viewDataElem.textContent = data.toLocaleDateString('pt-BR');
+                }
+                
+                // Definir tipo
+                if (viewTipoElem) viewTipoElem.textContent = comunicado.tipo === 'especifico' ? 'Específico' : 'Geral';
+                
+                // Exibir cliente específico se houver
+                if (viewClienteContainerElem && viewClienteElem) {
+                    if (comunicado.tipo === 'especifico' && comunicado.cnpjCurtoESP) {
+                        // Encontrar nome do cliente
+                        const cliente = window.clientesData?.find(c => c.CNPJ && c.CNPJ.includes(comunicado.cnpjCurtoESP));
+                        const clienteNome = cliente ? cliente.NOME_CLIENTE : `Cliente (${comunicado.cnpjCurtoESP})`;
+                        
+                        viewClienteElem.textContent = clienteNome;
+                        viewClienteContainerElem.style.display = 'block';
+                    } else {
+                        viewClienteContainerElem.style.display = 'none';
+                    }
+                }
+                
+                // Conteúdo do comunicado
+                if (viewConteudoElem) viewConteudoElem.textContent = comunicado.comunicado || '';
+                
+                // Abrir modal
+                if (viewModalControls) viewModalControls.openModal();
+            };
+            
+            window.closeViewComunicadoModal = function() {
+                if (viewModalControls) viewModalControls.closeModal();
+            };
+            
+            window.deleteComunicado = function(id, titulo) {
+                // Armazenar ID e titulo do comunicado a ser excluído
+                const idInput = document.getElementById('comunicadoId');
+                const titleElem = document.getElementById('deleteComunicadoTitle');
+                
+                if (idInput) idInput.value = id;
+                if (titleElem) titleElem.textContent = titulo;
+                
+                // Abrir modal de confirmação
+                if (deleteModalControls) deleteModalControls.openModal();
+            };
+            
+            window.closeDeleteComunicadoModal = function() {
+                if (deleteModalControls) deleteModalControls.closeModal();
+            };
+            
+            // Eventos de clique para botões de fechamento de modal
+            document.getElementById('closeModal')?.addEventListener('click', closeComunicadoModal);
+            document.getElementById('cancelBtn')?.addEventListener('click', closeComunicadoModal);
+            document.getElementById('closeViewModal')?.addEventListener('click', closeViewComunicadoModal);
+            document.getElementById('closeViewBtn')?.addEventListener('click', closeViewComunicadoModal);
+            document.getElementById('closeDeleteModal')?.addEventListener('click', closeDeleteComunicadoModal);
+            document.getElementById('cancelDeleteBtn')?.addEventListener('click', closeDeleteComunicadoModal);
+            
+            // Toggle para o sidebar
+            document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) sidebar.classList.toggle('collapsed');
+            });
+        });
+    </script>
+</body>
+</html> 

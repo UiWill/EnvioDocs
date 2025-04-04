@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Estilos específicos para esta página -->
+    <style>
+        html, body, .dashboard-container {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .main-content {
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dashboard-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Importante para o flex container */
+        }
+        
+        .dashboard-cards-container {
+            flex-shrink: 0; /* Não permite que os cards encolham */
+            position: relative;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+        
+        .dashboard-cards {
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s ease;
+            padding: 10px 0;
+        }
+        
+        .card {
+            min-width: 200px;
+            flex: 0 0 auto;
+        }
+        
+        .card-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 10px 0;
+        }
+        
+        .card-nav-btn {
+            background: none;
+            border: none;
+            color: var(--color-white);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            opacity: 0.7;
+        }
+        
+        .card-nav-btn:hover {
+            color: var(--color-destaque1);
+            opacity: 1;
+        }
+        
+        .card-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .card-alert {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff6347;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .verificacao-relatorios-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Importante para o flex container */
+        }
+        
+        .section-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Importante para o flex container */
+        }
+        
+        .relatorios-filtro {
+            flex-shrink: 0; /* Não permite que o filtro encolha */
+        }
+        
+        .tabela-relatorios-container {
+            flex: 1;
+            overflow: auto;
+            min-height: 0; /* Importante para o overflow funcionar */
+        }
+        
+        .relatorios-table tbody {
+            height: auto; /* Deixa a altura ser determinada pelo container */
+        }
+        
+        /* Melhorar separação entre colunas */
+        .relatorios-table th,
+        .relatorios-table td {
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .relatorios-table th:last-child,
+        .relatorios-table td:last-child {
+            border-right: none;
+        }
+        
+        /* Destacar o nome do cliente */
+        .relatorios-table td:first-child {
+            background-color: rgba(255, 255, 255, 0.02);
+            font-weight: 500;
+        }
+        
+        /* Garantir que os status fiquem centralizados */
+        .relatorios-table td span.pendente,
+        .relatorios-table td span.enviado {
+            margin: 0 auto;
+            display: block;
+        }
+        
+        /* Card com indicador de pendência */
+        .card-pendente .card-value {
+            color: #ff6347;
+        }
+        
+        /* Indicadores de navegação dos cards */
+        .card-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        
+        .card-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .card-indicator.active {
+            background-color: var(--color-destaque1);
+        }
+        
+        /* Estilo para o tooltip dos documentos com problemas */
+        .card-info {
+            position: relative;
+        }
+        
+        .card-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            width: 300px;
+            max-height: 200px;
+            background-color: #1a1f2a;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            overflow-y: auto;
+        }
+        
+        .tooltip-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--color-destaque1);
+            padding-bottom: 5px;
+            border-bottom: 1px solid #2d3748;
+        }
+        
+        .tooltip-content {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .doc-id-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .doc-id-item:last-child {
+            border-bottom: none;
+        }
+        
+        #docsCamposFaltandoCard .card-value:hover + .card-tooltip,
+        .card-tooltip:hover {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li class="active">
+                        <a href="dashboard.html">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="comunicados.html">
+                            <i class="bi bi-chat-dots-fill"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="clientes.html">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role" id="userRole">Carregando...</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- Dashboard Cards - Pendências -->
+                <div class="dashboard-cards-container" id="cardsContainer">
+                    <div class="dashboard-cards" id="pendenciasCards">
+                        <!-- Card para documentos com campos importantes faltando -->
+                        <div class="card" id="docsCamposFaltandoCard">
+                            <div class="card-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div class="card-info">
+                                <h3>Documentos com campos importantes faltando</h3>
+                                <p class="card-value" id="docsCamposFaltandoCount">0</p>
+                                <div class="card-tooltip" id="docsCamposFaltandoTooltip">
+                                    <div class="tooltip-header">IDs dos documentos com problemas:</div>
+                                    <div class="tooltip-content" id="docsCamposFaltandoList"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Outros cards podem ser adicionados aqui no futuro -->
+                    </div>
+                    
+                    <!-- Botões de navegação lateral -->
+                    <button id="prevCardBtn" class="card-nav-btn">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button id="nextCardBtn" class="card-nav-btn">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Barra de rolagem -->
+                    <div class="cards-scrollbar">
+                        <div class="cards-scrollbar-thumb" id="scrollbarThumb"></div>
+                    </div>
+                    
+                    <!-- Indicadores de posição -->
+                    <div class="card-indicators" id="cardIndicators">
+                        <!-- Será preenchido dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Verificação de Relatórios Section (expandida) -->
+                <div class="section verificacao-relatorios-section">
+                    <div class="section-header">
+                        <h2>Verificação de Relatórios</h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="relatorios-filtro">
+                            <div class="filtro-grupo">
+                                <select id="mesSelect" class="form-control">
+                                    <option value="01">Janeiro</option>
+                                    <option value="02">Fevereiro</option>
+                                    <option value="03">Março</option>
+                                    <option value="04">Abril</option>
+                                    <option value="05">Maio</option>
+                                    <option value="06">Junho</option>
+                                    <option value="07">Julho</option>
+                                    <option value="08">Agosto</option>
+                                    <option value="09">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                                <select id="anoSelect" class="form-control">
+                                    <option value="2023">2023</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2025">2025</option>
+                                </select>
+                                <button id="buscarRelatoriosBtn" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Pesquisar
+                                </button>
+                            </div>
+                        </div>
+                        <div id="relatoriosLoader" class="loading-data">
+                            <div class="spinner"></div>
+                        </div>
+                        <div class="tabela-relatorios-container">
+                            <table id="tabelaRelatorios" class="data-table relatorios-table">
+                                <thead>
+                                    <tr>
+                                        <th>NOME CLIENTE</th>
+                                        <th>HONORÁRIOS</th>
+                                        <th>DARF</th>
+                                        <th>FGTS</th>
+                                        <th>HOLERITE</th>
+                                        <th>DAE</th>
+                                        <th>PGDAS</th>
+                                        <th>ALVARA</th>
+                                        <th>ESOCIAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="relatoriosTableBody">
+                                    <tr>
+                                        <td colspan="9" class="loading-data">Selecione um mês e ano e clique em Pesquisar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/supabase.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+
+</html> 

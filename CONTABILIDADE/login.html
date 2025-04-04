@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <style>
+        .login-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-end));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/images/pattern.png');
+            background-size: cover;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 450px;
+            background: linear-gradient(145deg, #1a2330, #0d161f);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo img {
+            width: 150px;
+        }
+
+        .login-title {
+            font-family: var(--font-grande);
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            color: var(--color-white);
+            font-family: var(--font-pequena);
+            font-size: 1rem;
+        }
+
+        .login-form button {
+            background-color: var(--color-destaque1);
+            color: var(--color-white);
+            font-family: var(--font-pequena);
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+        }
+
+        .login-form button:hover {
+            background-color: var(--color-destaque2);
+        }
+
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--color-gray2);
+        }
+
+        .login-options a {
+            color: var(--color-destaque1);
+            transition: color var(--transition-fast);
+        }
+
+        .login-options a:hover {
+            color: var(--color-destaque2);
+        }
+
+        .back-to-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: var(--color-white);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 3;
+            transition: color var(--transition-fast);
+        }
+
+        .back-to-home:hover {
+            color: var(--color-destaque1);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-suffix {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <a href="index.html" class="back-to-home">
+        <i class="bi bi-arrow-left"></i> Voltar para o início
+    </a>
+
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+            </div>
+            <h1 class="login-title">Acesse sua conta</h1>
+            
+            <div class="alert alert-danger" id="errorAlert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span id="errorMessage"></span>
+            </div>
+            
+            <div class="alert alert-success" id="successAlert">
+                <i class="bi bi-check-circle-fill"></i>
+                <span id="successMessage"></span>
+            </div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="input-wrapper">
+                    <input type="text" placeholder="CNPJ" id="cnpj" required>
+                </div>
+                <input type="password" placeholder="Senha" id="password" required>
+                <button type="submit" id="loginButton">Entrar</button>
+            </form>
+            <div class="login-options">
+                <a href="#" id="forgotPasswordLink">Esqueceu a senha?</a>
+                <span>Não tem conta? <a href="#" id="contactLink">Contate-nos</a></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Verificar se o Supabase foi carregado
+        if (typeof supabase === 'undefined') {
+            console.error('Erro: Supabase não foi carregado!');
+            alert('Erro ao carregar a biblioteca Supabase. Por favor, recarregue a página ou tente novamente mais tarde.');
+        } else {
+            console.log('Supabase carregado com sucesso!');
+        }
+    </script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        // Verificar se as funções do supabase.js foram carregadas
+        if (typeof loginWithEmail === 'undefined' || typeof getCurrentUser === 'undefined') {
+            console.error('Erro: Funções do supabase.js não foram carregadas!');
+            alert('Erro ao carregar as funções do Supabase. Por favor, recarregue a página ou tente novamente mais tarde.');
+        } else {
+            console.log('Funções do supabase.js carregadas com sucesso!');
+        }
+        
+        // Máscara para CNPJ
+        function aplicarMascaraCNPJ(input) {
+            let valor = input.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+            
+            if (valor.length > 14) {
+                valor = valor.substring(0, 14); // Limita a 14 dígitos
+            }
+            
+            // Aplica a máscara
+            if (valor.length > 0) {
+                valor = valor.replace(/^(\d{2})(\d)/, '$1.$2');
+                valor = valor.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+                valor = valor.replace(/\.(\d{3})(\d)/, '.$1/$2');
+                valor = valor.replace(/(\d{4})(\d)/, '$1-$2');
+            }
+            
+            input.value = valor;
+        }
+        
+        // Aguardar o carregamento do DOM
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Inicializar o loader
+            setTimeout(function() {
+                const loader = document.querySelector('.loader-wrapper');
+                loader.classList.add('loader-hidden');
+            }, 1500);
+
+            // Verificar se o usuário já está autenticado
+            const { data, error } = await getCurrentUser();
+            if (data && data.user) {
+                // Redirecionar para o dashboard
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // Aplicar máscara de CNPJ
+            const cnpjInput = document.getElementById('cnpj');
+            if (cnpjInput) {
+                cnpjInput.addEventListener('input', function() {
+                    aplicarMascaraCNPJ(this);
+                });
+            }
+
+            // Formulário de login
+            const loginForm = document.getElementById('loginForm');
+            const loginButton = document.getElementById('loginButton');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    // Desabilitar botão de login
+                    loginButton.disabled = true;
+                    loginButton.textContent = 'Entrando...';
+                    
+                    // Esconder alertas
+                    errorAlert.style.display = 'none';
+                    successAlert.style.display = 'none';
+                    
+                    // Pegar CNPJ e formatar email
+                    const cnpj = document.getElementById('cnpj').value;
+                    const cnpjNumerico = cnpj.replace(/\D/g, ''); // Remove caracteres não numéricos
+                    
+                    if (cnpjNumerico.length !== 14) {
+                        errorMessage.textContent = 'CNPJ inválido. Por favor, digite um CNPJ válido.';
+                        errorAlert.style.display = 'block';
+                        
+                        // Habilitar botão de login
+                        loginButton.disabled = false;
+                        loginButton.textContent = 'Entrar';
+                        return;
+                    }
+                    
+                    // Formatar o email com o CNPJ e @gmail.com
+                    const email = cnpjNumerico.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5") + '@gmail.com';
+                    const password = document.getElementById('password').value;
+                    
+                    try {
+                        // Fazer login usando a função loginWithEmail do supabase.js
+                        console.log('Tentando fazer login com:', email);
+                        const { data, error } = await loginWithEmail(email, password);
+                        console.log('Resposta do login:', { data, error });
+                        
+                        if (error) {
+                            // Mostrar erro
+                            console.error('Erro de login:', error);
+                            errorMessage.textContent = error.message || 'Erro ao fazer login. Verifique suas credenciais.';
+                            errorAlert.style.display = 'block';
+                            
+                            // Habilitar botão de login
+                            loginButton.disabled = false;
+                            loginButton.textContent = 'Entrar';
+                            return;
+                        }
+                        
+                        // Mostrar sucesso
+                        successMessage.textContent = 'Login realizado com sucesso! Redirecionando...';
+                        successAlert.style.display = 'block';
+                        
+                        // Redirecionar para o dashboard
+                        setTimeout(function() {
+                            window.location.href = 'dashboard.html';
+                        }, 1000);
+                    } catch (error) {
+                        // Mostrar erro
+                        errorMessage.textContent = error.message || 'Erro ao fazer login. Tente novamente mais tarde.';
+                        errorAlert.style.display = 'block';
+                        
+                        // Habilitar botão de login
+                        loginButton.disabled = false;
+                        loginButton.textContent = 'Entrar';
+                    }
+                });
+            }
+            
+            // Link de esqueceu a senha
+            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const cnpj = document.getElementById('cnpj').value;
+                    const cnpjNumerico = cnpj.replace(/\D/g, '');
+                    
+                    if (!cnpj) {
+                        // Mostrar erro
+                        errorMessage.textContent = 'Digite seu CNPJ para recuperar a senha.';
+                        errorAlert.style.display = 'block';
+                        return;
+                    }
+                    
+                    // Implementar recuperação de senha
+                    alert('Funcionalidade de recuperação de senha será implementada em breve.');
+                });
+            }
+            
+            // Link de contato
+            const contactLink = document.getElementById('contactLink');
+            if (contactLink) {
+                contactLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Redirecionar para a página de contato
+                    window.location.href = 'index.html#contato';
+                });
+            }
+        });
+    </script>
+</body>
+
+</html> 

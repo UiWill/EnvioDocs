@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Contrato - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsividade.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/upload.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <!-- Alerta de erro -->
+    <div id="errorAlert" class="alert-error" style="display: none;">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span id="errorMessage"></span>
+        <button class="close-alert"><i class="bi bi-x"></i></button>
+    </div>
+
+    <!-- Alerta de sucesso -->
+    <div id="successAlert" class="alert-success" style="display: none;">
+        <i class="bi bi-check-circle-fill"></i>
+        <span id="successMessage"></span>
+        <button class="close-alert"><i class="bi bi-x"></i></button>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="bi bi-house-door"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="comunicados.html">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="clientes.html">
+                            <i class="bi bi-people"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Enviar Contrato</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role" id="userRole">Carregando...</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Cabeçalho com informações do cliente -->
+                <div id="clienteHeader" class="client-header">
+                    <div class="client-info">
+                        <h1 id="clienteNome" class="client-name">Nome do Cliente</h1>
+                        <p id="clienteCnpj" class="client-cnpj">00.000.000/0000-00</p>
+                    </div>
+                </div>
+
+                <!-- Formulário de envio de contrato -->
+                <div class="form-container">
+                    <h2 class="form-title">Enviar Contrato</h2>
+                    
+                    <form id="uploadForm" class="form">
+                        <!-- Campo escondido para CNPJ -->
+                        <input type="hidden" id="cnpjInput">
+                        
+                        <div class="form-group">
+                            <label for="nomeDocumento" class="form-label">Nome do Documento</label>
+                            <input type="text" id="nomeDocumento" class="form-control" placeholder="Ex: Contrato de Prestação de Serviços" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fileUpload" class="form-label">Arquivo do Contrato (PDF)</label>
+                            <div class="file-upload-container">
+                                <div class="file-upload-area" id="dropArea">
+                                    <input type="file" id="fileUpload" accept=".pdf" required>
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                    <p>Clique ou arraste um arquivo PDF aqui</p>
+                                    <div id="fileName" class="file-name"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" id="cancelarBtn" class="btn btn-secondary">Cancelar</button>
+                            <button type="submit" id="enviarBtn" class="btn btn-primary">
+                                <i class="bi bi-cloud-upload"></i> Enviar Contrato
+                                <span id="loaderBtn" class="btn-loader" style="display: none;"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esconder loader após carregar
+            setTimeout(function() {
+                const loader = document.querySelector('.loader-wrapper');
+                loader.classList.add('loader-hidden');
+            }, 500);
+            
+            // Obter parâmetros da URL
+            const params = new URLSearchParams(window.location.search);
+            const clienteCnpj = params.get('cnpj') ? decodeURIComponent(params.get('cnpj')) : '';
+            const clienteNome = params.get('nome') ? decodeURIComponent(params.get('nome')) : 'Cliente';
+            
+            // Carregar informações do usuário
+            carregarInfoUsuario();
+            
+            // Preencher dados do cliente
+            document.getElementById('clienteNome').textContent = clienteNome;
+            document.getElementById('clienteCnpj').textContent = formatarCNPJ(clienteCnpj);
+            document.getElementById('cnpjInput').value = formatarCNPJ(clienteCnpj);
+            
+            // Inicializar drag & drop
+            inicializarDragAndDrop();
+            
+            // Adicionar eventos aos botões
+            document.getElementById('cancelarBtn').addEventListener('click', function() {
+                window.location.href = `clienteDetails.html?cnpj=${encodeURIComponent(clienteCnpj)}`;
+            });
+            
+            // Processar envio do formulário
+            document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
+            
+            // Adicionar eventos para fechar alertas
+            document.querySelectorAll('.close-alert').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.parentElement.style.display = 'none';
+                });
+            });
+            
+            // Inicializar sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('collapsed');
+                document.querySelector('.main-content').classList.toggle('expanded');
+            });
+        });
+        
+        // Função para carregar informações do usuário logado
+        async function carregarInfoUsuario() {
+            try {
+                const user = await supabase.auth.getUser();
+                if (user && user.data && user.data.user) {
+                    const { data, error } = await supabase
+                        .from('perfis')
+                        .select('*')
+                        .eq('id', user.data.user.id)
+                        .single();
+                    
+                    if (data) {
+                        document.getElementById('userName').textContent = data.nome || data.email;
+                        document.getElementById('userRole').textContent = data.cargo || 'Usuário';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuário:', error);
+            }
+        }
+        
+        // Função para inicializar drag and drop
+        function inicializarDragAndDrop() {
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileUpload');
+            const fileName = document.getElementById('fileName');
+            
+            // Mostrar nome do arquivo quando selecionado
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    fileName.textContent = fileInput.files[0].name;
+                } else {
+                    fileName.textContent = '';
+                }
+            });
+            
+            // Prevenir comportamento padrão para eventos de drag
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Adicionar classe de destaque quando arrastar sobre a área
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+            
+            // Lidar com o drop do arquivo
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    if (files[0].type === 'application/pdf') {
+                        fileInput.files = files;
+                        fileName.textContent = files[0].name;
+                    } else {
+                        mostrarErro('Por favor, selecione apenas arquivos PDF.');
+                    }
+                }
+            }
+        }
+        
+        // Função para tratar o envio do formulário
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const nomeDocumento = document.getElementById('nomeDocumento').value;
+            const fileInput = document.getElementById('fileUpload');
+            const cnpj = document.getElementById('cnpjInput').value;
+            const enviarBtn = document.getElementById('enviarBtn');
+            const cancelarBtn = document.getElementById('cancelarBtn');
+            const loaderBtn = document.getElementById('loaderBtn');
+            
+            // Validar formulário
+            if (!nomeDocumento.trim()) {
+                mostrarErro('Por favor, informe o nome do documento.');
+                return;
+            }
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                mostrarErro('Por favor, selecione um arquivo PDF.');
+                return;
+            }
+            
+            if (!cnpj) {
+                mostrarErro('CNPJ do cliente não encontrado.');
+                return;
+            }
+            
+            // Desabilitar botões e mostrar loader
+            enviarBtn.disabled = true;
+            cancelarBtn.disabled = true;
+            loaderBtn.style.display = 'inline-block';
+            
+            try {
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('nome', nomeDocumento);
+                formData.append('cnpj', cnpj);
+                formData.append('file', file);
+                
+                console.log('Enviando CNPJ formatado:', cnpj);
+                
+                // Enviar para a API
+                const response = await fetch('https://api.enviodocs.com.br:3000/upload-contrato', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // Processar resposta
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarSucesso(data.message || 'Contrato enviado com sucesso!');
+                    document.getElementById('uploadForm').reset();
+                    document.getElementById('fileName').textContent = '';
+                    
+                    // Redirecionar após 2 segundos
+                    setTimeout(() => {
+                        window.location.href = `clienteDetails.html?cnpj=${encodeURIComponent(document.getElementById('clienteCnpj').textContent)}`;
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    mostrarErro(error.error || 'Erro ao enviar o contrato.');
+                }
+            } catch (error) {
+                console.error('Erro ao enviar contrato:', error);
+                mostrarErro('Falha na comunicação com o servidor.');
+            } finally {
+                // Reabilitar botões e esconder loader
+                enviarBtn.disabled = false;
+                cancelarBtn.disabled = false;
+                loaderBtn.style.display = 'none';
+            }
+        }
+        
+        // Função para mostrar mensagem de erro
+        function mostrarErro(mensagem) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = mensagem;
+            errorAlert.style.display = 'flex';
+            
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Função para mostrar mensagem de sucesso
+        function mostrarSucesso(mensagem) {
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            
+            successMessage.textContent = mensagem;
+            successAlert.style.display = 'flex';
+            
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Função para formatar CNPJ
+        function formatarCNPJ(cnpj) {
+            if (!cnpj) return '00.000.000/0000-00';
+            
+            // Remover caracteres não numéricos
+            const cnpjClean = cnpj.replace(/\D/g, '');
+            
+            // Verificar se tem o tamanho correto
+            if (cnpjClean.length !== 14) return cnpj;
+            
+            // Formatar como XX.XXX.XXX/XXXX-XX
+            return cnpjClean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+    </script>
+</body>
+</html> 
