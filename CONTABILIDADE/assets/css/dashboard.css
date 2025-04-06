@@ -807,41 +807,45 @@
     overflow: hidden;
 }
 
-/* Modais */
+/* Modais - Alteração para garantir visibilidade correta */
 .modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(3px);
-    display: none;
-    align-items: center;
-    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 1000;
+    display: none; /* Inicialmente escondido */
+    justify-content: center;
+    align-items: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease-in-out;
 }
 
 .modal-backdrop.active {
+    display: flex; /* Exibido quando ativo */
     opacity: 1;
 }
 
 .modal {
-    background: linear-gradient(145deg, #1a2330, #0d161f);
-    border-radius: 12px;
+    background-color: var(--color-card-bg);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     width: 90%;
-    max-width: 500px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    transform: translateY(20px);
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .modal-backdrop.active .modal {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0);
 }
 
 .modal-header {
