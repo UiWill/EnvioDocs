@@ -1850,4 +1850,25 @@ select.form-select option:first-child {
 
 .actions-cell {
     min-width: 130px;
+}
+
+/* Estilos específicos para o modal de cliente */
+#clienteModal.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro mais opaco */
+}
+
+#clienteModal .modal {
+    background-color: #1a2330;
+    opacity: 1 !important; /* Força opacidade 1 */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#clienteModal .modal-content {
+    background-color: #1a2330;
+    color: #fff;
+}
+
+#clienteModal.active .modal {
+    opacity: 1 !important;
 } 

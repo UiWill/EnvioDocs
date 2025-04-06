@@ -233,8 +233,8 @@
     </div>
 
     <!-- Modal de Adicionar/Editar Cliente -->
-    <div class="modal-backdrop" id="clienteModal">
-        <div class="modal">
+    <div class="modal-backdrop" id="clienteModal" style="display: none;">
+        <div class="modal" style="background-color: #1a2330; opacity: 1;">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">Adicionar Cliente</h2>
                 <button class="modal-close" id="closeModal">
@@ -251,7 +251,7 @@
                     <div class="form-group">
                         <label for="cnpj" class="form-label">CNPJ</label>
                         <input type="text" id="cnpj" class="form-control" placeholder="00.000.000/0000-00" required>
-                        <small class="form-text text-muted">Atenção: O CNPJ será usado como login e os 6 primeiros dígitos como senha inicial.</small>
+                        <small class="form-text text-muted">Atenção: O CNPJ será usado como login (CNPJ@gmail.com) e os 6 primeiros dígitos como senha inicial.</small>
                     </div>
                     <div class="form-group" id="resetPasswordSection" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
                         <label class="form-label">Informações de Acesso</label>
@@ -1016,7 +1016,18 @@
             
             // Abrir modal - primeiro define display flex, depois adiciona a classe active
             const modal = document.getElementById('clienteModal');
+            
+            // Primeiro, garantir que o backdrop seja visível
             modal.style.display = 'flex';
+            
+            // Forçar a opacidade do modal para 1 para evitar transparência
+            const modalContent = modal.querySelector('.modal');
+            if (modalContent) {
+                modalContent.style.opacity = '1';
+                modalContent.style.backgroundColor = '#1a2330';
+            }
+            
+            // Adicionar a classe active após um pequeno delay para garantir a animação
             setTimeout(() => {
                 modal.classList.add('active');
             }, 10);
