@@ -604,8 +604,23 @@ function abrirModalEdicao(documentoId) {
         
         // Exibir o modal
         const modal = document.getElementById('editDocumentoModal');
+        
+        // Primeiro, garantir que o backdrop seja visível
         modal.style.display = 'flex';
-        modal.classList.add('active');
+        
+        // Forçar a opacidade do modal para 1 para evitar transparência
+        const modalContent = modal.querySelector('.modal');
+        if (modalContent) {
+            modalContent.style.opacity = '1';
+            modalContent.style.backgroundColor = '#1a2330';
+            modalContent.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.5)';
+            modalContent.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+        }
+        
+        // Adicionar a classe active após um pequeno delay para garantir a animação
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
         
         // Adicionar evento para fechar o modal
         document.getElementById('closeEditModal').addEventListener('click', fecharModalEdicao);

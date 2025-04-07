@@ -1871,4 +1871,25 @@ select.form-select option:first-child {
 
 #clienteModal.active .modal {
     opacity: 1 !important;
+}
+
+/* Estilos específicos para o modal de edição de documento */
+#editDocumentoModal.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro mais opaco */
+}
+
+#editDocumentoModal .modal {
+    background-color: #1a2330;
+    opacity: 1 !important; /* Força opacidade 1 */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#editDocumentoModal .modal-content {
+    background-color: #1a2330;
+    color: #fff;
+}
+
+#editDocumentoModal.active .modal {
+    opacity: 1 !important;
 } 
