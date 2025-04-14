@@ -134,6 +134,15 @@ function initClientActionButtons() {
             window.location.href = `verComprovantes.html?cnpj=${encodeURIComponent(clienteCnpj)}&nome=${encodeURIComponent(document.getElementById('clienteNome').textContent)}`;
         });
     }
+    
+    // Botão Enviar Documento
+    const btnEnviarDocumento = document.getElementById('btnEnviarDocumento');
+    if (btnEnviarDocumento) {
+        btnEnviarDocumento.addEventListener('click', function() {
+            console.log('Clicou em Enviar Documento');
+            abrirModalEnvio();
+        });
+    }
 }
 
 // Função para inicializar botões de filtro
@@ -828,5 +837,257 @@ function mostrarSucesso(mensagem) {
         }, 500);
     }, 3000);
 }
+
+// Função para abrir o modal de envio
+function abrirModalEnvio() {
+    try {
+        console.log('Abrindo modal de envio de documento');
+        
+        // Preencher o CNPJ do cliente (somente leitura)
+        document.getElementById('enviarCnpjCliente').value = formatarCNPJ(clienteCnpj) || '';
+        
+        // Limpar outros campos
+        document.getElementById('enviarNomePdf').value = '';
+        document.getElementById('enviarDataArq').value = '';
+        document.getElementById('enviarValorPfd').value = '';
+        document.getElementById('enviarPdfFile').value = '';
+        document.getElementById('fileNameDisplay').textContent = 'Nenhum arquivo selecionado';
+        
+        // Ocultar a barra de progresso
+        document.getElementById('uploadProgress').style.display = 'none';
+        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('progressText').textContent = '0%';
+        
+        // Exibir o modal
+        const modal = document.getElementById('enviarDocumentoModal');
+        
+        // Primeiro, garantir que o backdrop seja visível
+        modal.style.display = 'flex';
+        
+        // Forçar a opacidade do modal para 1 para evitar transparência
+        const modalContent = modal.querySelector('.modal');
+        if (modalContent) {
+            modalContent.style.opacity = '1';
+            modalContent.style.backgroundColor = '#1a2330';
+            modalContent.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.5)';
+            modalContent.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+        }
+        
+        // Adicionar a classe active após um pequeno delay para garantir a animação
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+        
+        // Configurar o botão "Escolher arquivo" para acionar o input file
+        document.getElementById('selectFileBtn').addEventListener('click', function() {
+            document.getElementById('enviarPdfFile').click();
+        });
+        
+        // Atualizar o nome do arquivo quando um for selecionado
+        document.getElementById('enviarPdfFile').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'Nenhum arquivo selecionado';
+            document.getElementById('fileNameDisplay').textContent = fileName;
+        });
+        
+        // Adicionar evento para fechar o modal
+        document.getElementById('closeEnviarModal').addEventListener('click', fecharModalEnvio);
+        document.getElementById('cancelEnviarDocumento').addEventListener('click', fecharModalEnvio);
+        
+        // Adicionar evento para salvar/enviar documento
+        document.getElementById('saveEnviarDocumento').addEventListener('click', enviarDocumento);
+        
+    } catch (error) {
+        console.error('Erro ao abrir modal de envio:', error);
+        mostrarErro('Erro ao abrir janela de envio: ' + error.message);
+    }
+}
+
+// Função para fechar o modal de envio
+function fecharModalEnvio() {
+    console.log('Fechando modal de envio');
+    
+    const modal = document.getElementById('enviarDocumentoModal');
+    modal.classList.remove('active');
+    
+    // Usar setTimeout para dar tempo à animação de transição
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+    
+    // Remover os event listeners para evitar duplicação
+    document.getElementById('closeEnviarModal').removeEventListener('click', fecharModalEnvio);
+    document.getElementById('cancelEnviarDocumento').removeEventListener('click', fecharModalEnvio);
+    document.getElementById('saveEnviarDocumento').removeEventListener('click', enviarDocumento);
+    document.getElementById('selectFileBtn').removeEventListener('click', function() {});
+    document.getElementById('enviarPdfFile').removeEventListener('change', function() {});
+}
+
+// Função para enviar o documento
+async function enviarDocumento() {
+    try {
+        console.log('Iniciando envio de documento...');
+        
+        // Obter valores do formulário
+        const nomePdf = document.getElementById('enviarNomePdf').value;
+        const cnpjCliente = document.getElementById('enviarCnpjCliente').value;
+        const dataArq = document.getElementById('enviarDataArq').value;
+        const valorPfd = document.getElementById('enviarValorPfd').value;
+        const pdfFile = document.getElementById('enviarPdfFile').files[0];
+        
+        // Validar os campos
+        if (!nomePdf || !cnpjCliente || !dataArq || !valorPfd) {
+            mostrarErro('Todos os campos são obrigatórios.');
+            return;
+        }
+        
+        // Validar formato da data (DD/MM/YYYY)
+        if (!validarFormatoData(dataArq)) {
+            mostrarErro('Data inválida. Use o formato DD/MM/AAAA.');
+            return;
+        }
+        
+        // Validar arquivo PDF
+        if (!pdfFile) {
+            mostrarErro('Selecione um arquivo PDF para enviar.');
+            return;
+        }
+        
+        // Verificar tipo de arquivo
+        if (pdfFile.type !== 'application/pdf') {
+            mostrarErro('Apenas arquivos PDF são permitidos.');
+            return;
+        }
+        
+        // Verificar tamanho do arquivo (máx. 10MB)
+        const MAX_SIZE = 10 * 1024 * 1024; // 10MB em bytes
+        if (pdfFile.size > MAX_SIZE) {
+            mostrarErro('O arquivo é muito grande. O tamanho máximo é 10MB.');
+            return;
+        }
+        
+        // Mostrar progresso do upload
+        document.getElementById('uploadProgress').style.display = 'block';
+        
+        // Gerar nome único para o arquivo
+        const cnpjNumerico = cnpjCliente.replace(/\D/g, '');
+        const cnpjCurto = cnpjNumerico.substring(0, 6);
+        const timestamp = new Date().getTime();
+        const fileName = `${cnpjCurto}_${timestamp}_${pdfFile.name}`;
+        
+        // Converter data para timestamp UNIX (DATA_DECIMAL)
+        const dataDecimal = converterDataParaTimestamp(dataArq);
+        
+        // Upload do arquivo para o Storage do Supabase
+        console.log('Iniciando upload do arquivo para o Supabase Storage...');
+        
+        try {
+            // Fazer upload para o bucket "PDFs"
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('PDFs')
+                .upload(fileName, pdfFile, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    onUploadProgress: (progress) => {
+                        const percent = Math.round((progress.loaded / progress.total) * 100);
+                        document.getElementById('progressBar').style.width = `${percent}%`;
+                        document.getElementById('progressText').textContent = `${percent}%`;
+                    }
+                });
+            
+            if (uploadError) {
+                console.error('Erro no upload do arquivo:', uploadError);
+                mostrarErro('Erro ao enviar o arquivo: ' + uploadError.message);
+                return;
+            }
+            
+            console.log('Arquivo enviado com sucesso:', uploadData);
+            
+            // Obter URL pública do arquivo
+            const { data: urlData } = await supabase.storage
+                .from('PDFs')
+                .getPublicUrl(fileName);
+            
+            const pdfUrl = urlData.publicUrl;
+            console.log('URL pública do PDF:', pdfUrl);
+            
+            // Preparar dados para salvar na tabela AmContabilidade
+            const documentoData = {
+                NOME_PDF: nomePdf,
+                CNPJ_CLIENTE: cnpjCliente,
+                DATA_ARQ: dataArq,
+                VALOR_PFD: valorPfd,
+                CNPJ_CURTO: cnpjCurto,
+                DATA_DECIMAL: dataDecimal,
+                URL_PDF: pdfUrl
+            };
+            
+            console.log('Dados do documento para inserção:', documentoData);
+            
+            // Inserir registro na tabela AmContabilidade
+            const { data, error } = await supabase
+                .from('AmContabilidade')
+                .insert([documentoData]);
+            
+            if (error) {
+                console.error('Erro ao salvar documento:', error);
+                mostrarErro('Erro ao salvar documento: ' + error.message);
+                return;
+            }
+            
+            console.log('Documento salvo com sucesso:', data);
+            
+            // Fechar o modal
+            fecharModalEnvio();
+            
+            // Atualizar a tabela
+            buscarRegistrosAmContabilidade();
+            
+            // Mostrar mensagem de sucesso
+            mostrarSucesso('Documento enviado com sucesso!');
+            
+        } catch (uploadError) {
+            console.error('Erro durante o upload:', uploadError);
+            mostrarErro('Erro durante o upload do arquivo: ' + uploadError.message);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao enviar documento:', error);
+        mostrarErro('Erro ao enviar documento: ' + error.message);
+    }
+}
+
+// Adicionar estilos CSS para o input de arquivo
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar estilos para o input de arquivo personalizado
+    const style = document.createElement('style');
+    style.textContent = `
+        .custom-file-upload {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            margin-bottom: 5px;
+        }
+        
+        .custom-file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            height: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+    `;
+    document.head.appendChild(style);
+});
 
 console.log('Arquivo clienteDetails.js carregado com sucesso!'); 

@@ -118,6 +118,9 @@
                     <button id="btnVerComprovantes" class="action-btn">
                         <i class="bi bi-file-earmark-check"></i> Ver comprovantes
                     </button>
+                    <button id="btnEnviarDocumento" class="action-btn">
+                        <i class="bi bi-file-earmark-plus"></i> Enviar documento
+                    </button>
                 </div>
 
                 <!-- Seção de impostos -->
@@ -241,6 +244,66 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelEditDocumento">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="saveEditDocumento">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Envio de Documento -->
+    <div id="enviarDocumentoModal" class="modal-backdrop" style="display: none;">
+        <div class="modal" style="background-color: #1a2330; opacity: 1 !important; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="modal-header">
+                <h2 class="modal-title">Enviar Documento</h2>
+                <button class="modal-close" id="closeEnviarModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="enviarDocumentoForm">
+                    <div class="form-group">
+                        <label for="enviarNomePdf" class="form-label">Nome do Documento</label>
+                        <input type="text" id="enviarNomePdf" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="enviarCnpjCliente" class="form-label">CNPJ do Cliente</label>
+                        <input type="text" id="enviarCnpjCliente" class="form-control" required readonly>
+                        <small class="form-text">Formato: XX.XXX.XXX/XXXX-XX</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="enviarDataArq" class="form-label">Data de Vencimento</label>
+                        <input type="text" id="enviarDataArq" class="form-control" required>
+                        <small class="form-text">Formato: DD/MM/AAAA</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="enviarValorPfd" class="form-label">Valor</label>
+                        <input type="text" id="enviarValorPfd" class="form-control" required>
+                        <small class="form-text">Exemplo: 100,00</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="enviarPdfFile" class="form-label">Arquivo PDF</label>
+                        <div class="custom-file-upload">
+                            <input type="file" id="enviarPdfFile" accept=".pdf" required>
+                            <div class="file-upload-info">
+                                <span id="fileNameDisplay">Nenhum arquivo selecionado</span>
+                                <button type="button" id="selectFileBtn" class="btn btn-secondary">Escolher arquivo</button>
+                            </div>
+                        </div>
+                        <small class="form-text">Selecione um arquivo PDF para anexar (máx. 10MB)</small>
+                        <div id="uploadProgress" style="display: none; margin-top: 10px;">
+                            <div class="progress">
+                                <div id="progressBar" class="progress-bar" style="width: 0%; height: 10px; background-color: #4CAF50; border-radius: 5px;"></div>
+                            </div>
+                            <small id="progressText">0%</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelEnviarDocumento">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveEnviarDocumento">Enviar</button>
             </div>
         </div>
     </div>
