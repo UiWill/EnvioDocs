@@ -1017,6 +1017,7 @@ async function enviarDocumento() {
                 DATA_ARQ: dataArq,
                 VALOR_PFD: valorPfd,
                 CNPJ_CURTO: cnpjCurto,
+                STATUS: 'N',
                 DATA_DECIMAL: dataDecimal,
                 URL_PDF: pdfUrl
             };
