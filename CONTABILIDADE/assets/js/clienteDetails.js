@@ -411,7 +411,7 @@ function renderizarRegistros(registros) {
                 <td class="actions-cell">
                     <a href="${registro.URL_PDF || '#'}" target="_blank" class="action-icon view-action" title="Visualizar documento"><i class="bi bi-eye"></i></a>
                     <a href="#" class="action-icon edit-action" data-id="${registro.id}" title="Editar documento"><i class="bi bi-pencil"></i></a>
-                    <a href="#" class="action-icon delete-action"><i class="bi bi-trash"></i></a>
+                    <a href="#" class="action-icon delete-action" data-id="${registro.id}" title="Excluir documento"><i class="bi bi-trash"></i></a>
                 </td>
             `;
             
@@ -438,6 +438,18 @@ function renderizarRegistros(registros) {
                     const documentoId = this.getAttribute('data-id');
                     if (documentoId) {
                         abrirModalEdicao(documentoId);
+                    }
+                });
+            }
+            
+            // Adicionar evento ao botão de exclusão
+            const deleteButton = row.querySelector('.delete-action');
+            if (deleteButton) {
+                deleteButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const documentoId = this.getAttribute('data-id');
+                    if (documentoId) {
+                        confirmarExclusao(documentoId, nome);
                     }
                 });
             }
@@ -1090,5 +1102,121 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
 });
+
+// Função para confirmar exclusão de documento
+function confirmarExclusao(documentoId, nomeDocumento) {
+    console.log('Confirmando exclusão do documento ID:', documentoId);
+    
+    // Criar elementos do modal de confirmação
+    const modalBackdrop = document.createElement('div');
+    modalBackdrop.className = 'modal-backdrop';
+    modalBackdrop.id = 'excluirDocumentoModal';
+    modalBackdrop.style.display = 'flex';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal';
+    modalContent.style.backgroundColor = '#1a2330';
+    modalContent.style.opacity = '1';
+    modalContent.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.5)';
+    modalContent.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    modalContent.style.maxWidth = '450px';
+    
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h2 class="modal-title">Confirmar Exclusão</h2>
+            <button class="modal-close" id="closeExcluirModal">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Tem certeza que deseja excluir o documento "<strong>${nomeDocumento}</strong>"?</p>
+            <p>Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelarExclusao">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmarExclusao" style="background-color: #dc3545; border-color: #dc3545;">Excluir</button>
+        </div>
+    `;
+    
+    modalBackdrop.appendChild(modalContent);
+    document.body.appendChild(modalBackdrop);
+    
+    // Adicionar classe active após pequeno delay para animação
+    setTimeout(() => {
+        modalBackdrop.classList.add('active');
+    }, 10);
+    
+    // Eventos para os botões
+    const closeModal = () => {
+        modalBackdrop.classList.remove('active');
+        setTimeout(() => {
+            document.body.removeChild(modalBackdrop);
+        }, 300);
+    };
+    
+    document.getElementById('closeExcluirModal').addEventListener('click', closeModal);
+    document.getElementById('cancelarExclusao').addEventListener('click', closeModal);
+    document.getElementById('confirmarExclusao').addEventListener('click', () => {
+        excluirDocumento(documentoId);
+        closeModal();
+    });
+}
+
+// Função para excluir documento
+async function excluirDocumento(documentoId) {
+    try {
+        console.log('Excluindo documento ID:', documentoId);
+        
+        // Encontrar o registro para obter a URL do PDF
+        const registro = registrosEncontrados.find(r => r.id == documentoId);
+        
+        // Excluir o registro da tabela AmContabilidade
+        const { error } = await supabase
+            .from('AmContabilidade')
+            .delete()
+            .eq('id', documentoId);
+        
+        if (error) {
+            console.error('Erro ao excluir documento:', error);
+            mostrarErro('Erro ao excluir documento: ' + error.message);
+            return;
+        }
+        
+        // Se o documento tinha um PDF no Storage, tentar excluí-lo também
+        if (registro && registro.URL_PDF) {
+            try {
+                // Extrair o caminho do arquivo da URL
+                const url = new URL(registro.URL_PDF);
+                const filePath = url.pathname.split('/').pop();
+                
+                if (filePath) {
+                    console.log('Tentando excluir arquivo do Storage:', filePath);
+                    
+                    // Excluir arquivo do Storage
+                    const { error: storageError } = await supabase.storage
+                        .from('PDFs')
+                        .remove([filePath]);
+                    
+                    if (storageError) {
+                        console.warn('Não foi possível excluir o arquivo do Storage:', storageError);
+                        // Não impedir a operação se o arquivo não puder ser excluído
+                    }
+                }
+            } catch (storageError) {
+                console.warn('Erro ao processar exclusão do arquivo:', storageError);
+            }
+        }
+        
+        // Atualizar a lista de registros
+        buscarRegistrosAmContabilidade();
+        
+        // Mostrar mensagem de sucesso
+        mostrarSucesso('Documento excluído com sucesso!');
+        
+    } catch (error) {
+        console.error('Erro ao excluir documento:', error);
+        mostrarErro('Erro ao excluir documento: ' + error.message);
+    }
+}
 
 console.log('Arquivo clienteDetails.js carregado com sucesso!'); 
