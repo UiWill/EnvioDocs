@@ -793,6 +793,10 @@ function preencherTabelaRelatorios(clientes) {
         setTimeout(ajustarAlturaTabela, 100);
         return;
     }
+
+    // Armazenar dados para filtro
+    window.todosClientes = clientes;
+    window.filtrosAtivos = window.filtrosAtivos || {};
     
     // Adicionar clientes à tabela
     clientes.forEach(cliente => {
@@ -830,12 +834,15 @@ function preencherTabelaRelatorios(clientes) {
             if (isUndefined) {
                 span.className = 'pendente'; // Usar a mesma classe do pendente para undefined
                 span.textContent = 'Pendente';
+                td.dataset.status = 'pendente';
             } else if (isPendente) {
                 span.className = 'pendente';
                 span.textContent = 'Pendente';
+                td.dataset.status = 'pendente';
             } else {
                 // Se for uma data, formatar para exibição DD/MM/YYYY
                 span.className = 'enviado';
+                td.dataset.status = 'enviado';
                 
                 // Verificar se é uma data no formato ISO (YYYY-MM-DD)
                 if (valor && typeof valor === 'string' && valor.match(/^\d{4}-\d{2}-\d{2}/)) {
@@ -860,6 +867,433 @@ function preencherTabelaRelatorios(clientes) {
     
     // Ajustar altura da tabela após preencher
     setTimeout(ajustarAlturaTabela, 100);
+
+    // Adicionar filtros às colunas
+    adicionarFiltrosTabela();
+}
+
+// Função para adicionar botões de filtro ao cabeçalho da tabela
+function adicionarFiltrosTabela() {
+    console.log('Inicializando filtros da tabela');
+    
+    // Limpar todos os menus de filtro existentes
+    const menusAntigos = document.querySelectorAll('.filtro-menu');
+    menusAntigos.forEach(menu => {
+        if (menu.parentNode) menu.parentNode.removeChild(menu);
+    });
+    
+    // Obter cabeçalhos da tabela
+    const headers = document.querySelectorAll('#tabelaRelatorios th');
+    
+    // Limpar todos os botões de filtro existentes
+    headers.forEach(th => {
+        const filtroExistente = th.querySelector('.filtro-coluna');
+        if (filtroExistente) th.removeChild(filtroExistente);
+    });
+    
+    // Adicionar botões de filtro em cada cabeçalho (exceto o primeiro que é o nome do cliente)
+    for (let i = 1; i < headers.length; i++) {
+        const header = headers[i];
+        const colunaNome = header.textContent.trim();
+        
+        // Criar container de filtro
+        const filtroContainer = document.createElement('div');
+        filtroContainer.className = 'filtro-coluna';
+        
+        // Adicionar botão de filtro
+        const filtroBtn = document.createElement('button');
+        filtroBtn.className = 'btn-filtro';
+        filtroBtn.innerHTML = '<i class="bi bi-funnel"></i>';
+        filtroBtn.title = 'Filtrar ' + colunaNome;
+        filtroBtn.dataset.coluna = i;
+        
+        // Aplicar classe ativa se tiver filtro ativo
+        if (window.filtrosAtivos && window.filtrosAtivos[i]) {
+            filtroBtn.classList.add('filtro-ativo');
+        }
+        
+        filtroContainer.appendChild(filtroBtn);
+        header.appendChild(filtroContainer);
+        
+        // Criar o menu (mas não adicionar ao DOM ainda)
+        criarMenuFiltro(colunaNome, i);
+    }
+    
+    // Adicionar estilos CSS para os filtros
+    adicionarEstilosFiltro();
+    
+    // Adicionar um único event listener para todos os botões de filtro
+    document.removeEventListener('click', handleFiltroClick);
+    document.addEventListener('click', handleFiltroClick);
+    
+    console.log('Filtros da tabela inicializados com sucesso');
+}
+
+// Função para criar menu de filtro
+function criarMenuFiltro(colunaNome, index) {
+    // Verificar se já existe e remover
+    const menuExistente = document.getElementById(`filtro-menu-${index}`);
+    if (menuExistente && menuExistente.parentNode) {
+        menuExistente.parentNode.removeChild(menuExistente);
+    }
+    
+    // Criar novo menu
+    const menu = document.createElement('div');
+    menu.id = `filtro-menu-${index}`;
+    menu.className = 'filtro-menu';
+    menu.dataset.coluna = index;
+    menu.innerHTML = `
+        <div class="filtro-opcao" data-valor="todos">Mostrar todos</div>
+        <div class="filtro-opcao" data-valor="pendentes">Apenas pendentes</div>
+    `;
+    
+    // Adicionar ao body
+    document.body.appendChild(menu);
+    
+    return menu;
+}
+
+// Manipulador centralizado de cliques
+function handleFiltroClick(event) {
+    // 1. Verificar se clicou em um botão de filtro
+    const btnFiltro = event.target.closest('.btn-filtro');
+    if (btnFiltro) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const coluna = btnFiltro.dataset.coluna;
+        console.log('Clique no botão de filtro da coluna:', coluna);
+        
+        // Obter o menu correspondente
+        const menuId = `filtro-menu-${coluna}`;
+        const menu = document.getElementById(menuId);
+        
+        if (!menu) {
+            console.error('Menu não encontrado:', menuId);
+            return;
+        }
+        
+        // Verificar se este menu já está aberto
+        const menuAberto = menu.classList.contains('ativo');
+        
+        // Fechar todos os menus primeiro
+        document.querySelectorAll('.filtro-menu').forEach(m => {
+            m.classList.remove('ativo');
+        });
+        
+        // Se o menu não estava aberto, abrir este
+        if (!menuAberto) {
+            // Posicionar o menu em relação ao botão
+            posicionarMenuSimples(menu, btnFiltro);
+            
+            // Mostrar o menu
+            menu.classList.add('ativo');
+        }
+        
+        return;
+    }
+    
+    // 2. Verificar se clicou em uma opção de filtro
+    const opcaoFiltro = event.target.closest('.filtro-opcao');
+    if (opcaoFiltro) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const valor = opcaoFiltro.dataset.valor;
+        const menu = opcaoFiltro.closest('.filtro-menu');
+        const coluna = menu.dataset.coluna;
+        
+        console.log('Opção selecionada:', valor, 'para coluna:', coluna);
+        
+        // Inicializar objeto filtrosAtivos se não existir
+        if (!window.filtrosAtivos) {
+            window.filtrosAtivos = {};
+        }
+        
+        // Encontrar o botão correspondente
+        const btnFiltro = document.querySelector(`.btn-filtro[data-coluna="${coluna}"]`);
+        
+        // Atualizar estado do filtro
+        if (valor === 'todos') {
+            delete window.filtrosAtivos[coluna];
+            if (btnFiltro) btnFiltro.classList.remove('filtro-ativo');
+        } else {
+            window.filtrosAtivos[coluna] = valor;
+            if (btnFiltro) btnFiltro.classList.add('filtro-ativo');
+        }
+        
+        // Aplicar filtro
+        aplicarFiltros();
+        
+        // Fechar o menu
+        menu.classList.remove('ativo');
+        
+        return;
+    }
+    
+    // 3. Se clicou fora de qualquer menu ou botão, fechar todos os menus
+    if (!event.target.closest('.filtro-menu')) {
+        document.querySelectorAll('.filtro-menu').forEach(menu => {
+            menu.classList.remove('ativo');
+        });
+    }
+}
+
+// Função simplificada para posicionar o menu
+function posicionarMenuSimples(menu, botao) {
+    if (!menu || !botao) return;
+    
+    // Obter a posição do botão
+    const rect = botao.getBoundingClientRect();
+    
+    // Definir posição como fixa
+    menu.style.position = 'fixed';
+    
+    // Posicionar o menu abaixo do botão
+    menu.style.top = (rect.bottom + 5) + 'px';
+    
+    // Centralizar horizontalmente
+    menu.style.left = (rect.left - 60) + 'px';
+    
+    // Garantir que o menu tenha z-index alto
+    menu.style.zIndex = '99999';
+}
+
+// Função para adicionar estilos CSS para os filtros
+function adicionarEstilosFiltro() {
+    // Verificar se os estilos já foram adicionados
+    if (document.getElementById('filtros-estilos')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'filtros-estilos';
+    style.textContent = `
+        .filtro-coluna {
+            display: inline-block;
+            position: relative;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+        
+        .btn-filtro {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+            transition: color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-filtro:hover {
+            color: white;
+        }
+        
+        .btn-filtro.filtro-ativo {
+            color: #3498db;
+        }
+        
+        .filtro-menu {
+            position: fixed;
+            background: #1d2639;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            padding: 5px 0;
+            min-width: 150px;
+            z-index: 99999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .filtro-menu.ativo {
+            display: block;
+            opacity: 1;
+        }
+        
+        .filtro-opcao {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .filtro-opcao:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        /* Melhorar exibição das colunas */
+        .relatorios-table th {
+            white-space: normal;
+            padding: 8px 4px;
+            line-height: 1.1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Ajustar largura das colunas para evitar corte de texto */
+        .relatorios-table th:not(:first-child),
+        .relatorios-table td:not(:first-child) {
+            flex: 1.2;
+            min-width: 90px;
+        }
+        
+        /* Configuração específica para a coluna de honorários */
+        .relatorios-table th:nth-child(2) {
+            min-width: 100px;
+        }
+        
+        /* Corrigir posicionamento nos cabeçalhos */
+        .relatorios-table th .filtro-coluna {
+            margin-left: 4px;
+            position: static;
+            display: inline-flex;
+        }
+        
+        /* Compactar o layout da tabela */
+        .relatorios-table th, .relatorios-table td {
+            padding: 6px 4px;
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+// Event listener para tecla Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.filtro-menu').forEach(menu => {
+            menu.classList.remove('ativo');
+        });
+    }
+});
+
+// Função para aplicar os filtros ativos
+function aplicarFiltros() {
+    // Se não há filtros ativos, mostrar todos os clientes
+    if (!window.filtrosAtivos || Object.keys(window.filtrosAtivos).length === 0) {
+        preencherTabelaRelatorios(window.todosClientes);
+        return;
+    }
+    
+    // Filtrar clientes com base nos filtros ativos
+    const clientesFiltrados = window.todosClientes.filter(cliente => {
+        // Verificar cada filtro ativo
+        for (const [coluna, valor] of Object.entries(window.filtrosAtivos)) {
+            // Determinar qual campo corresponde à coluna
+            const colunaIndex = parseInt(coluna);
+            const campos = [
+                'NOME_CLIENTE', 'HONORARIOS', 'DARF', 'FGTS', 
+                'HOLERITE', 'DAE', 'PGDAS', 'ALVARA', 'ESOCIAL'
+            ];
+            const campo = campos[colunaIndex];
+            
+            if (valor === 'pendentes') {
+                const valorCampo = cliente[campo];
+                const isPendente = valorCampo === 'Pendente' || 
+                                 valorCampo === undefined || 
+                                 valorCampo === null || 
+                                 valorCampo === 'undefined';
+                
+                // Se o filtro é para pendentes e o valor não é pendente, excluir
+                if (!isPendente) return false;
+            }
+        }
+        
+        // Se passou por todos os filtros, incluir
+        return true;
+    });
+    
+    // Atualizar tabela mantendo os botões de filtro
+    const tbody = document.getElementById('relatoriosTableBody');
+    if (!tbody) return;
+    
+    // Limpar corpo da tabela
+    tbody.innerHTML = '';
+    
+    // Se não houver resultados após filtro
+    if (clientesFiltrados.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.setAttribute('colspan', '9');
+        cell.className = 'loading-data';
+        cell.textContent = 'Nenhum resultado encontrado para os filtros selecionados';
+        row.appendChild(cell);
+        tbody.appendChild(row);
+        return;
+    }
+    
+    // Preencher com os resultados filtrados
+    clientesFiltrados.forEach(cliente => {
+        const row = document.createElement('tr');
+        
+        // Coluna do nome do cliente
+        const nomeCliente = cliente.NOME_CLIENTE || '-';
+        const tdNome = document.createElement('td');
+        tdNome.setAttribute('title', nomeCliente);
+        tdNome.textContent = nomeCliente;
+        row.appendChild(tdNome);
+        
+        // Colunas de status
+        const colunas = [
+            { campo: 'HONORARIOS', label: 'Honorários' },
+            { campo: 'DARF', label: 'DARF' },
+            { campo: 'FGTS', label: 'FGTS' },
+            { campo: 'HOLERITE', label: 'Holerite' },
+            { campo: 'DAE', label: 'DAE' },
+            { campo: 'PGDAS', label: 'PGDAS' },
+            { campo: 'ALVARA', label: 'ALVARA' },
+            { campo: 'ESOCIAL', label: 'ESOCIAL' }
+        ];
+        
+        colunas.forEach(coluna => {
+            const valor = cliente[coluna.campo];
+            
+            const isPendente = valor === 'Pendente';
+            const isUndefined = valor === 'undefined' || valor === undefined || valor === null;
+            
+            const td = document.createElement('td');
+            const span = document.createElement('span');
+            
+            if (isUndefined) {
+                span.className = 'pendente';
+                span.textContent = 'Pendente';
+                td.dataset.status = 'pendente';
+            } else if (isPendente) {
+                span.className = 'pendente';
+                span.textContent = 'Pendente';
+                td.dataset.status = 'pendente';
+            } else {
+                span.className = 'enviado';
+                td.dataset.status = 'enviado';
+                
+                if (valor && typeof valor === 'string' && valor.match(/^\d{4}-\d{2}-\d{2}/)) {
+                    const data = new Date(valor);
+                    const dia = data.getDate().toString().padStart(2, '0');
+                    const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+                    
+                    span.textContent = `${dia}/${mes}/${data.getFullYear()}`;
+                    span.setAttribute('title', `Documento enviado em ${dia}/${mes}/${data.getFullYear()}`);
+                } else {
+                    span.textContent = valor;
+                }
+            }
+            
+            td.appendChild(span);
+            row.appendChild(td);
+        });
+        
+        tbody.appendChild(row);
+    });
 }
 
 // Função para atualizar os contadores de documentos pendentes
