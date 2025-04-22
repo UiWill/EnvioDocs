@@ -793,15 +793,16 @@ function converterDataParaTimestamp(dataString) {
         // Construir a data padronizada para JavaScript (YYYY-MM-DD)
         const dataFormatada = `${ano}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}T00:00:00Z`;
         
-        // Criar data usando formato ISO para evitar problemas com fusos horários
-        const timestamp = Math.floor(new Date(dataFormatada).getTime() / 1000);
+        // Criar data usando formato ISO e adicionar 24 horas (86400 segundos) para compensar o fuso horário do Brasil
+        const timestamp = Math.floor(new Date(dataFormatada).getTime() / 1000) + 86400;
         
         // Debug extensivo
         console.log('----- Conversão de Data para Timestamp -----');
         console.log(`Data original: ${dataString}`);
         console.log(`Data formatada ISO: ${dataFormatada}`);
-        console.log(`Timestamp gerado: ${timestamp}`);
+        console.log(`Timestamp gerado (com +24h): ${timestamp}`);
         console.log(`Data do timestamp: ${new Date(timestamp * 1000).toUTCString()}`);
+        console.log(`Data local: ${new Date(timestamp * 1000).toLocaleString('pt-BR')}`);
         console.log('-------------------------------------------');
 
         return timestamp;
