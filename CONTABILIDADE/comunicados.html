@@ -35,7 +35,7 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <img src="assets/images/logo.png" alt="">
+                    <img src="assets/images/logo.png" alt="Logo EnvioDocs">
                 </div>
                 <button class="sidebar-toggle" id="sidebarToggle">
                     <i class="bi bi-list"></i>
@@ -127,6 +127,10 @@
                     <button id="novoComunicadoBtn" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i>
                         Novo Comunicado
+                    </button>
+                    <button id="novoAnexoBtn" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-arrow-up"></i>
+                        Anexar Documento
                     </button>
                 </div>
             </div>
@@ -275,6 +279,44 @@
         </div>
     </div>
 
+    <!-- Modal para anexar documento -->
+    <div class="modal-backdrop" id="anexoModalBackdrop">
+        <div class="modal" id="anexoModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Anexar Documento</h2>
+                    <button id="closeAnexoModal" class="modal-close">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="anexoForm" class="form-container">
+                        <div class="form-group">
+                            <label class="form-label" for="nomeDocumento">Nome do Documento:</label>
+                            <input type="text" id="nomeDocumento" class="form-control" placeholder="Nome do documento" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="arquivoDocumento">Selecione o Arquivo:</label>
+                            <input type="file" id="arquivoDocumento" class="form-control" required>
+                        </div>
+                        
+                        <div class="upload-progress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <div class="progress-text">0%</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelAnexoBtn" class="btn btn-secondary">Cancelar</button>
+                    <button id="uploadAnexoBtn" class="btn btn-primary" onclick="javascript:void(0);">Enviar Documento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase.js"></script>
@@ -290,6 +332,20 @@
 
         // Script para ativar/desativar modais
         document.addEventListener('DOMContentLoaded', function() {
+            // Debug para o modal de anexos
+            console.log('Verificando botões do modal de anexos...');
+            
+            // Removendo quaisquer eventos anteriores para evitar duplicação
+            const uploadAnexoBtn = document.getElementById('uploadAnexoBtn');
+            if (uploadAnexoBtn) {
+                // Clonar para remover todos os event listeners anteriores
+                const oldBtn = uploadAnexoBtn;
+                const newBtn = oldBtn.cloneNode(true);
+                oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+                
+                console.log('Botão de upload substituído para evitar duplicação de eventos');
+            }
+            
             // Funções para os modais
             function setupModal(modalId, backdropId) {
                 const modal = document.getElementById(modalId);
@@ -312,6 +368,7 @@
             const comunicadoModalControls = setupModal('comunicadoModal', 'comunicadoModalBackdrop');
             const viewModalControls = setupModal('viewComunicadoModal', 'viewComunicadoModalBackdrop');
             const deleteModalControls = setupModal('deleteModal', 'deleteModalBackdrop');
+            const anexoModalControls = setupModal('anexoModal', 'anexoModalBackdrop');
             
             // Substituir as funções existentes no window para compatibilidade com o JS existente
             window.openComunicadoModal = function(comunicado) {
@@ -451,6 +508,31 @@
                 if (deleteModalControls) deleteModalControls.closeModal();
             };
             
+            window.openAnexoModal = function() {
+                console.log("openAnexoModal chamado via HTML");
+                // Resetar o formulário
+                const form = document.getElementById('anexoForm');
+                if (form) form.reset();
+                
+                // Esconder a barra de progresso
+                const progressElem = document.querySelector('.upload-progress');
+                if (progressElem) progressElem.style.display = 'none';
+                
+                // Resetar a barra de progresso
+                const progressFillElem = document.querySelector('.progress-fill');
+                const progressTextElem = document.querySelector('.progress-text');
+                if (progressFillElem) progressFillElem.style.width = '0%';
+                if (progressTextElem) progressTextElem.textContent = '0%';
+                
+                // Abrir o modal
+                if (anexoModalControls) anexoModalControls.openModal();
+            };
+            
+            window.closeAnexoModal = function() {
+                console.log("closeAnexoModal chamado via HTML");
+                if (anexoModalControls) anexoModalControls.closeModal();
+            };
+            
             // Eventos de clique para botões de fechamento de modal
             document.getElementById('closeModal')?.addEventListener('click', closeComunicadoModal);
             document.getElementById('cancelBtn')?.addEventListener('click', closeComunicadoModal);
@@ -458,6 +540,16 @@
             document.getElementById('closeViewBtn')?.addEventListener('click', closeViewComunicadoModal);
             document.getElementById('closeDeleteModal')?.addEventListener('click', closeDeleteComunicadoModal);
             document.getElementById('cancelDeleteBtn')?.addEventListener('click', closeDeleteComunicadoModal);
+            document.getElementById('closeAnexoModal')?.addEventListener('click', closeAnexoModal);
+            document.getElementById('cancelAnexoBtn')?.addEventListener('click', closeAnexoModal);
+            document.getElementById('uploadAnexoBtn')?.addEventListener('click', function() {
+                console.log("Botão de Upload clicado (evento HTML)");
+                if (window.uploadAnexo) {
+                    window.uploadAnexo();
+                } else {
+                    console.error("Função uploadAnexo não encontrada no escopo global");
+                }
+            });
             
             // Toggle para o sidebar
             document.getElementById('sidebarToggle')?.addEventListener('click', function() {
