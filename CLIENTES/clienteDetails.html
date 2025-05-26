@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Área - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="../CONTABILIDADE/assets/css/style.css">
+    <link rel="stylesheet" href="../CONTABILIDADE/assets/css/responsividade.css">
+    <link rel="stylesheet" href="../CONTABILIDADE/assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        /* Ajuste do layout principal */
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Ajuste do cabeçalho do cliente */
+        .client-header {
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Ajuste da seção de título */
+        .section-title {
+            margin: 0 0 15px 0;
+            flex-shrink: 0;
+        }
+
+        /* Ajuste dos filtros */
+        .filters-container {
+            margin-bottom: 15px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        /* Container da tabela */
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        /* Ajuste da tabela */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            color: var(--color-white);
+        }
+
+        .data-table thead th {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-gray2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Estilização da barra de rolagem */
+        .content-area::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .content-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Garantir que o conteúdo da tabela não quebre */
+        .data-table td:first-child {
+            white-space: nowrap;
+        }
+
+        .data-table td:nth-child(3) {
+            white-space: nowrap;
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-badge.pago {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .status-badge.pendente {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status-badge.vencido {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        /* Botões de ação */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-view {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-white);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-view:hover {
+            background: var(--color-destaque1);
+        }
+
+        .btn-view i {
+            font-size: 1.1rem;
+        }
+
+        /* Adicionar estilos para os botões de ação */
+        .client-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--color-white);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--color-destaque1);
+            border-color: var(--color-destaque1);
+        }
+
+        .action-btn i {
+            font-size: 1.2rem;
+        }
+
+        /* Estilos do Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a2330;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .modal-backdrop.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            margin: 0;
+            color: var(--color-white);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--color-gray2);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--color-white);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--color-white);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: var(--color-white);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-destaque1);
+        }
+
+        .form-text {
+            display: block;
+            margin-top: 5px;
+            color: var(--color-gray2);
+            font-size: 0.85rem;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-white);
+        }
+
+        .btn-primary {
+            background: var(--color-destaque1);
+            color: var(--color-white);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-destaque2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .filters-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-buttons {
+                width: 100%;
+            }
+
+            .filter-btn {
+                flex: 1;
+                text-align: center;
+            }
+
+            .content-area {
+                padding: 10px;
+            }
+
+            .data-table {
+                font-size: 0.9rem;
+            }
+
+            .data-table td, 
+            .data-table th {
+                padding: 10px;
+            }
+
+            .client-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Estilo para a barra de progresso */
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: var(--color-destaque1);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--color-white);
+            font-size: 12px;
+        }
+
+        /* Estilos específicos para o input file */
+        input[type="file"].form-control {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        input[type="file"].form-control::-webkit-file-upload-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: var(--color-white);
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        input[type="file"].form-control::-webkit-file-upload-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <!-- Alerta de erro -->
+    <div id="errorAlert" class="alert-error" style="display: none;">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span id="errorMessage"></span>
+        <button class="close-alert"><i class="bi bi-x"></i></button>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="../CONTABILIDADE/assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li class="active">
+                        <a href="clienteDetails.html">
+                            <i class="bi bi-house-door"></i>
+                            <span>Início</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Minha Área</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role">Cliente</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="../CONTABILIDADE/assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Cabeçalho do cliente -->
+                <div id="clienteLoader" class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Carregando suas informações...</p>
+                </div>
+
+                <div id="clienteHeader" class="client-header" style="display: none;">
+                    <div class="client-info">
+                        <h1 id="clienteNome" class="client-name">Nome do Cliente</h1>
+                        <p id="clienteCnpj" class="client-cnpj">00.000.000/0000-00</p>
+                    </div>
+                </div>
+
+                <!-- Botões de ação do cliente -->
+                <div class="client-actions">
+                    <button id="btnEnviarComprovante" class="action-btn">
+                        <i class="bi bi-upload"></i> Enviar Comprovante
+                    </button>
+                </div>
+
+                <!-- Modal de Upload de Comprovante -->
+                <div id="uploadModal" class="modal-backdrop" role="dialog" aria-modal="true">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">Enviar Comprovante</h2>
+                            <button type="button" class="modal-close" id="closeUploadModal" aria-label="Fechar">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="uploadForm">
+                                <div class="form-group">
+                                    <label for="nomeComprovante" class="form-label">Nome do Comprovante (Opcional)</label>
+                                    <input type="text" id="nomeComprovante" class="form-control" placeholder="Digite um nome para identificar o comprovante">
+                                    <small class="form-text">Se não informado, será usado o nome do arquivo</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="comprovantePdf" class="form-label">Arquivo do Comprovante (PDF)</label>
+                                    <input type="file" id="comprovantePdf" class="form-control" accept=".pdf" required>
+                                    <small class="form-text">Apenas arquivos PDF são aceitos</small>
+                                </div>
+
+                                <div id="uploadProgress" class="progress-bar" style="display: none;">
+                                    <div class="progress"></div>
+                                    <span class="progress-text">Enviando... 0%</span>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="action-btn btn-secondary" id="cancelUpload">Cancelar</button>
+                            <button type="button" class="action-btn btn-primary" id="confirmUpload">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção de impostos -->
+                <h2 class="section-title">Impostos para pagamentos</h2>
+                
+                <!-- Filtros de documentos -->
+                <div class="filters-container">
+                    <div class="filters-group">
+                        <label>Filtrar por:</label>
+                        <div class="filter-buttons">
+                            <button id="filterAll" class="filter-btn active">Todos</button>
+                            <button id="filterPending" class="filter-btn">Pendentes</button>
+                            <button id="filterPaid" class="filter-btn">Pagos</button>
+                            <button id="filterOverdue" class="filter-btn">Vencidos</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loader para impostos -->
+                <div id="impostosLoader" class="loading-data">
+                    <div class="spinner"></div>
+                    <p>Carregando impostos...</p>
+                </div>
+
+                <!-- Erro ao carregar impostos -->
+                <div id="impostosError" class="error-message" style="display: none;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h4>Erro ao carregar impostos</h4>
+                    <p>Não foi possível carregar os impostos. Por favor, tente novamente mais tarde.</p>
+                </div>
+
+                <!-- Estado vazio (nenhum imposto encontrado) -->
+                <div id="impostosEmpty" class="empty-state" style="display: none;">
+                    <i class="bi bi-file-earmark-x"></i>
+                    <h4>Nenhum imposto encontrado</h4>
+                    <p>Não foram encontrados impostos para visualização.</p>
+                </div>
+
+                <!-- Tabela de impostos -->
+                <div class="table-container">
+                    <table id="impostosTable" class="data-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Imposto</th>
+                                <th>Data do Pagamento</th>
+                                <th>Valor</th>
+                                <th>Data de Vencimento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="impostosTableBody">
+                            <!-- Os dados serão inseridos aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../CONTABILIDADE/assets/js/supabase.js"></script>
+    <script>
+        // Variáveis globais
+        let registrosEncontrados = [];
+        let clienteCnpj = '';
+        let clienteCnpjCurto = '';
+
+        // Aguardar o carregamento do DOM
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Inicializar o loader
+                setTimeout(function() {
+                    const loader = document.querySelector('.loader-wrapper');
+                    loader.classList.add('loader-hidden');
+                }, 1500);
+
+                // Verificar autenticação e dados do cliente
+                const { data: authData, error: authError } = await getCurrentUser();
+                const clienteData = JSON.parse(sessionStorage.getItem('clienteData') || '{}');
+                
+                if (authError || !authData || !authData.user || !clienteData || !clienteData.CNPJ) {
+                    // Limpar dados da sessão antes de redirecionar
+                    sessionStorage.removeItem('clienteData');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Atualizar informações do usuário na interface
+                document.getElementById('userName').textContent = clienteData.NOME_CLIENTE || 'Cliente';
+                document.getElementById('clienteNome').textContent = clienteData.NOME_CLIENTE || 'Cliente';
+                document.getElementById('clienteCnpj').textContent = formatarCNPJ(clienteData.CNPJ) || '';
+
+                // Esconder loader e mostrar header do cliente
+                document.getElementById('clienteLoader').style.display = 'none';
+                document.getElementById('clienteHeader').style.display = 'block';
+
+                // Configurar variáveis globais
+                clienteCnpj = clienteData.CNPJ;
+                clienteCnpjCurto = gerarCnpjCurto(clienteData.CNPJ);
+
+                console.log('CNPJ:', clienteCnpj);
+                console.log('CNPJ_CURTO:', clienteCnpjCurto);
+
+                // Carregar impostos
+                await buscarRegistrosAmContabilidade();
+
+                // Inicializar eventos
+                initEvents();
+
+            } catch (error) {
+                console.error('Erro ao carregar página:', error);
+                const errorMessage = document.getElementById('errorMessage');
+                const errorAlert = document.getElementById('errorAlert');
+                if (errorMessage && errorAlert) {
+                    errorMessage.textContent = 'Erro ao carregar dados. Por favor, tente novamente.';
+                    errorAlert.style.display = 'block';
+                }
+            }
+        });
+
+        // Função para gerar CNPJ_CURTO
+        function gerarCnpjCurto(cnpj) {
+            if (!cnpj) return '';
+            
+            // Remover caracteres não numéricos
+            const cnpjNumerico = cnpj.replace(/\D/g, '');
+            
+            // Verificar se tem 14 dígitos
+            if (cnpjNumerico.length !== 14) return '';
+            
+            // Retornar os 6 primeiros dígitos (ao invés de 8)
+            return cnpjNumerico.substring(0, 6);
+        }
+
+        // Função para formatar CNPJ
+        function formatarCNPJ(cnpj) {
+            if (!cnpj) return '';
+            
+            // Remover caracteres não numéricos
+            const cnpjNumerico = cnpj.replace(/\D/g, '');
+            
+            // Verificar se tem 14 dígitos
+            if (cnpjNumerico.length !== 14) return cnpj;
+            
+            // Formatar CNPJ (XX.XXX.XXX/XXXX-XX)
+            return cnpjNumerico.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+        }
+
+        // Função para buscar registros na AmContabilidade
+        async function buscarRegistrosAmContabilidade() {
+            console.log('Buscando registros na AmContabilidade com CNPJ_CURTO:', clienteCnpjCurto);
+            
+            // Mostrar loader
+            document.getElementById('impostosLoader').style.display = 'flex';
+            document.getElementById('impostosTable').style.display = 'none';
+            document.getElementById('impostosError').style.display = 'none';
+            document.getElementById('impostosEmpty').style.display = 'none';
+            
+            try {
+                // Verificar se temos o CNPJ_CURTO
+                if (!clienteCnpjCurto) {
+                    throw new Error('CNPJ_CURTO não disponível para buscar registros');
+                }
+                
+                // Buscar registros pelo CNPJ_CURTO
+                const { data, error } = await supabase
+                    .from('AmContabilidade')
+                    .select('*')
+                    .eq('CNPJ_CURTO', clienteCnpjCurto);
+
+                console.log('Resposta da consulta:', { data, error });
+                
+                if (error) {
+                    console.error('Erro ao buscar registros:', error);
+                    document.getElementById('impostosLoader').style.display = 'none';
+                    document.getElementById('impostosError').style.display = 'block';
+                    document.getElementById('impostosError').querySelector('p').textContent = 'Erro ao carregar registros: ' + error.message;
+                    return;
+                }
+                
+                // Verificar se encontrou registros
+                if (!data || data.length === 0) {
+                    console.log('Nenhum registro encontrado com CNPJ_CURTO:', clienteCnpjCurto);
+                    document.getElementById('impostosLoader').style.display = 'none';
+                    document.getElementById('impostosEmpty').style.display = 'block';
+                    return;
+                }
+                
+                console.log(`Encontrados ${data.length} registros com CNPJ_CURTO ${clienteCnpjCurto}`);
+                
+                // Armazenar dados e renderizar
+                registrosEncontrados = data;
+                renderizarRegistros(data);
+                
+                // Aplicar filtro inicial (todos)
+                setTimeout(() => {
+                    filterRegistros('all');
+                }, 100);
+
+            } catch (error) {
+                console.error('Erro ao executar consulta:', error);
+                document.getElementById('impostosLoader').style.display = 'none';
+                document.getElementById('impostosError').style.display = 'block';
+                document.getElementById('impostosError').querySelector('p').textContent = 'Erro: ' + error.message;
+            }
+        }
+
+        // Função para renderizar registros na tabela
+        function renderizarRegistros(registros) {
+            const tableBody = document.getElementById('impostosTableBody');
+            const table = document.getElementById('impostosTable');
+            
+            // Limpar tabela
+            tableBody.innerHTML = '';
+            
+            // Preencher tabela com os registros
+            registros.forEach(registro => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${registro.NOME_PDF || '-'}</td>
+                    <td>${registro.DATA_PAG ? formatarData(registro.DATA_PAG) : '-'}</td>
+                    <td>R$ ${registro.VALOR_PFD ? formatarMoeda(registro.VALOR_PFD) : '0,00'}</td>
+                    <td>${registro.DATA_ARQ ? formatarData(registro.DATA_ARQ) : '-'}</td>
+                    <td><span class="status-badge ${getStatusClass(registro)}">${getStatusText(registro)}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            ${registro.URL_PDF ? `
+                                <button onclick="window.open('${registro.URL_PDF}', '_blank')" class="btn-view" title="Visualizar PDF">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Mostrar tabela e esconder loader
+            document.getElementById('impostosLoader').style.display = 'none';
+            table.style.display = 'table';
+        }
+
+        // Função para formatar moeda
+        function formatarMoeda(valor) {
+            if (!valor) return '0,00';
+            return parseFloat(valor).toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // Função para determinar a classe do status
+        function getStatusClass(registro) {
+            const status = registro.STATUS || '';
+            const dataVencimento = registro.DATA_ARQ || '';
+            const dataPagamento = registro.DATA_PAG || '';
+            
+            if (status === 'S' || status === 'Pago' || dataPagamento) return 'pago';
+            
+            if (dataVencimento) {
+                const parts = dataVencimento.split('/');
+                if (parts.length === 3) {
+                    const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0);
+                    
+                    if (dataVenc < hoje) return 'vencido';
+                }
+            }
+            
+            return 'pendente';
+        }
+
+        // Função para determinar o texto do status
+        function getStatusText(registro) {
+            const status = registro.STATUS || '';
+            const dataVencimento = registro.DATA_ARQ || '';
+            const dataPagamento = registro.DATA_PAG || '';
+            
+            if (status === 'S' || status === 'Pago' || dataPagamento) return 'Pago';
+            
+            if (dataVencimento) {
+                const parts = dataVencimento.split('/');
+                if (parts.length === 3) {
+                    const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0);
+                    
+                    if (dataVenc < hoje) return 'Vencido';
+                }
+            }
+            
+            return 'Pendente';
+        }
+
+        // Função para filtrar registros
+        function filterRegistros(filter) {
+            console.log('Aplicando filtro:', filter);
+            
+            let registrosFiltrados = [];
+            
+            switch (filter) {
+                case 'pending':
+                    registrosFiltrados = registrosEncontrados.filter(registro => {
+                        const status = registro.STATUS || '';
+                        const dataVencimento = registro.DATA_ARQ || '';
+                        
+                        if (status === 'S' || status === 'Pago') return false;
+                        
+                        if (dataVencimento) {
+                            const parts = dataVencimento.split('/');
+                            if (parts.length === 3) {
+                                const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
+                                const hoje = new Date();
+                                hoje.setHours(0, 0, 0, 0);
+                                
+                                return dataVenc >= hoje;
+                            }
+                        }
+                        
+                        return true;
+                    });
+                    break;
+                    
+                case 'paid':
+                    registrosFiltrados = registrosEncontrados.filter(registro => {
+                        const status = registro.STATUS || '';
+                        return status === 'S' || status === 'Pago';
+                    });
+                    break;
+                    
+                case 'overdue':
+                    registrosFiltrados = registrosEncontrados.filter(registro => {
+                        const status = registro.STATUS || '';
+                        const dataVencimento = registro.DATA_ARQ || '';
+                        
+                        if (status === 'S' || status === 'Pago') return false;
+                        
+                        if (dataVencimento) {
+                            const parts = dataVencimento.split('/');
+                            if (parts.length === 3) {
+                                const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
+                                const hoje = new Date();
+                                hoje.setHours(0, 0, 0, 0);
+                                
+                                return dataVenc < hoje;
+                            }
+                        }
+                        
+                        return false;
+                    });
+                    break;
+                    
+                default:
+                    registrosFiltrados = registrosEncontrados;
+            }
+            
+            console.log(`Filtro "${filter}" aplicado: ${registrosFiltrados.length} registros de ${registrosEncontrados.length}`);
+            renderizarRegistros(registrosFiltrados);
+        }
+
+        // Função para formatar data
+        function formatarData(data) {
+            if (!data) return '-';
+            
+            // Se já estiver no formato DD/MM/YYYY, retornar como está
+            if (data.includes('/')) return data;
+            
+            // Se estiver em outro formato, converter para DD/MM/YYYY
+            const date = new Date(data);
+            if (isNaN(date.getTime())) return data;
+            
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        // Função para inicializar eventos
+        function initEvents() {
+            // Toggle do sidebar
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('collapsed');
+            });
+
+            // Botão de logout
+            document.getElementById('logoutButton').addEventListener('click', async function() {
+                try {
+                    await signOut();
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Erro ao fazer logout:', error);
+                }
+            });
+
+            // Botões de filtro
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remover classe active de todos os botões
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Adicionar classe active ao botão clicado
+                    this.classList.add('active');
+                    
+                    // Aplicar filtro
+                    const filter = this.id.replace('filter', '').toLowerCase();
+                    filterRegistros(filter);
+                });
+            });
+
+            // Inicializar eventos dos botões de ação
+            initActionButtons();
+        }
+
+        // Inicializar eventos dos botões de ação
+        function initActionButtons() {
+            console.log('Inicializando eventos dos botões');
+            
+            // Botão de enviar comprovante
+            const btnEnviarComprovante = document.getElementById('btnEnviarComprovante');
+            const uploadModal = document.getElementById('uploadModal');
+            const closeUploadModal = document.getElementById('closeUploadModal');
+            const cancelUpload = document.getElementById('cancelUpload');
+            const confirmUpload = document.getElementById('confirmUpload');
+            const modalContent = uploadModal?.querySelector('.modal-content');
+
+            console.log('Elementos encontrados:', {
+                btnEnviarComprovante: !!btnEnviarComprovante,
+                uploadModal: !!uploadModal,
+                closeUploadModal: !!closeUploadModal,
+                cancelUpload: !!cancelUpload,
+                confirmUpload: !!confirmUpload,
+                modalContent: !!modalContent
+            });
+
+            if (!btnEnviarComprovante || !uploadModal || !modalContent) {
+                console.error('Elementos necessários não encontrados');
+                return;
+            }
+
+            // Função para abrir o modal
+            function openModal() {
+                console.log('Abrindo modal');
+                requestAnimationFrame(() => {
+                    uploadModal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+
+            // Função para fechar o modal
+            function closeModal() {
+                console.log('Fechando modal');
+                uploadModal.classList.remove('show');
+                document.body.style.overflow = '';
+                document.getElementById('uploadForm').reset();
+            }
+
+            // Event listeners
+            btnEnviarComprovante.addEventListener('click', function(e) {
+                console.log('Botão Enviar Comprovante clicado');
+                e.preventDefault();
+                e.stopPropagation();
+                openModal();
+            });
+
+            closeUploadModal.addEventListener('click', function(e) {
+                console.log('Botão fechar clicado');
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            });
+
+            cancelUpload.addEventListener('click', function(e) {
+                console.log('Botão cancelar clicado');
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            });
+
+            // Fechar modal ao clicar fora
+            uploadModal.addEventListener('click', function(e) {
+                if (e.target === uploadModal) {
+                    console.log('Clique fora do modal');
+                    closeModal();
+                }
+            });
+
+            // Prevenir que cliques dentro do modal fechem ele
+            modalContent.addEventListener('click', function(e) {
+                console.log('Clique dentro do modal');
+                e.stopPropagation();
+            });
+
+            confirmUpload.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const fileInput = document.getElementById('comprovantePdf');
+                const nomeComprovante = document.getElementById('nomeComprovante').value;
+                const progressBar = document.getElementById('uploadProgress');
+                const progressElement = progressBar.querySelector('.progress');
+                const progressText = progressBar.querySelector('.progress-text');
+                const confirmButton = document.getElementById('confirmUpload');
+                const cancelButton = document.getElementById('cancelUpload');
+
+                if (!fileInput.files[0]) {
+                    alert('Por favor, selecione um arquivo PDF.');
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                if (file.type !== 'application/pdf') {
+                    alert('Por favor, selecione apenas arquivos PDF.');
+                    return;
+                }
+
+                try {
+                    // Desabilitar botões durante o upload
+                    confirmButton.disabled = true;
+                    cancelButton.disabled = true;
+                    progressBar.style.display = 'block';
+                    
+                    // Gerar nome único para o arquivo
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                    
+                    // Upload do arquivo para o bucket COM
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('COM')
+                        .upload(fileName, file, {
+                            cacheControl: '3600',
+                            upsert: false,
+                            onUploadProgress: (progress) => {
+                                const percent = Math.round((progress.loaded * 100) / progress.total);
+                                progressElement.style.width = `${percent}%`;
+                                progressText.textContent = `Enviando... ${percent}%`;
+                            }
+                        });
+
+                    if (uploadError) {
+                        throw new Error('Erro ao fazer upload do arquivo: ' + uploadError.message);
+                    }
+
+                    // Obter URL pública do arquivo
+                    const { data: { publicUrl }, error: urlError } = supabase.storage
+                        .from('COM')
+                        .getPublicUrl(fileName);
+
+                    if (urlError) {
+                        throw new Error('Erro ao obter URL do arquivo: ' + urlError.message);
+                    }
+
+                    // Salvar na tabela comprovantes
+                    const { data: comprovanteData, error: comprovanteError } = await supabase
+                        .from('comprovantes')
+                        .insert([
+                            {
+                                NOME: nomeComprovante || file.name,
+                                URL_COMPROVANTE: publicUrl,
+                                CNPJ: clienteCnpj
+                            }
+                        ]);
+
+                    if (comprovanteError) {
+                        throw new Error('Erro ao salvar dados do comprovante: ' + comprovanteError.message);
+                    }
+
+                    closeModal();
+                    alert('Comprovante enviado com sucesso!');
+                    
+                    // Recarregar a página para mostrar o novo comprovante
+                    window.location.reload();
+
+                } catch (error) {
+                    console.error('Erro ao enviar comprovante:', error);
+                    alert(error.message || 'Erro ao enviar comprovante. Tente novamente.');
+                } finally {
+                    // Reabilitar botões e resetar progresso
+                    confirmButton.disabled = false;
+                    cancelButton.disabled = false;
+                    progressBar.style.display = 'none';
+                    progressElement.style.width = '0%';
+                    progressText.textContent = 'Enviando... 0%';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html> 

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprovantes - EnvioDocs</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="../CONTABILIDADE/assets/css/style.css">
+    <link rel="stylesheet" href="../CONTABILIDADE/assets/css/responsividade.css">
+    <link rel="stylesheet" href="../CONTABILIDADE/assets/css/dashboard.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!--Bootstrap Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-animation"></div>
+        </div>
+    </div>
+
+    <!-- Alerta de erro -->
+    <div id="errorAlert" class="alert-error" style="display: none;">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span id="errorMessage"></span>
+        <button class="close-alert"><i class="bi bi-x"></i></button>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="../CONTABILIDADE/assets/images/logo.png" alt="EnvioDocs Logo">
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="clienteDetails.html">
+                            <i class="bi bi-house-door"></i>
+                            <span>Início</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="comprovantes.html">
+                            <i class="bi bi-receipt"></i>
+                            <span>Comprovantes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="contratos.html">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span>Contratos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="comunicados.html">
+                            <i class="bi bi-chat-dots"></i>
+                            <span>Comunicados</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutButton">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Comprovantes</h1>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                        <span class="user-role">Cliente</span>
+                    </div>
+                    <div class="user-avatar">
+                        <img src="../CONTABILIDADE/assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Cabeçalho do cliente -->
+                <div id="clienteLoader" class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Carregando suas informações...</p>
+                </div>
+
+                <div id="clienteHeader" class="client-header" style="display: none;">
+                    <div class="client-info">
+                        <h1 id="clienteNome" class="client-name">Nome do Cliente</h1>
+                        <p id="clienteCnpj" class="client-cnpj">00.000.000/0000-00</p>
+                    </div>
+                </div>
+
+                <!-- Filtros de documentos -->
+                <div class="filters-container">
+                    <div class="filters-group">
+                        <label>Filtrar por:</label>
+                        <div class="filter-buttons">
+                            <button id="filterAll" class="filter-btn active">Todos</button>
+                            <button id="filterPending" class="filter-btn">Pendentes</button>
+                            <button id="filterApproved" class="filter-btn">Aprovados</button>
+                            <button id="filterRejected" class="filter-btn">Rejeitados</button>
+                        </div>
+                    </div>
+                    <div class="search-group">
+                        <input type="text" id="searchInput" placeholder="Buscar comprovante...">
+                    </div>
+                </div>
+
+                <!-- Loader para comprovantes -->
+                <div id="comprovantesLoader" class="loading-data">
+                    <div class="spinner"></div>
+                    <p>Carregando comprovantes...</p>
+                </div>
+
+                <!-- Erro ao carregar comprovantes -->
+                <div id="comprovantesError" class="error-message" style="display: none;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h4>Erro ao carregar comprovantes</h4>
+                    <p>Não foi possível carregar os comprovantes. Por favor, tente novamente mais tarde.</p>
+                </div>
+
+                <!-- Estado vazio (nenhum comprovante encontrado) -->
+                <div id="comprovantesEmpty" class="empty-state" style="display: none;">
+                    <i class="bi bi-file-earmark-x"></i>
+                    <h4>Nenhum comprovante encontrado</h4>
+                    <p>Não foram encontrados comprovantes para visualização.</p>
+                </div>
+
+                <!-- Tabela de comprovantes -->
+                <div class="table-container">
+                    <table id="comprovantesTable" class="data-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Data de Envio</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comprovantesTableBody">
+                            <!-- Os dados serão inseridos aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../CONTABILIDADE/assets/js/supabase.js"></script>
+    <script>
+        // Aguardar o carregamento do DOM
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Inicializar o loader
+                setTimeout(function() {
+                    const loader = document.querySelector('.loader-wrapper');
+                    loader.classList.add('loader-hidden');
+                }, 1500);
+
+                // Verificar autenticação
+                const { data: authData, error: authError } = await getCurrentUser();
+                if (authError || !authData || !authData.user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Carregar dados do cliente da sessão
+                const clienteData = JSON.parse(sessionStorage.getItem('clienteData') || '{}');
+                if (!clienteData || !clienteData.CNPJ) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Atualizar informações do usuário na interface
+                document.getElementById('userName').textContent = clienteData.NOME_CLIENTE || 'Cliente';
+                document.getElementById('clienteNome').textContent = clienteData.NOME_CLIENTE || 'Cliente';
+                document.getElementById('clienteCnpj').textContent = formatarCNPJ(clienteData.CNPJ) || '';
+
+                // Esconder loader e mostrar header do cliente
+                document.getElementById('clienteLoader').style.display = 'none';
+                document.getElementById('clienteHeader').style.display = 'block';
+
+                // Carregar comprovantes
+                await loadComprovantes(clienteData.CNPJ);
+
+                // Inicializar eventos
+                initEvents();
+
+            } catch (error) {
+                console.error('Erro ao carregar página:', error);
+                const errorMessage = document.getElementById('errorMessage');
+                const errorAlert = document.getElementById('errorAlert');
+                if (errorMessage && errorAlert) {
+                    errorMessage.textContent = 'Erro ao carregar dados. Por favor, tente novamente.';
+                    errorAlert.style.display = 'block';
+                }
+            }
+        });
+
+        // Função para carregar comprovantes
+        async function loadComprovantes(cnpj) {
+            const tableBody = document.getElementById('comprovantesTableBody');
+            const table = document.getElementById('comprovantesTable');
+            const loader = document.getElementById('comprovantesLoader');
+            const error = document.getElementById('comprovantesError');
+            const empty = document.getElementById('comprovantesEmpty');
+
+            try {
+                // Mostrar loader
+                loader.style.display = 'flex';
+                table.style.display = 'none';
+                error.style.display = 'none';
+                empty.style.display = 'none';
+
+                // Buscar comprovantes do cliente
+                const { data: comprovantes, error: comprovantesError } = await getComprovantesByCliente(cnpj);
+
+                if (comprovantesError) {
+                    throw comprovantesError;
+                }
+
+                if (!comprovantes || comprovantes.length === 0) {
+                    loader.style.display = 'none';
+                    empty.style.display = 'block';
+                    return;
+                }
+
+                // Limpar e preencher tabela
+                tableBody.innerHTML = '';
+                comprovantes.forEach(comprovante => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${comprovante.TIPO_COMPROVANTE || '-'}</td>
+                        <td>${comprovante.DATA_ENVIO ? new Date(comprovante.DATA_ENVIO).toLocaleDateString() : '-'}</td>
+                        <td>${comprovante.DESCRICAO || '-'}</td>
+                        <td><span class="status-badge ${getStatusClass(comprovante.STATUS)}">${comprovante.STATUS || 'Pendente'}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                ${comprovante.URL_COMPROVANTE ? `
+                                    <button onclick="window.open('${comprovante.URL_COMPROVANTE}', '_blank')" class="btn-view" title="Visualizar">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                ` : ''}
+                                ${comprovante.URL_COMPROVANTE ? `
+                                    <button onclick="window.open('${comprovante.URL_COMPROVANTE}', '_blank')" class="btn-download" title="Download">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Esconder loader e mostrar tabela
+                loader.style.display = 'none';
+                table.style.display = 'table';
+
+            } catch (error) {
+                console.error('Erro ao carregar comprovantes:', error);
+                loader.style.display = 'none';
+                error.style.display = 'block';
+            }
+        }
+
+        // Função para determinar a classe do status
+        function getStatusClass(status) {
+            switch (status?.toLowerCase()) {
+                case 'aprovado':
+                    return 'aprovado';
+                case 'rejeitado':
+                    return 'rejeitado';
+                default:
+                    return 'pendente';
+            }
+        }
+
+        // Função para inicializar eventos
+        function initEvents() {
+            // Toggle do sidebar
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('collapsed');
+            });
+
+            // Botão de logout
+            document.getElementById('logoutButton').addEventListener('click', async function() {
+                try {
+                    await signOut();
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Erro ao fazer logout:', error);
+                }
+            });
+
+            // Botões de filtro
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remover classe active de todos os botões
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Adicionar classe active ao botão clicado
+                    this.classList.add('active');
+                    
+                    // Aplicar filtro
+                    const filter = this.id.replace('filter', '').toLowerCase();
+                    filterComprovantes(filter);
+                });
+            });
+
+            // Campo de busca
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#comprovantesTableBody tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+        }
+
+        // Função para filtrar comprovantes
+        function filterComprovantes(filter) {
+            const rows = document.querySelectorAll('#comprovantesTableBody tr');
+            rows.forEach(row => {
+                const statusCell = row.querySelector('td:nth-child(4)');
+                const status = statusCell.textContent.toLowerCase();
+                
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else if (filter === 'pending' && status === 'pendente') {
+                    row.style.display = '';
+                } else if (filter === 'approved' && status === 'aprovado') {
+                    row.style.display = '';
+                } else if (filter === 'rejected' && status === 'rejeitado') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html> 
