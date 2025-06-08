@@ -99,6 +99,30 @@
         }
         
         /* Fim das correções do modal */
+
+        /* Estilos para hover dos botões do modal de download */
+        #closeDownloadModal:hover {
+            opacity: 1 !important;
+        }
+
+        #cancelDownloadBtn:hover {
+            background: #5a6268 !important;
+        }
+
+        #startDownloadBtn:hover {
+            background: #d55e2c !important;
+        }
+
+        /* Estilos para select com tema escuro */
+        #selectCliente option {
+            background: #1a2330;
+            color: var(--color-white);
+        }
+
+        /* Estilos para inputs date com tema escuro */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
     </style>
 </head>
 
@@ -186,6 +210,9 @@
                 </div>
                 <div class="action-buttons">
                     <span class="client-count">Total: <span id="clientesCount">0</span> clientes</span>
+                    <button class="btn btn-secondary" id="downloadComprovantesBtn">
+                        <i class="bi bi-download"></i> Baixar Comprovantes
+                    </button>
                     <button class="btn btn-primary" id="addClienteBtn">
                         <i class="bi bi-plus-lg"></i> Novo Cliente
                     </button>
@@ -300,7 +327,90 @@
         </div>
     </div>
 
+    <!-- Modal de Download de Comprovantes -->
+    <div id="downloadComprovantesModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; overflow: auto;">
+        <div style="background: linear-gradient(145deg, #1a2330, #0d161f); width: 650px; max-width: 95%; margin: 3% auto; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
+            <div style="margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 22px; color: var(--color-white); font-weight: 600;">Baixar Comprovantes em Massa</h3>
+                <button id="closeDownloadModal" style="background: none; border: none; font-size: 28px; cursor: pointer; color: var(--color-white); opacity: 0.7; transition: opacity 0.2s;">&times;</button>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <!-- Filtros de Escopo -->
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: var(--color-white); font-size: 16px;">Escopo dos Comprovantes:</label>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            <input type="radio" name="scopeType" value="cliente" style="margin: 0; accent-color: #ED6F3B;">
+                            <span style="color: var(--color-white);">Cliente Específico</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            <input type="radio" name="scopeType" value="todos" checked style="margin: 0; accent-color: #ED6F3B;">
+                            <span style="color: var(--color-white);">Todos os Clientes</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Filtro por Cliente -->
+                <div id="filtrosCliente" style="margin-bottom: 25px; display: none;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--color-white);">Selecionar Cliente:</label>
+                    <select id="selectCliente" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-size: 14px; background: rgba(255,255,255,0.05); color: var(--color-white);">
+                        <option value="">Carregando clientes...</option>
+                    </select>
+                </div>
+
+                <!-- Filtro por Período -->
+                <div style="margin-bottom: 25px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <input type="checkbox" id="usePeriodFilter" style="margin: 0; accent-color: #ED6F3B;">
+                        <label for="usePeriodFilter" style="font-weight: 600; color: var(--color-white); font-size: 16px; cursor: pointer;">Filtrar por Período</label>
+                    </div>
+                    <div id="filtrosPeriodo" style="display: none;">
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: end;">
+                            <div style="flex: 1; min-width: 220px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--color-white);">Data Inicial:</label>
+                                <input type="date" id="dataInicial" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-size: 14px; background: rgba(255,255,255,0.05); color: var(--color-white);">
+                            </div>
+                            <div style="flex: 1; min-width: 220px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--color-white);">Data Final:</label>
+                                <input type="date" id="dataFinal" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-size: 14px; background: rgba(255,255,255,0.05); color: var(--color-white);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info sobre seleção atual -->
+                <div id="selectionInfo" style="background: rgba(237, 111, 59, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ED6F3B;">
+                    <p id="selectionText" style="margin: 0; color: var(--color-white); font-size: 14px;"><strong>Seleção atual:</strong> Todos os clientes desta contabilidade</p>
+                    <p id="totalClientesInfo" style="margin: 5px 0 0 0; color: rgba(255,255,255,0.7); font-size: 13px;">Total de clientes: 0</p>
+                </div>
+            </div>
+
+            <div style="text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <button id="cancelDownloadBtn" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; margin-right: 15px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.2s;">Cancelar</button>
+                <button id="startDownloadBtn" style="background: #ED6F3B; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.2s;">
+                    <i class="bi bi-download" style="margin-right: 8px;"></i>Baixar Comprovantes
+                </button>
+            </div>
+
+            <!-- Progresso do Download -->
+            <div id="downloadProgress" style="display: none; margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div style="margin-bottom: 15px;">
+                    <span style="color: var(--color-white); font-weight: 600;">Progresso do Download:</span>
+                    <span id="downloadProgressText" style="color: rgba(255,255,255,0.7); margin-left: 10px;">Preparando...</span>
+                </div>
+                <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; overflow: hidden;">
+                    <div id="downloadProgressBar" style="height: 100%; background: #ED6F3B; width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
+                </div>
+                <div style="margin-top: 12px;">
+                    <small id="downloadDetails" style="color: rgba(255,255,255,0.6);">Aguardando início...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="assets/js/supabase.js"></script>
     <script>
         // Aguardar o carregamento do DOM
@@ -931,6 +1041,17 @@
                     console.log('Botão Novo Cliente clicado');
                     openClienteModal();
                 });
+
+                // Botão de baixar comprovantes
+                const downloadButton = document.getElementById('downloadComprovantesBtn');
+                if (!downloadButton) {
+                    console.error('Botão downloadComprovantesBtn não encontrado');
+                } else {
+                    downloadButton.addEventListener('click', function() {
+                        console.log('Botão Baixar Comprovantes clicado');
+                        openDownloadModal();
+                    });
+                }
                 
                 // Botão de fechar modal
                 const closeModal = document.getElementById('closeModal');
@@ -1588,6 +1709,423 @@
                 console.error('Erro na função excluirCliente:', error);
                 return { error };
             }
+        }
+
+        // ==================== FUNÇÕES DE DOWNLOAD DE COMPROVANTES ====================
+
+        // Variáveis globais para o download
+        let clientesDisponiveis = [];
+
+        // Função para abrir o modal de download
+        async function openDownloadModal() {
+            try {
+                console.log('Abrindo modal de download de comprovantes');
+                
+                // Carregar lista de clientes para o select
+                await loadClientesForDownload();
+                
+                // Definir data padrão (último mês)
+                const hoje = new Date();
+                const mesPassado = new Date(hoje.getFullYear(), hoje.getMonth() - 1, hoje.getDate());
+                
+                document.getElementById('dataInicial').value = mesPassado.toISOString().split('T')[0];
+                document.getElementById('dataFinal').value = hoje.toISOString().split('T')[0];
+                
+                // Resetar filtros para estado inicial
+                document.querySelector('input[name="scopeType"][value="todos"]').checked = true;
+                document.getElementById('usePeriodFilter').checked = false;
+                
+                // Atualizar informações
+                updateDownloadFilters();
+                
+                // Mostrar modal
+                document.getElementById('downloadComprovantesModal').style.display = 'flex';
+                
+                // Adicionar eventos aos filtros (apenas uma vez)
+                initDownloadEvents();
+                
+                // Adicionar eventos de mudança nas datas para atualizar preview
+                document.getElementById('dataInicial').addEventListener('change', updateSelectionInfo);
+                document.getElementById('dataFinal').addEventListener('change', updateSelectionInfo);
+                
+            } catch (error) {
+                console.error('Erro ao abrir modal de download:', error);
+                showError('Erro ao abrir modal de download: ' + error.message);
+            }
+        }
+
+        // Função para carregar clientes para o select
+        async function loadClientesForDownload() {
+            try {
+                const selectCliente = document.getElementById('selectCliente');
+                selectCliente.innerHTML = '<option value="">Carregando clientes...</option>';
+
+                // Usar os clientes já carregados na página
+                if (clientesData && clientesData.length > 0) {
+                    clientesDisponiveis = clientesData;
+                } else {
+                    // Se não tiver, buscar novamente
+                    const result = contabilidadeData && contabilidadeData.CNPJ 
+                        ? await getClientes(contabilidadeData.CNPJ)
+                        : await getClientes();
+                    
+                    if (result.error) {
+                        throw new Error(result.error.message);
+                    }
+                    
+                    clientesDisponiveis = result.data || [];
+                }
+
+                // Preencher select
+                selectCliente.innerHTML = '<option value="">Selecione um cliente...</option>';
+                clientesDisponiveis.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.CNPJ;
+                    option.textContent = `${cliente.NOME_CLIENTE} (${cliente.CNPJ})`;
+                    selectCliente.appendChild(option);
+                });
+
+                // Atualizar total de clientes
+                document.getElementById('totalClientesInfo').textContent = clientesDisponiveis.length;
+
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+                document.getElementById('selectCliente').innerHTML = '<option value="">Erro ao carregar clientes</option>';
+            }
+        }
+
+        // Função para inicializar eventos do modal de download
+        function initDownloadEvents() {
+            // Eventos dos radio buttons de escopo
+            document.querySelectorAll('input[name="scopeType"]').forEach(radio => {
+                radio.addEventListener('change', updateDownloadFilters);
+            });
+
+            // Evento do checkbox de período
+            document.getElementById('usePeriodFilter').addEventListener('change', updateDownloadFilters);
+
+            // Evento do botão fechar
+            document.getElementById('closeDownloadModal').addEventListener('click', closeDownloadModal);
+            
+            // Evento do botão cancelar
+            document.getElementById('cancelDownloadBtn').addEventListener('click', closeDownloadModal);
+            
+            // Evento do botão iniciar download
+            document.getElementById('startDownloadBtn').addEventListener('click', startMassDownload);
+
+            // Evento de mudança no select de cliente
+            document.getElementById('selectCliente').addEventListener('change', updateSelectionInfo);
+        }
+
+        // Função para atualizar filtros visíveis
+        function updateDownloadFilters() {
+            const scopeType = document.querySelector('input[name="scopeType"]:checked').value;
+            const usePeriod = document.getElementById('usePeriodFilter').checked;
+            
+            // Mostrar/esconder filtro de cliente
+            if (scopeType === 'cliente') {
+                document.getElementById('filtrosCliente').style.display = 'block';
+            } else {
+                document.getElementById('filtrosCliente').style.display = 'none';
+            }
+            
+            // Mostrar/esconder filtro de período
+            if (usePeriod) {
+                document.getElementById('filtrosPeriodo').style.display = 'block';
+            } else {
+                document.getElementById('filtrosPeriodo').style.display = 'none';
+            }
+
+            // Atualizar informações da seleção
+            updateSelectionInfo();
+        }
+
+        // Função para atualizar informações da seleção atual
+        function updateSelectionInfo() {
+            const scopeType = document.querySelector('input[name="scopeType"]:checked').value;
+            const usePeriod = document.getElementById('usePeriodFilter').checked;
+            const clienteSelecionado = document.getElementById('selectCliente').value;
+            const selectElement = document.getElementById('selectCliente');
+            
+            let selectionText = '';
+            
+            if (scopeType === 'cliente') {
+                if (clienteSelecionado) {
+                    const selectedOption = selectElement.options[selectElement.selectedIndex];
+                    const nomeCliente = selectedOption.textContent.split(' (')[0];
+                    selectionText = `<strong>Cliente:</strong> ${nomeCliente}`;
+                } else {
+                    selectionText = '<strong>Cliente:</strong> Nenhum cliente selecionado';
+                }
+            } else {
+                selectionText = `<strong>Escopo:</strong> Todos os clientes desta contabilidade`;
+            }
+
+            if (usePeriod) {
+                const dataInicial = document.getElementById('dataInicial').value;
+                const dataFinal = document.getElementById('dataFinal').value;
+                
+                if (dataInicial && dataFinal) {
+                    const dataInicialFormatada = new Date(dataInicial).toLocaleDateString('pt-BR');
+                    const dataFinalFormatada = new Date(dataFinal).toLocaleDateString('pt-BR');
+                    selectionText += `<br><strong>Período:</strong> ${dataInicialFormatada} até ${dataFinalFormatada}`;
+                } else {
+                    selectionText += '<br><strong>Período:</strong> Datas não definidas';
+                }
+            } else {
+                selectionText += '<br><strong>Período:</strong> Todos os períodos';
+            }
+
+            document.getElementById('selectionText').innerHTML = selectionText;
+        }
+
+        // Função para fechar modal de download
+        function closeDownloadModal() {
+            document.getElementById('downloadComprovantesModal').style.display = 'none';
+            
+            // Resetar progresso
+            document.getElementById('downloadProgress').style.display = 'none';
+            document.getElementById('downloadProgressBar').style.width = '0%';
+            document.getElementById('downloadProgressText').textContent = 'Preparando...';
+            document.getElementById('downloadDetails').textContent = 'Aguardando início...';
+        }
+
+        // Função principal para iniciar download em massa
+        async function startMassDownload() {
+            try {
+                const scopeType = document.querySelector('input[name="scopeType"]:checked').value;
+                const usePeriod = document.getElementById('usePeriodFilter').checked;
+                const startBtn = document.getElementById('startDownloadBtn');
+                const cancelBtn = document.getElementById('cancelDownloadBtn');
+                
+                // Desabilitar botões
+                startBtn.disabled = true;
+                cancelBtn.disabled = true;
+                
+                // Mostrar progresso
+                document.getElementById('downloadProgress').style.display = 'block';
+                updateDownloadProgress(0, 'Preparando download...');
+                
+                let comprovantes = [];
+                
+                // Buscar comprovantes baseado nos filtros combinados
+                if (scopeType === 'cliente') {
+                    // Cliente específico
+                    if (usePeriod) {
+                        comprovantes = await getComprovantesByClienteAndPeriod();
+                    } else {
+                        comprovantes = await getComprovantesByCliente();
+                    }
+                } else {
+                    // Todos os clientes
+                    if (usePeriod) {
+                        comprovantes = await getComprovantesByPeriod();
+                    } else {
+                        comprovantes = await getComprovantesAllClientes();
+                    }
+                }
+                
+                if (comprovantes.length === 0) {
+                    throw new Error('Nenhum comprovante encontrado com os filtros selecionados.');
+                }
+                
+                updateDownloadProgress(10, `${comprovantes.length} comprovante(s) encontrado(s). Iniciando download...`);
+                
+                // Fazer download dos arquivos
+                await downloadComprovantesAsZip(comprovantes);
+                
+                updateDownloadProgress(100, 'Download concluído com sucesso!');
+                
+                // Mostrar mensagem de sucesso
+                setTimeout(() => {
+                    alert(`Download concluído! ${comprovantes.length} comprovante(s) baixado(s).`);
+                    closeDownloadModal();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Erro no download:', error);
+                updateDownloadProgress(0, 'Erro: ' + error.message);
+                alert('Erro no download: ' + error.message);
+            } finally {
+                // Reabilitar botões
+                document.getElementById('startDownloadBtn').disabled = false;
+                document.getElementById('cancelDownloadBtn').disabled = false;
+            }
+        }
+
+        // Função para buscar comprovantes por período (todos os clientes)
+        async function getComprovantesByPeriod() {
+            const dataInicial = document.getElementById('dataInicial').value;
+            const dataFinal = document.getElementById('dataFinal').value;
+            
+            if (!dataInicial || !dataFinal) {
+                throw new Error('Por favor, informe as datas inicial e final.');
+            }
+            
+            // Buscar todos os CNPJs dos clientes da contabilidade
+            const cnpjsClientes = clientesDisponiveis.map(cliente => cliente.CNPJ);
+            
+            if (cnpjsClientes.length === 0) {
+                throw new Error('Nenhum cliente encontrado para esta contabilidade.');
+            }
+            
+            // Buscar comprovantes no período para os clientes
+            const { data, error } = await supabase
+                .from('comprovantes')
+                .select('*')
+                .in('CNPJ', cnpjsClientes)
+                .gte('created_at', dataInicial + 'T00:00:00')
+                .lte('created_at', dataFinal + 'T23:59:59')
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                throw new Error('Erro ao buscar comprovantes: ' + error.message);
+            }
+            
+            return data || [];
+        }
+
+        // Função para buscar comprovantes por cliente específico e período
+        async function getComprovantesByClienteAndPeriod() {
+            const cnpjSelecionado = document.getElementById('selectCliente').value;
+            const dataInicial = document.getElementById('dataInicial').value;
+            const dataFinal = document.getElementById('dataFinal').value;
+            
+            if (!cnpjSelecionado) {
+                throw new Error('Por favor, selecione um cliente.');
+            }
+            
+            if (!dataInicial || !dataFinal) {
+                throw new Error('Por favor, informe as datas inicial e final.');
+            }
+            
+            // Buscar comprovantes do cliente selecionado no período
+            const { data, error } = await supabase
+                .from('comprovantes')
+                .select('*')
+                .eq('CNPJ', cnpjSelecionado)
+                .gte('created_at', dataInicial + 'T00:00:00')
+                .lte('created_at', dataFinal + 'T23:59:59')
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                throw new Error('Erro ao buscar comprovantes: ' + error.message);
+            }
+            
+            return data || [];
+        }
+
+        // Função para buscar comprovantes por cliente específico
+        async function getComprovantesByCliente() {
+            const cnpjSelecionado = document.getElementById('selectCliente').value;
+            
+            if (!cnpjSelecionado) {
+                throw new Error('Por favor, selecione um cliente.');
+            }
+            
+            // Buscar comprovantes do cliente selecionado
+            const { data, error } = await supabase
+                .from('comprovantes')
+                .select('*')
+                .eq('CNPJ', cnpjSelecionado)
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                throw new Error('Erro ao buscar comprovantes: ' + error.message);
+            }
+            
+            return data || [];
+        }
+
+        // Função para buscar comprovantes de todos os clientes
+        async function getComprovantesAllClientes() {
+            // Buscar todos os CNPJs dos clientes da contabilidade
+            const cnpjsClientes = clientesDisponiveis.map(cliente => cliente.CNPJ);
+            
+            if (cnpjsClientes.length === 0) {
+                throw new Error('Nenhum cliente encontrado para esta contabilidade.');
+            }
+            
+            // Buscar todos os comprovantes dos clientes
+            const { data, error } = await supabase
+                .from('comprovantes')
+                .select('*')
+                .in('CNPJ', cnpjsClientes)
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                throw new Error('Erro ao buscar comprovantes: ' + error.message);
+            }
+            
+            return data || [];
+        }
+
+        // Função para fazer download dos comprovantes como ZIP
+        async function downloadComprovantesAsZip(comprovantes) {
+            const zip = new JSZip();
+            let processedCount = 0;
+            
+            updateDownloadProgress(20, 'Fazendo download dos arquivos...');
+            
+            for (const comprovante of comprovantes) {
+                try {
+                    // Buscar nome do cliente
+                    const cliente = clientesDisponiveis.find(c => c.CNPJ === comprovante.CNPJ);
+                    const nomeCliente = cliente ? cliente.NOME_CLIENTE : comprovante.CNPJ;
+                    
+                    // Fazer download do arquivo
+                    const response = await fetch(comprovante.URL_COMPROVANTE);
+                    if (!response.ok) {
+                        console.warn(`Erro ao baixar arquivo: ${comprovante.NOME || 'sem_nome'}`);
+                        continue;
+                    }
+                    
+                    const blob = await response.blob();
+                    
+                    // Criar nome do arquivo no ZIP
+                    const dataEnvio = new Date(comprovante.created_at).toLocaleDateString('pt-BR');
+                    const nomeArquivo = `${nomeCliente}/${dataEnvio}_${comprovante.NOME || 'comprovante'}.pdf`;
+                    
+                    // Adicionar ao ZIP
+                    zip.file(nomeArquivo, blob);
+                    
+                    processedCount++;
+                    const progress = 20 + (processedCount / comprovantes.length) * 60;
+                    updateDownloadProgress(progress, `Processando: ${processedCount}/${comprovantes.length} arquivos`);
+                    
+                } catch (error) {
+                    console.error('Erro ao processar comprovante:', comprovante, error);
+                }
+            }
+            
+            updateDownloadProgress(85, 'Gerando arquivo ZIP...');
+            
+            // Gerar o ZIP
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            
+            updateDownloadProgress(95, 'Preparando download...');
+            
+            // Criar nome do arquivo ZIP
+            const agora = new Date();
+            const dataHora = agora.toISOString().slice(0, 19).replace(/[T:]/g, '_');
+            const nomeZip = `comprovantes_${dataHora}.zip`;
+            
+            // Fazer download
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nomeZip;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Função para atualizar progresso do download
+        function updateDownloadProgress(percent, message) {
+            document.getElementById('downloadProgressBar').style.width = percent + '%';
+            document.getElementById('downloadProgressText').textContent = Math.round(percent) + '%';
+            document.getElementById('downloadDetails').textContent = message;
         }
     </script>
 </body>
