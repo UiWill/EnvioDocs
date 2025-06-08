@@ -437,6 +437,142 @@
         input[type="file"].form-control::-webkit-file-upload-button:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
+        /* Estilos para preview de arquivos */
+        .files-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .files-preview h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: var(--color-white);
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .file-icon.pdf {
+            background: #dc3545;
+        }
+
+        .file-icon.zip {
+            background: #6c757d;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            color: var(--color-white);
+            margin: 0;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+
+        .file-remove {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .file-remove:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Estilos para progresso de upload múltiplo */
+        .multi-upload-progress {
+            margin-top: 15px;
+        }
+
+        .upload-item {
+            margin: 5px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .upload-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .upload-item-name {
+            font-size: 12px;
+            color: var(--color-white);
+        }
+
+        .upload-item-status {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .upload-item-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .upload-item-progress-bar {
+            height: 100%;
+            background: var(--color-primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .upload-item-progress-bar.complete {
+            background: #28a745;
+        }
+
+        .upload-item-progress-bar.error {
+            background: #dc3545;
+        }
     </style>
 </head>
 
@@ -540,14 +676,27 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="comprovantePdf" class="form-label">Arquivo do Comprovante (PDF)</label>
-                                    <input type="file" id="comprovantePdf" class="form-control" accept=".pdf" required>
-                                    <small class="form-text">Apenas arquivos PDF são aceitos</small>
+                                    <label for="comprovantePdf" class="form-label">Arquivos do Comprovante</label>
+                                    <input type="file" id="comprovantePdf" class="form-control" accept=".pdf,.zip" multiple required>
+                                    <small class="form-text">Aceita arquivos PDF e ZIP. Selecione vários arquivos para envio em lote. Arquivos ZIP serão descompactados automaticamente.</small>
+                                </div>
+
+                                <div id="filesList" class="files-preview" style="display: none;">
+                                    <h4>Arquivos Selecionados:</h4>
+                                    <div id="filesContainer"></div>
                                 </div>
 
                                 <div id="uploadProgress" class="progress-bar" style="display: none;">
                                     <div class="progress"></div>
                                     <span class="progress-text">Enviando... 0%</span>
+                                </div>
+
+                                <div id="multiUploadProgress" class="multi-upload-progress" style="display: none;">
+                                    <h4>Progresso do Upload:</h4>
+                                    <div id="uploadItemsContainer"></div>
+                                    <div style="margin-top: 10px; text-align: center;">
+                                        <span id="overallProgress" class="upload-item-status">Preparando arquivos...</span>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -618,6 +767,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="../CONTABILIDADE/assets/js/supabase.js"></script>
     <script>
         // Variáveis globais
@@ -969,6 +1119,228 @@
             initActionButtons();
         }
 
+        // Variável global para armazenar arquivos selecionados
+        let selectedFiles = [];
+
+        // Função para formatar tamanho do arquivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Função para obter ícone do arquivo
+        function getFileIcon(fileName) {
+            const extension = fileName.split('.').pop().toLowerCase();
+            if (extension === 'pdf') return 'pdf';
+            if (extension === 'zip') return 'zip';
+            return 'pdf'; // default
+        }
+
+        // Função para descompactar arquivo ZIP
+        async function extractZipFile(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const zip = new JSZip();
+                const zipContent = await zip.loadAsync(arrayBuffer);
+                
+                const extractedFiles = [];
+                
+                for (const [path, zipEntry] of Object.entries(zipContent.files)) {
+                    if (!zipEntry.dir && path.toLowerCase().endsWith('.pdf')) {
+                        const content = await zipEntry.async('blob');
+                        const pdfFile = new File([content], path, { type: 'application/pdf' });
+                        extractedFiles.push(pdfFile);
+                    }
+                }
+                
+                return extractedFiles;
+            } catch (error) {
+                console.error('Erro ao extrair ZIP:', error);
+                throw new Error(`Erro ao extrair arquivo ZIP: ${file.name}`);
+            }
+        }
+
+        // Função para processar arquivos selecionados
+        async function processSelectedFiles(files) {
+            const processedFiles = [];
+            
+            for (const file of files) {
+                if (file.type === 'application/pdf') {
+                    processedFiles.push(file);
+                } else if (file.name.toLowerCase().endsWith('.zip')) {
+                    try {
+                        const extractedFiles = await extractZipFile(file);
+                        if (extractedFiles.length === 0) {
+                            alert(`Nenhum arquivo PDF encontrado no ZIP: ${file.name}`);
+                        } else {
+                            processedFiles.push(...extractedFiles);
+                        }
+                    } catch (error) {
+                        alert(error.message);
+                    }
+                } else {
+                    alert(`Tipo de arquivo não suportado: ${file.name}. Apenas PDF e ZIP são aceitos.`);
+                }
+            }
+            
+            return processedFiles;
+        }
+
+        // Função para atualizar preview dos arquivos
+        function updateFilesPreview() {
+            const filesList = document.getElementById('filesList');
+            const filesContainer = document.getElementById('filesContainer');
+            
+            if (selectedFiles.length === 0) {
+                filesList.style.display = 'none';
+                return;
+            }
+            
+            filesContainer.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileIcon = getFileIcon(file.name);
+                
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon ${fileIcon}">${fileIcon.toUpperCase()}</div>
+                        <div class="file-details">
+                            <p class="file-name">${file.name}</p>
+                            <p class="file-size">${formatFileSize(file.size)}</p>
+                        </div>
+                    </div>
+                    <button type="button" class="file-remove" data-index="${index}">Remover</button>
+                `;
+                
+                filesContainer.appendChild(fileItem);
+            });
+            
+            filesList.style.display = 'block';
+            
+            // Adicionar eventos de remoção
+            document.querySelectorAll('.file-remove').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    selectedFiles.splice(index, 1);
+                    updateFilesPreview();
+                });
+            });
+        }
+
+        // Função para upload múltiplo
+        async function uploadMultipleFiles(files, nomeComprovante) {
+            const multiProgressContainer = document.getElementById('multiUploadProgress');
+            const uploadItemsContainer = document.getElementById('uploadItemsContainer');
+            const overallProgress = document.getElementById('overallProgress');
+            
+            multiProgressContainer.style.display = 'block';
+            uploadItemsContainer.innerHTML = '';
+            
+            const results = [];
+            let completed = 0;
+            let errors = 0;
+            
+            // Criar elementos de progresso para cada arquivo
+            const uploadItems = files.map((file, index) => {
+                const uploadItem = document.createElement('div');
+                uploadItem.className = 'upload-item';
+                uploadItem.innerHTML = `
+                    <div class="upload-item-header">
+                        <span class="upload-item-name">${file.name}</span>
+                        <span class="upload-item-status" id="status-${index}">Aguardando...</span>
+                    </div>
+                    <div class="upload-item-progress">
+                        <div class="upload-item-progress-bar" id="progress-${index}"></div>
+                    </div>
+                `;
+                uploadItemsContainer.appendChild(uploadItem);
+                return { element: uploadItem, progressBar: uploadItem.querySelector(`#progress-${index}`), status: uploadItem.querySelector(`#status-${index}`) };
+            });
+            
+            // Atualizar progresso geral
+            function updateOverallProgress() {
+                overallProgress.textContent = `${completed + errors}/${files.length} arquivos processados (${errors} erros)`;
+            }
+            
+            // Fazer upload de cada arquivo
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const uploadItem = uploadItems[i];
+                
+                try {
+                    uploadItem.status.textContent = 'Enviando...';
+                    
+                    // Gerar nome único para o arquivo
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}_${i}.${fileExt}`;
+                    
+                    // Upload do arquivo para o bucket COM
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('COM')
+                        .upload(fileName, file, {
+                            cacheControl: '3600',
+                            upsert: false,
+                            onUploadProgress: (progress) => {
+                                const percent = Math.round((progress.loaded * 100) / progress.total);
+                                uploadItem.progressBar.style.width = `${percent}%`;
+                                uploadItem.status.textContent = `${percent}%`;
+                            }
+                        });
+
+                    if (uploadError) {
+                        throw new Error('Erro ao fazer upload: ' + uploadError.message);
+                    }
+
+                    // Obter URL pública do arquivo
+                    const { data: { publicUrl }, error: urlError } = supabase.storage
+                        .from('COM')
+                        .getPublicUrl(fileName);
+
+                    if (urlError) {
+                        throw new Error('Erro ao obter URL: ' + urlError.message);
+                    }
+
+                    // Salvar na tabela comprovantes
+                    const { data: comprovanteData, error: comprovanteError } = await supabase
+                        .from('comprovantes')
+                        .insert([
+                            {
+                                NOME: nomeComprovante || file.name,
+                                URL_COMPROVANTE: publicUrl,
+                                CNPJ: clienteCnpj
+                            }
+                        ]);
+
+                    if (comprovanteError) {
+                        throw new Error('Erro ao salvar dados: ' + comprovanteError.message);
+                    }
+
+                    uploadItem.progressBar.style.width = '100%';
+                    uploadItem.progressBar.classList.add('complete');
+                    uploadItem.status.textContent = 'Concluído';
+                    completed++;
+                    results.push({ success: true, file: file.name });
+                    
+                } catch (error) {
+                    console.error(`Erro ao enviar ${file.name}:`, error);
+                    uploadItem.progressBar.classList.add('error');
+                    uploadItem.status.textContent = 'Erro';
+                    errors++;
+                    results.push({ success: false, file: file.name, error: error.message });
+                }
+                
+                updateOverallProgress();
+            }
+            
+            return { results, completed, errors };
+        }
+
         // Inicializar eventos dos botões de ação
         function initActionButtons() {
             console.log('Inicializando eventos dos botões');
@@ -1010,6 +1382,15 @@
                 uploadModal.classList.remove('show');
                 document.body.style.overflow = '';
                 document.getElementById('uploadForm').reset();
+                
+                // Limpar arquivos selecionados e preview
+                selectedFiles = [];
+                updateFilesPreview();
+                
+                // Esconder progresso múltiplo
+                document.getElementById('multiUploadProgress').style.display = 'none';
+                document.getElementById('uploadItemsContainer').innerHTML = '';
+                document.getElementById('overallProgress').textContent = 'Preparando arquivos...';
             }
 
             // Event listeners
@@ -1048,24 +1429,46 @@
                 e.stopPropagation();
             });
 
-            confirmUpload.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const fileInput = document.getElementById('comprovantePdf');
-                const nomeComprovante = document.getElementById('nomeComprovante').value;
-                const progressBar = document.getElementById('uploadProgress');
-                const progressElement = progressBar.querySelector('.progress');
-                const progressText = progressBar.querySelector('.progress-text');
-                const confirmButton = document.getElementById('confirmUpload');
-                const cancelButton = document.getElementById('cancelUpload');
-
-                if (!fileInput.files[0]) {
-                    alert('Por favor, selecione um arquivo PDF.');
+            // Evento para quando arquivos são selecionados
+            const fileInput = document.getElementById('comprovantePdf');
+            fileInput.addEventListener('change', async function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) {
+                    selectedFiles = [];
+                    updateFilesPreview();
                     return;
                 }
 
-                const file = fileInput.files[0];
-                if (file.type !== 'application/pdf') {
-                    alert('Por favor, selecione apenas arquivos PDF.');
+                try {
+                    // Mostrar loading
+                    const overallProgress = document.getElementById('overallProgress');
+                    overallProgress.textContent = 'Processando arquivos...';
+                    
+                    // Processar arquivos (extrair ZIPs se necessário)
+                    selectedFiles = await processSelectedFiles(files);
+                    updateFilesPreview();
+                    
+                    if (selectedFiles.length === 0) {
+                        alert('Nenhum arquivo válido foi selecionado. Certifique-se de selecionar arquivos PDF ou ZIP contendo PDFs.');
+                        return;
+                    }
+                    
+                    overallProgress.textContent = `${selectedFiles.length} arquivo(s) pronto(s) para envio`;
+                    
+                } catch (error) {
+                    console.error('Erro ao processar arquivos:', error);
+                    alert('Erro ao processar arquivos: ' + error.message);
+                }
+            });
+
+            confirmUpload.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const nomeComprovante = document.getElementById('nomeComprovante').value;
+                const confirmButton = document.getElementById('confirmUpload');
+                const cancelButton = document.getElementById('cancelUpload');
+
+                if (selectedFiles.length === 0) {
+                    alert('Por favor, selecione pelo menos um arquivo.');
                     return;
                 }
 
@@ -1073,69 +1476,31 @@
                     // Desabilitar botões durante o upload
                     confirmButton.disabled = true;
                     cancelButton.disabled = true;
-                    progressBar.style.display = 'block';
                     
-                    // Gerar nome único para o arquivo
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                    // Upload múltiplo
+                    const uploadResult = await uploadMultipleFiles(selectedFiles, nomeComprovante);
                     
-                    // Upload do arquivo para o bucket COM
-                    const { data: uploadData, error: uploadError } = await supabase.storage
-                        .from('COM')
-                        .upload(fileName, file, {
-                            cacheControl: '3600',
-                            upsert: false,
-                            onUploadProgress: (progress) => {
-                                const percent = Math.round((progress.loaded * 100) / progress.total);
-                                progressElement.style.width = `${percent}%`;
-                                progressText.textContent = `Enviando... ${percent}%`;
-                            }
-                        });
-
-                    if (uploadError) {
-                        throw new Error('Erro ao fazer upload do arquivo: ' + uploadError.message);
-                    }
-
-                    // Obter URL pública do arquivo
-                    const { data: { publicUrl }, error: urlError } = supabase.storage
-                        .from('COM')
-                        .getPublicUrl(fileName);
-
-                    if (urlError) {
-                        throw new Error('Erro ao obter URL do arquivo: ' + urlError.message);
-                    }
-
-                    // Salvar na tabela comprovantes
-                    const { data: comprovanteData, error: comprovanteError } = await supabase
-                        .from('comprovantes')
-                        .insert([
-                            {
-                                NOME: nomeComprovante || file.name,
-                                URL_COMPROVANTE: publicUrl,
-                                CNPJ: clienteCnpj
-                            }
-                        ]);
-
-                    if (comprovanteError) {
-                        throw new Error('Erro ao salvar dados do comprovante: ' + comprovanteError.message);
-                    }
-
-                    closeModal();
-                    alert('Comprovante enviado com sucesso!');
+                    // Mostrar resultado
+                    const { results, completed, errors } = uploadResult;
                     
-                    // Recarregar a página para mostrar o novo comprovante
-                    window.location.reload();
+                    if (errors === 0) {
+                        alert(`Todos os ${completed} arquivo(s) foram enviados com sucesso!`);
+                        closeModal();
+                        window.location.reload();
+                    } else if (completed > 0) {
+                        alert(`${completed} arquivo(s) enviado(s) com sucesso, ${errors} com erro. Verifique os detalhes acima.`);
+                        // Não fechar o modal para que o usuário possa ver os erros
+                    } else {
+                        alert('Nenhum arquivo foi enviado devido a erros. Verifique os detalhes acima.');
+                    }
 
                 } catch (error) {
-                    console.error('Erro ao enviar comprovante:', error);
-                    alert(error.message || 'Erro ao enviar comprovante. Tente novamente.');
+                    console.error('Erro geral no upload:', error);
+                    alert('Erro no upload: ' + error.message);
                 } finally {
-                    // Reabilitar botões e resetar progresso
+                    // Reabilitar botões
                     confirmButton.disabled = false;
                     cancelButton.disabled = false;
-                    progressBar.style.display = 'none';
-                    progressElement.style.width = '0%';
-                    progressText.textContent = 'Enviando... 0%';
                 }
             });
         }
