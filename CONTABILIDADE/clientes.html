@@ -2082,9 +2082,15 @@
                     
                     const blob = await response.blob();
                     
-                    // Criar nome do arquivo no ZIP
-                    const dataEnvio = new Date(comprovante.created_at).toLocaleDateString('pt-BR');
-                    const nomeArquivo = `${nomeCliente}/${dataEnvio}_${comprovante.NOME || 'comprovante'}.pdf`;
+                    // Criar estrutura de pastas: Cliente/Mês/Dia/arquivo.pdf
+                    const dataEnvio = new Date(comprovante.created_at);
+                    const ano = dataEnvio.getFullYear();
+                    const mes = String(dataEnvio.getMonth() + 1).padStart(2, '0');
+                    const dia = String(dataEnvio.getDate()).padStart(2, '0');
+                    const nomeMes = dataEnvio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                    const dataCompleta = `${dia}_${mes}_${ano}`;
+                    
+                    const nomeArquivo = `${nomeCliente}/${nomeMes}/dia_${dia}_${dataCompleta}/${comprovante.NOME || 'comprovante'}.pdf`;
                     
                     // Adicionar ao ZIP
                     zip.file(nomeArquivo, blob);
