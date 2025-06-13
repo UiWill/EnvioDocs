@@ -142,8 +142,10 @@
         }
 
         .status-badge.pendente {
-            background-color: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
+            background-color: rgba(255, 193, 7, 0.4);
+            color: #ffeb3b;
+            font-weight: 600;
+            box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
         }
 
         .status-badge.vencido {
@@ -573,6 +575,149 @@
         .upload-item-progress-bar.error {
             background: #dc3545;
         }
+
+        /* --- Calendário mensal --- */
+        .calendario-mes {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        .calendario-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        .calendario-header h3 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: var(--color-white);
+            flex: 1;
+            text-align: center;
+            text-transform: capitalize;
+        }
+        .nav-mes-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: var(--color-white);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+        .nav-mes-btn:hover {
+            background: var(--color-destaque1);
+            border-color: var(--color-destaque1);
+        }
+        .calendario-tabela {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 3px;
+            table-layout: fixed;
+        }
+        .calendario-tabela th, .calendario-tabela td {
+            text-align: center;
+            padding: 12px 8px;
+            width: 14.28%;
+        }
+        .calendario-tabela th {
+            color: var(--color-gray2);
+            font-weight: 600;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .calendario-tabela td.vazio {
+            background: none;
+        }
+        .calendario-tabela td.dia {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            vertical-align: top;
+            position: relative;
+            min-height: 100px;
+            height: 100px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .calendario-tabela td.dia:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .calendario-tabela td.dia.selecionado {
+            background: rgba(var(--color-destaque1-rgb), 0.2);
+            border: 2px solid var(--color-destaque1);
+        }
+        .calendario-tabela td.com-vencimento {
+            background: rgba(255,193,7,0.15);
+            border: 1px solid var(--color-destaque1);
+        }
+        .numero-dia {
+            font-weight: bold;
+            color: var(--color-white);
+            margin-bottom: 4px;
+            font-size: 1.1rem;
+        }
+        .vencimento-item {
+            border-radius: 4px;
+            margin: 2px 0;
+            padding: 4px 6px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            justify-content: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: center;
+            min-height: 18px;
+        }
+        
+        /* Estilos específicos por status */
+        .vencimento-item.pendente {
+            background: rgba(255,193,7,0.25);
+            border: 1px solid rgba(255,193,7,0.5);
+            color: #ffeb3b;
+        }
+        
+        .vencimento-item.pago {
+            background: rgba(40,167,69,0.15);
+            border: 1px solid rgba(40,167,69,0.3);
+            color: #28a745;
+        }
+        
+        .vencimento-item.vencido {
+            background: rgba(220,53,69,0.15);
+            border: 1px solid rgba(220,53,69,0.3);
+            color: #dc3545;
+        }
+        .vencimento-item.extra {
+            border-style: dashed !important;
+            opacity: 0.8;
+        }
+        .vencimento-item .btn-view {
+            width: 18px;
+            height: 18px;
+            font-size: 0.8em;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        .vencimento-item span:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
     </style>
 </head>
 
@@ -592,137 +737,39 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <img src="../CONTABILIDADE/assets/images/logo.png" alt="EnvioDocs Logo">
+        <!-- Main Content (sem sidebar) -->
+        <div class="main-content" style="width: 100%; margin-left: 0;">
+            <div class="top-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 20px;">
+                <div style="display: flex; align-items: center; gap: 24px;">
+                    <div>
+                        <h1 id="clienteNome" style="margin: 0; font-size: 1.5rem;">Carregando...</h1>
+                        <p id="clienteCnpj" style="margin: 0; color: var(--color-gray2); font-size: 0.9rem;">00.000.000/0000-00</p>
+                    </div>
+                    <!-- Filtros de documentos -->
+                    <div class="filters-container" style="margin: 0; background: none; border: none; padding: 0;">
+                        <div class="filters-group" style="margin: 0;">
+                            <label style="display:none;">Filtrar por:</label>
+                            <div class="filter-buttons" style="gap: 4px;">
+                                <button id="filterAll" class="filter-btn active">Todos</button>
+                                <button id="filterPending" class="filter-btn">Pendentes</button>
+                                <button id="filterPaid" class="filter-btn">Pagos</button>
+                                <button id="filterOverdue" class="filter-btn">Vencidos</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="bi bi-list"></i>
-                </button>
-            </div>
-            <div class="sidebar-menu">
-                <ul>
-                    <li class="active">
-                        <a href="clienteDetails.html">
-                            <i class="bi bi-house-door"></i>
-                            <span>Início</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="sidebar-footer">
-                <a href="#" id="logoutButton">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Sair</span>
+                <a href="#" id="logoutButton" class="action-btn btn-secondary">
+                    <i class="bi bi-box-arrow-right"></i> Sair
                 </a>
             </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="top-bar">
-                <div class="page-title">
-                    <h1>Minha Área</h1>
-                </div>
-                <div class="user-menu">
-                    <div class="user-info">
-                        <span class="user-name" id="userName">Carregando...</span>
-                        <span class="user-role">Cliente</span>
-                    </div>
-                    <div class="user-avatar">
-                        <img src="../CONTABILIDADE/assets/images/avatar-placeholder.png" alt="Avatar" id="userAvatar">
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-area">
-                <!-- Cabeçalho do cliente -->
-                <div id="clienteLoader" class="loader-container">
-                    <div class="spinner"></div>
-                    <p>Carregando suas informações...</p>
-                </div>
-
-                <div id="clienteHeader" class="client-header" style="display: none;">
-                    <div class="client-info">
-                        <h1 id="clienteNome" class="client-name">Nome do Cliente</h1>
-                        <p id="clienteCnpj" class="client-cnpj">00.000.000/0000-00</p>
-                    </div>
-                </div>
-
-                <!-- Botões de ação do cliente -->
-                <div class="client-actions">
+            <div class="content-area" style="padding: 0 20px 20px 20px;">
+                <!-- Botão de ação do cliente -->
+                <div class="client-actions" style="margin-bottom: 15px;">
                     <button id="btnEnviarComprovante" class="action-btn">
                         <i class="bi bi-upload"></i> Enviar Comprovante
                     </button>
                 </div>
-
-                <!-- Modal de Upload de Comprovante -->
-                <div id="uploadModal" class="modal-backdrop" role="dialog" aria-modal="true">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 class="modal-title">Enviar Comprovante</h2>
-                            <button type="button" class="modal-close" id="closeUploadModal" aria-label="Fechar">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="uploadForm">
-                                <div class="form-group">
-                                    <label for="nomeComprovante" class="form-label">Nome do Comprovante (Opcional)</label>
-                                    <input type="text" id="nomeComprovante" class="form-control" placeholder="Digite um nome para identificar o comprovante">
-                                    <small class="form-text">Se não informado, será usado o nome do arquivo</small>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="comprovantePdf" class="form-label">Arquivos do Comprovante</label>
-                                    <input type="file" id="comprovantePdf" class="form-control" accept=".pdf,.zip" multiple required>
-                                    <small class="form-text">Aceita arquivos PDF e ZIP. Selecione vários arquivos para envio em lote. Arquivos ZIP serão descompactados automaticamente.</small>
-                                </div>
-
-                                <div id="filesList" class="files-preview" style="display: none;">
-                                    <h4>Arquivos Selecionados:</h4>
-                                    <div id="filesContainer"></div>
-                                </div>
-
-                                <div id="uploadProgress" class="progress-bar" style="display: none;">
-                                    <div class="progress"></div>
-                                    <span class="progress-text">Enviando... 0%</span>
-                                </div>
-
-                                <div id="multiUploadProgress" class="multi-upload-progress" style="display: none;">
-                                    <h4>Progresso do Upload:</h4>
-                                    <div id="uploadItemsContainer"></div>
-                                    <div style="margin-top: 10px; text-align: center;">
-                                        <span id="overallProgress" class="upload-item-status">Preparando arquivos...</span>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="action-btn btn-secondary" id="cancelUpload">Cancelar</button>
-                            <button type="button" class="action-btn btn-primary" id="confirmUpload">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Seção de impostos -->
-                <h2 class="section-title">Impostos para pagamentos</h2>
                 
-                <!-- Filtros de documentos -->
-                <div class="filters-container">
-                    <div class="filters-group">
-                        <label>Filtrar por:</label>
-                        <div class="filter-buttons">
-                            <button id="filterAll" class="filter-btn active">Todos</button>
-                            <button id="filterPending" class="filter-btn">Pendentes</button>
-                            <button id="filterPaid" class="filter-btn">Pagos</button>
-                            <button id="filterOverdue" class="filter-btn">Vencidos</button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Loader para impostos -->
                 <div id="impostosLoader" class="loading-data">
                     <div class="spinner"></div>
@@ -742,25 +789,74 @@
                     <h4>Nenhum imposto encontrado</h4>
                     <p>Não foram encontrados impostos para visualização.</p>
                 </div>
-
-                <!-- Tabela de impostos -->
-                <div class="table-container">
-                    <table id="impostosTable" class="data-table" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Imposto</th>
-                                <th>Data do Pagamento</th>
-                                <th>Valor</th>
-                                <th>Data de Vencimento</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="impostosTableBody">
-                            <!-- Os dados serão inseridos aqui dinamicamente -->
-                        </tbody>
-                    </table>
+                
+                <!-- Calendário mensal -->
+                <div id="calendarioContainer" style="margin-bottom: 20px;"></div>
+                
+                <!-- Aviso de vencimentos da semana -->
+                <div id="avisoSemana" style="display:none; margin-bottom: 15px; padding: 10px; background: rgba(255,193,7,0.1); border-left: 4px solid #ffc107; border-radius: 4px;"></div>
+                
+                <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
+                    <!-- Lista de documentos do dia selecionado -->
+                    <div id="listaDiaSelecionado" style="flex: 2 1 400px; min-width: 350px;">
+                        <h3 style="margin: 0 0 15px 0; color: var(--color-white);">Documentos do Dia</h3>
+                        <div id="documentosDia" style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; min-height: 200px;"></div>
+                    </div>
+                    <!-- Lista de documentos futuros da semana -->
+                    <div id="listaSemanaFutura" style="flex: 1 1 300px; min-width: 250px;">
+                        <h3 style="margin: 0 0 15px 0; color: var(--color-white);">Próximos Vencimentos</h3>
+                        <div id="documentosSemana" style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; min-height: 200px;"></div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Upload de Comprovante -->
+    <div id="uploadModal" class="modal-backdrop" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Enviar Comprovante</h2>
+                <button type="button" class="modal-close" id="closeUploadModal" aria-label="Fechar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="nomeComprovante" class="form-label">Nome do Comprovante (Opcional)</label>
+                        <input type="text" id="nomeComprovante" class="form-control" placeholder="Digite um nome para identificar o comprovante">
+                        <small class="form-text">Se não informado, será usado o nome do arquivo</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comprovantePdf" class="form-label">Arquivos do Comprovante</label>
+                        <input type="file" id="comprovantePdf" class="form-control" accept=".pdf,.zip" multiple required>
+                        <small class="form-text">Aceita arquivos PDF e ZIP. Selecione vários arquivos para envio em lote. Arquivos ZIP serão descompactados automaticamente.</small>
+                    </div>
+
+                    <div id="filesList" class="files-preview" style="display: none;">
+                        <h4>Arquivos Selecionados:</h4>
+                        <div id="filesContainer"></div>
+                    </div>
+
+                    <div id="uploadProgress" class="progress-bar" style="display: none;">
+                        <div class="progress"></div>
+                        <span class="progress-text">Enviando... 0%</span>
+                    </div>
+
+                    <div id="multiUploadProgress" class="multi-upload-progress" style="display: none;">
+                        <h4>Progresso do Upload:</h4>
+                        <div id="uploadItemsContainer"></div>
+                        <div style="margin-top: 10px; text-align: center;">
+                            <span id="overallProgress" class="upload-item-status">Preparando arquivos...</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="action-btn btn-secondary" id="cancelUpload">Cancelar</button>
+                <button type="button" class="action-btn btn-primary" id="confirmUpload">Enviar</button>
             </div>
         </div>
     </div>
@@ -771,9 +867,34 @@
     <script src="../CONTABILIDADE/assets/js/supabase.js"></script>
     <script>
         // Variáveis globais
+        let clienteData = null;
+        let clienteCnpj = null;
+        let clienteCnpjCurto = null;
         let registrosEncontrados = [];
-        let clienteCnpj = '';
-        let clienteCnpjCurto = '';
+        let selectedFiles = [];
+        let vencimentosPorData = {};
+        let diaSelecionado = new Date();
+        let mesAtual = new Date().getMonth();
+        let anoAtual = new Date().getFullYear();
+
+        // Função para fazer logout
+        async function signOut() {
+            console.log('Fazendo logout...');
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error('Erro ao fazer logout:', error);
+                } else {
+                    console.log('Logout realizado com sucesso');
+                }
+            } catch (error) {
+                console.error('Erro durante logout:', error);
+            } finally {
+                // Limpar dados da sessão independente do resultado
+                sessionStorage.removeItem('clienteData');
+                localStorage.clear();
+            }
+        }
 
         // Aguardar o carregamento do DOM
         document.addEventListener('DOMContentLoaded', async function() {
@@ -796,13 +917,8 @@
                 }
 
                 // Atualizar informações do usuário na interface
-                document.getElementById('userName').textContent = clienteData.NOME_CLIENTE || 'Cliente';
                 document.getElementById('clienteNome').textContent = clienteData.NOME_CLIENTE || 'Cliente';
                 document.getElementById('clienteCnpj').textContent = formatarCNPJ(clienteData.CNPJ) || '';
-
-                // Esconder loader e mostrar header do cliente
-                document.getElementById('clienteLoader').style.display = 'none';
-                document.getElementById('clienteHeader').style.display = 'block';
 
                 // Configurar variáveis globais
                 clienteCnpj = clienteData.CNPJ;
@@ -861,10 +977,13 @@
             console.log('Buscando registros na AmContabilidade com CNPJ_CURTO:', clienteCnpjCurto);
             
             // Mostrar loader
-            document.getElementById('impostosLoader').style.display = 'flex';
-            document.getElementById('impostosTable').style.display = 'none';
-            document.getElementById('impostosError').style.display = 'none';
-            document.getElementById('impostosEmpty').style.display = 'none';
+            const loader = document.getElementById('impostosLoader');
+            const errorDiv = document.getElementById('impostosError');
+            const emptyDiv = document.getElementById('impostosEmpty');
+            
+            if (loader) loader.style.display = 'flex';
+            if (errorDiv) errorDiv.style.display = 'none';
+            if (emptyDiv) emptyDiv.style.display = 'none';
             
             try {
                 // Verificar se temos o CNPJ_CURTO
@@ -882,17 +1001,20 @@
                 
                 if (error) {
                     console.error('Erro ao buscar registros:', error);
-                    document.getElementById('impostosLoader').style.display = 'none';
-                    document.getElementById('impostosError').style.display = 'block';
-                    document.getElementById('impostosError').querySelector('p').textContent = 'Erro ao carregar registros: ' + error.message;
+                    if (loader) loader.style.display = 'none';
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                        const errorP = errorDiv.querySelector('p');
+                        if (errorP) errorP.textContent = 'Erro ao carregar registros: ' + error.message;
+                    }
                     return;
                 }
                 
                 // Verificar se encontrou registros
                 if (!data || data.length === 0) {
                     console.log('Nenhum registro encontrado com CNPJ_CURTO:', clienteCnpjCurto);
-                    document.getElementById('impostosLoader').style.display = 'none';
-                    document.getElementById('impostosEmpty').style.display = 'block';
+                    if (loader) loader.style.display = 'none';
+                    if (emptyDiv) emptyDiv.style.display = 'block';
                     return;
                 }
                 
@@ -900,54 +1022,326 @@
                 
                 // Armazenar dados e renderizar
                 registrosEncontrados = data;
-                renderizarRegistros(data);
-                
-                // Aplicar filtro inicial (todos)
-                setTimeout(() => {
-                    filterRegistros('all');
-                }, 100);
+                renderizarCalendario(data);
 
             } catch (error) {
                 console.error('Erro ao executar consulta:', error);
-                document.getElementById('impostosLoader').style.display = 'none';
-                document.getElementById('impostosError').style.display = 'block';
-                document.getElementById('impostosError').querySelector('p').textContent = 'Erro: ' + error.message;
+                if (loader) loader.style.display = 'none';
+                if (errorDiv) {
+                    errorDiv.style.display = 'block';
+                    const errorP = errorDiv.querySelector('p');
+                    if (errorP) errorP.textContent = 'Erro: ' + error.message;
+                }
             }
         }
 
-        // Função para renderizar registros na tabela
-        function renderizarRegistros(registros) {
-            const tableBody = document.getElementById('impostosTableBody');
-            const table = document.getElementById('impostosTable');
-            
-            // Limpar tabela
-            tableBody.innerHTML = '';
-            
-            // Preencher tabela com os registros
+        // Função para renderizar o calendário mensal com vencimentos
+        function renderizarCalendario(registros) {
+            const calendarioContainer = document.getElementById('calendarioContainer');
+            calendarioContainer.innerHTML = '';
+
+            // Usar mês e ano das variáveis globais
+            const hoje = new Date();
+            let mes = mesAtual;
+            let ano = anoAtual;
+
+            // Permitir navegação entre meses (pode ser expandido depois)
+            // Para agora, só mostra o mês atual
+
+            // Dias da semana
+            const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+
+            // Primeiro e último dia do mês
+            const primeiroDia = new Date(ano, mes, 1);
+            const ultimoDia = new Date(ano, mes + 1, 0);
+
+            // Montar matriz do calendário
+            let dias = [];
+            let semana = [];
+            let diaSemana = primeiroDia.getDay();
+
+            // Preencher dias vazios antes do primeiro dia do mês
+            for (let i = 0; i < diaSemana; i++) semana.push(null);
+
+            // Preencher dias do mês
+            for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
+                semana.push(new Date(ano, mes, dia));
+                if (semana.length === 7) {
+                    dias.push(semana);
+                    semana = [];
+                }
+            }
+            // Preencher dias vazios no final
+            if (semana.length > 0) {
+                while (semana.length < 7) semana.push(null);
+                dias.push(semana);
+            }
+
+            // Mapear vencimentos por data
+            vencimentosPorData = {};
             registros.forEach(registro => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${registro.NOME_PDF || '-'}</td>
-                    <td>${registro.DATA_PAG ? formatarData(registro.DATA_PAG) : '-'}</td>
-                    <td>R$ ${registro.VALOR_PFD ? formatarMoeda(registro.VALOR_PFD) : '0,00'}</td>
-                    <td>${registro.DATA_ARQ ? formatarData(registro.DATA_ARQ) : '-'}</td>
-                    <td><span class="status-badge ${getStatusClass(registro)}">${getStatusText(registro)}</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            ${registro.URL_PDF ? `
-                                <button onclick="window.open('${registro.URL_PDF}', '_blank')" class="btn-view" title="Visualizar PDF">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    </td>
-                `;
-                tableBody.appendChild(row);
+                if (!registro.DATA_ARQ) return;
+                let dataParts = registro.DATA_ARQ.split('/');
+                let dataVenc = new Date(dataParts[2], dataParts[1] - 1, dataParts[0]);
+                let key = dataVenc.toISOString().slice(0, 10);
+                if (!vencimentosPorData[key]) vencimentosPorData[key] = [];
+                vencimentosPorData[key].push(registro);
+            });
+
+            // Lógica para avisos da semana (apenas documentos não pagos que vencem a partir de hoje)
+            const inicioSemana = new Date(hoje); // Começar a partir de hoje, não do domingo
+            const fimSemana = new Date(hoje);
+            fimSemana.setDate(hoje.getDate() + 6); // Próximos 7 dias a partir de hoje
+            let avisosSemana = [];
+            const documentosAvisoJaAdicionados = new Set(); // Para evitar duplicatas no aviso
+            
+            Object.keys(vencimentosPorData).forEach(key => {
+                const data = new Date(key);
+                // Só incluir documentos que vencem a partir de hoje (não os já vencidos)
+                if (data >= inicioSemana && data <= fimSemana) {
+                    // Filtrar apenas documentos não pagos e não vencidos
+                    const documentosParaAviso = vencimentosPorData[key].filter(doc => {
+                        if (isDocumentoPago(doc)) return false; // Não incluir pagos
+                        
+                        // Verificar se não está vencido
+                        const statusClass = getStatusClass(doc);
+                        if (statusClass === 'vencido') return false; // Não incluir vencidos
+                        
+                        // Evitar duplicatas (documentos de fim de semana movidos)
+                        const chaveUnica = `${doc.NOME_PDF || 'Documento'}_${doc.DATA_ARQ || ''}`;
+                        if (documentosAvisoJaAdicionados.has(chaveUnica)) return false;
+                        
+                        documentosAvisoJaAdicionados.add(chaveUnica);
+                        return true;
+                    });
+                    avisosSemana.push(...documentosParaAviso);
+                }
             });
             
-            // Mostrar tabela e esconder loader
-            document.getElementById('impostosLoader').style.display = 'none';
-            table.style.display = 'table';
+            const avisoSemanaDiv = document.getElementById('avisoSemana');
+            if (avisosSemana.length > 0) {
+                avisoSemanaDiv.style.display = 'block';
+                avisoSemanaDiv.innerHTML = `<b>Atenção:</b> Você tem <b>${avisosSemana.length}</b> documento(s) para vencer nos próximos 7 dias!`;
+            } else {
+                avisoSemanaDiv.style.display = 'none';
+            }
+
+            // Lógica para vencimentos no sábado/domingo aparecerem na segunda
+            let vencimentosSegunda = [];
+            dias.forEach(semanaArr => {
+                semanaArr.forEach((data, idx) => {
+                    if (!data) return;
+                    if (data.getDay() === 1) { // Segunda
+                        // Verificar sábado e domingo anteriores
+                        for (let offset = -2; offset < 0; offset++) {
+                            let anterior = new Date(data);
+                            anterior.setDate(data.getDate() + offset);
+                            let key = anterior.toISOString().slice(0, 10);
+                            if (vencimentosPorData[key]) {
+                                vencimentosSegunda.push(...vencimentosPorData[key].map(r => ({...r, extra: true, dataExtra: data})));
+                            }
+                        }
+                    }
+                });
+            });
+            // Adicionar esses vencimentos extras na segunda-feira
+            vencimentosSegunda.forEach(item => {
+                let key = item.dataExtra.toISOString().slice(0, 10);
+                if (!vencimentosPorData[key]) vencimentosPorData[key] = [];
+                vencimentosPorData[key].push(item);
+            });
+
+            // Montar HTML do calendário
+            const dataCalendario = new Date(ano, mes, 1);
+            let html = `<div class="calendario-mes">
+                <div class="calendario-header">
+                    <button onclick="navegarMes(-1)" class="nav-mes-btn" title="Mês anterior">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <h3>${dataCalendario.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                    <button onclick="navegarMes(1)" class="nav-mes-btn" title="Próximo mês">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                <table class="calendario-tabela">
+                    <thead><tr>${diasSemana.map(d => `<th>${d}</th>`).join('')}</tr></thead>
+                    <tbody>
+            `;
+            dias.forEach(semanaArr => {
+                html += '<tr>';
+                semanaArr.forEach(data => {
+                    if (!data) {
+                        html += '<td class="vazio"></td>';
+                    } else {
+                        let key = data.toISOString().slice(0, 10);
+                        let vencs = vencimentosPorData[key] || [];
+                        let vencsNaoPagos = vencs.filter(v => !isDocumentoPago(v));
+                        
+                        // Para fins de semana, só destacar se tiver documentos "extra" (movidos de fim de semana)
+                        let vencsParaDestaque = vencsNaoPagos;
+                        if (data.getDay() === 0 || data.getDay() === 6) { // Fim de semana
+                            vencsParaDestaque = vencsNaoPagos.filter(v => v.extra);
+                        }
+                        
+                        let isHoje = data.toDateString() === hoje.toDateString();
+                        let isSelecionado = data.toDateString() === diaSelecionado.toDateString();
+                        
+                        html += `<td class="dia${vencsParaDestaque.length ? ' com-vencimento' : ''}${isSelecionado ? ' selecionado' : ''}" 
+                                    onclick="selecionarDia('${key}')" data-date="${key}">
+                            <div class="numero-dia">${data.getDate()}${isHoje ? ' (hoje)' : ''}</div>`;
+                        
+                        // Filtrar documentos para não mostrar os de fim de semana no calendário
+                        // (eles só aparecem na segunda-feira como "extra")
+                        let vencsParaMostrar = vencs.filter(v => {
+                            // Se é fim de semana (sábado=6, domingo=0) e não é um documento "extra", não mostrar
+                            if ((data.getDay() === 0 || data.getDay() === 6) && !v.extra) {
+                                return false;
+                            }
+                            return true;
+                        });
+                        
+                        // Mostrar apenas os primeiros 2-3 vencimentos no calendário
+                        vencsParaMostrar.slice(0, 3).forEach(v => {
+                            const statusClass = getStatusClass(v);
+                            const nomeDocumento = v.NOME_PDF || 'Documento';
+                            // Limitar o nome para caber no calendário
+                            const nomeExibido = nomeDocumento.length > 12 ? nomeDocumento.substring(0, 12) + '...' : nomeDocumento;
+                            
+                            html += `<div class="vencimento-item ${statusClass}${v.extra ? ' extra' : ''}" title="${nomeDocumento}">
+                                <span style="font-weight: 600; color: ${statusClass === 'pendente' ? '#ffeb3b' : 'inherit'};">${nomeExibido}</span>
+                            </div>`;
+                        });
+                        
+                        if (vencsParaMostrar.length > 3) {
+                            html += `<div class="vencimento-item" style="font-style: italic;">+${vencsParaMostrar.length - 3} mais</div>`;
+                        }
+                        
+                        html += '</td>';
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            calendarioContainer.innerHTML = html;
+            
+            // Esconder loader
+            const loader = document.getElementById('impostosLoader');
+            if (loader) loader.style.display = 'none';
+            
+            // Atualizar listas do dia selecionado e da semana
+            atualizarListaDiaSelecionado();
+            atualizarListaSemanaFutura();
+        }
+
+        // Função para selecionar um dia no calendário
+        function selecionarDia(dateKey) {
+            diaSelecionado = new Date(dateKey + 'T00:00:00');
+            
+            // Atualizar visual do calendário
+            document.querySelectorAll('.calendario-tabela td.dia').forEach(td => {
+                td.classList.remove('selecionado');
+            });
+            document.querySelector(`[data-date="${dateKey}"]`).classList.add('selecionado');
+            
+            // Atualizar listas
+            atualizarListaDiaSelecionado();
+        }
+
+        // Função para atualizar a lista de documentos do dia selecionado
+        function atualizarListaDiaSelecionado() {
+            const container = document.getElementById('documentosDia');
+            const key = diaSelecionado.toISOString().slice(0, 10);
+            const vencs = vencimentosPorData[key] || [];
+            
+            if (vencs.length === 0) {
+                container.innerHTML = '<p style="color: var(--color-gray2); text-align: center; margin: 20px 0;">Nenhum documento para este dia.</p>';
+                return;
+            }
+            
+            let html = '';
+            vencs.forEach(v => {
+                html += `<div class="documento-item" style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 12px; margin-bottom: 10px; border-left: 4px solid ${getStatusColor(v)};">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 5px 0; color: var(--color-white); font-size: 1rem;">${v.NOME_PDF || 'Documento'}</h4>
+                            <p style="margin: 0; color: var(--color-gray2); font-size: 0.9rem;">
+                                Valor: R$ ${v.VALOR_PFD ? formatarMoeda(v.VALOR_PFD) : '0,00'}<br>
+                                Vencimento: ${v.DATA_ARQ ? formatarData(v.DATA_ARQ) : '-'}
+                                ${v.extra ? '<br><span style="color: #dc3545; font-style: italic;">Vencimento de fim de semana</span>' : ''}
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="status-badge ${getStatusClass(v)}">${getStatusText(v)}</span>
+                            ${v.URL_PDF ? `<button onclick="window.open('${v.URL_PDF}', '_blank')" class="btn-view" title="Visualizar PDF"><i class="bi bi-eye"></i></button>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // Função para atualizar a lista de próximos vencimentos da semana
+        function atualizarListaSemanaFutura() {
+            const container = document.getElementById('documentosSemana');
+            const hoje = new Date();
+            const proximosDias = [];
+            const documentosJaAdicionados = new Set(); // Para evitar duplicatas
+            
+            // Pegar os próximos 7 dias a partir de hoje
+            for (let i = 1; i <= 7; i++) {
+                const data = new Date(hoje);
+                data.setDate(hoje.getDate() + i);
+                const key = data.toISOString().slice(0, 10);
+                const vencs = vencimentosPorData[key] || [];
+                
+                // Filtrar apenas documentos não pagos e evitar duplicatas
+                vencs.filter(v => !isDocumentoPago(v)).forEach(v => {
+                    // Criar uma chave única baseada no nome e data original de vencimento
+                    const chaveUnica = `${v.NOME_PDF || 'Documento'}_${v.DATA_ARQ || ''}`;
+                    
+                    // Só adicionar se não foi adicionado ainda (evita duplicatas de fim de semana)
+                    if (!documentosJaAdicionados.has(chaveUnica)) {
+                        documentosJaAdicionados.add(chaveUnica);
+                        proximosDias.push({...v, dataVenc: data});
+                    }
+                });
+            }
+            
+            if (proximosDias.length === 0) {
+                container.innerHTML = '<p style="color: var(--color-gray2); text-align: center; margin: 20px 0;">Nenhum vencimento nos próximos 7 dias.</p>';
+                return;
+            }
+            
+            // Ordenar por data
+            proximosDias.sort((a, b) => a.dataVenc - b.dataVenc);
+            
+            let html = '';
+            proximosDias.forEach(v => {
+                const diasRestantes = Math.ceil((v.dataVenc - hoje) / (1000 * 60 * 60 * 24));
+                html += `<div class="documento-item-pequeno" style="background: rgba(255,255,255,0.05); border-radius: 4px; padding: 8px; margin-bottom: 8px; border-left: 3px solid ${getStatusColor(v)};">
+                    <div style="font-size: 0.85rem; color: var(--color-white); font-weight: 500; margin-bottom: 2px;">
+                        ${(v.NOME_PDF || 'Documento').substring(0, 25)}${(v.NOME_PDF || 'Documento').length > 25 ? '...' : ''}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--color-gray2);">
+                        ${diasRestantes === 1 ? 'Amanhã' : `Em ${diasRestantes} dias`} - R$ ${v.VALOR_PFD ? formatarMoeda(v.VALOR_PFD) : '0,00'}
+                    </div>
+                    <div style="margin-top: 4px;">
+                        <span class="status-badge ${getStatusClass(v)}" style="font-size: 0.7rem; padding: 2px 6px;">${getStatusText(v)}</span>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // Função para obter cor do status
+        function getStatusColor(registro) {
+            const statusClass = getStatusClass(registro);
+            switch(statusClass) {
+                case 'pago': return '#28a745';
+                case 'vencido': return '#dc3545';
+                case 'pendente': return '#ffeb3b';
+                default: return '#6c757d';
+            }
         }
 
         // Função para formatar moeda
@@ -957,6 +1351,29 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
+        }
+
+        // Função auxiliar para verificar se um documento está pago
+        function isDocumentoPago(registro) {
+            const status = registro.STATUS || '';
+            const dataPagamento = registro.DATA_PAG || '';
+            return status === 'S' || status === 'Pago' || dataPagamento;
+        }
+
+        // Função para navegar entre meses
+        function navegarMes(direcao) {
+            mesAtual += direcao;
+            
+            if (mesAtual > 11) {
+                mesAtual = 0;
+                anoAtual++;
+            } else if (mesAtual < 0) {
+                mesAtual = 11;
+                anoAtual--;
+            }
+            
+            // Re-renderizar o calendário com o novo mês
+            renderizarCalendario(registrosEncontrados);
         }
 
         // Função para determinar a classe do status
@@ -1066,7 +1483,7 @@
             }
             
             console.log(`Filtro "${filter}" aplicado: ${registrosFiltrados.length} registros de ${registrosEncontrados.length}`);
-            renderizarRegistros(registrosFiltrados);
+            renderizarCalendario(registrosFiltrados);
         }
 
         // Função para formatar data
@@ -1085,25 +1502,46 @@
 
         // Função para inicializar eventos
         function initEvents() {
-            // Toggle do sidebar
-            document.getElementById('sidebarToggle').addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('collapsed');
-            });
-
+            console.log('Inicializando eventos...');
+            
             // Botão de logout
-            document.getElementById('logoutButton').addEventListener('click', async function() {
-                try {
-                    await signOut();
-                    window.location.href = 'login.html';
-                } catch (error) {
-                    console.error('Erro ao fazer logout:', error);
-                }
-            });
+            const logoutButton = document.getElementById('logoutButton');
+            console.log('Botão logout encontrado:', !!logoutButton);
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', async function(e) {
+                    console.log('Botão logout clicado');
+                    e.preventDefault();
+                    try {
+                        // Verificar se a função signOut existe
+                        if (typeof signOut === 'function') {
+                            await signOut();
+                        } else {
+                            console.log('Função signOut não encontrada, fazendo logout manual');
+                            // Limpar dados da sessão
+                            sessionStorage.removeItem('clienteData');
+                            localStorage.clear();
+                        }
+                        window.location.href = 'login.html';
+                    } catch (error) {
+                        console.error('Erro ao fazer logout:', error);
+                        // Mesmo com erro, redirecionar para login
+                        sessionStorage.removeItem('clienteData');
+                        localStorage.clear();
+                        window.location.href = 'login.html';
+                    }
+                });
+            } else {
+                console.error('Botão de logout não encontrado!');
+            }
 
             // Botões de filtro
             const filterButtons = document.querySelectorAll('.filter-btn');
+            console.log('Botões de filtro encontrados:', filterButtons.length);
+            
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
+                    console.log('Filtro clicado:', this.id);
                     // Remover classe active de todos os botões
                     filterButtons.forEach(btn => btn.classList.remove('active'));
                     // Adicionar classe active ao botão clicado
@@ -1117,10 +1555,9 @@
 
             // Inicializar eventos dos botões de ação
             initActionButtons();
+            
+            console.log('Eventos inicializados com sucesso');
         }
-
-        // Variável global para armazenar arquivos selecionados
-        let selectedFiles = [];
 
         // Função para formatar tamanho do arquivo
         function formatFileSize(bytes) {
