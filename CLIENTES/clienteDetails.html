@@ -1356,8 +1356,8 @@
         // Função auxiliar para verificar se um documento está pago
         function isDocumentoPago(registro) {
             const status = registro.STATUS || '';
-            const dataPagamento = registro.DATA_PAG || '';
-            return status === 'S' || status === 'Pago' || dataPagamento;
+            // Só considera pago se STATUS for 'S' - ignora DATA_PAG pois vem 0 por padrão
+            return status === 'S';
         }
 
         // Função para navegar entre meses
@@ -1380,10 +1380,11 @@
         function getStatusClass(registro) {
             const status = registro.STATUS || '';
             const dataVencimento = registro.DATA_ARQ || '';
-            const dataPagamento = registro.DATA_PAG || '';
             
-            if (status === 'S' || status === 'Pago' || dataPagamento) return 'pago';
+            // Só considera pago se STATUS for 'S' - ignora DATA_PAG pois vem 0 por padrão
+            if (status === 'S') return 'pago';
             
+            // Se não está pago, verificar se está vencido
             if (dataVencimento) {
                 const parts = dataVencimento.split('/');
                 if (parts.length === 3) {
@@ -1402,10 +1403,11 @@
         function getStatusText(registro) {
             const status = registro.STATUS || '';
             const dataVencimento = registro.DATA_ARQ || '';
-            const dataPagamento = registro.DATA_PAG || '';
             
-            if (status === 'S' || status === 'Pago' || dataPagamento) return 'Pago';
+            // Só considera pago se STATUS for 'S' - ignora DATA_PAG pois vem 0 por padrão
+            if (status === 'S') return 'Pago';
             
+            // Se não está pago, verificar se está vencido
             if (dataVencimento) {
                 const parts = dataVencimento.split('/');
                 if (parts.length === 3) {
@@ -1432,7 +1434,8 @@
                         const status = registro.STATUS || '';
                         const dataVencimento = registro.DATA_ARQ || '';
                         
-                        if (status === 'S' || status === 'Pago') return false;
+                        // Se está pago (STATUS = 'S'), não incluir nos pendentes
+                        if (status === 'S') return false;
                         
                         if (dataVencimento) {
                             const parts = dataVencimento.split('/');
@@ -1452,7 +1455,8 @@
                 case 'paid':
                     registrosFiltrados = registrosEncontrados.filter(registro => {
                         const status = registro.STATUS || '';
-                        return status === 'S' || status === 'Pago';
+                        // Só considera pago se STATUS for 'S'
+                        return status === 'S';
                     });
                     break;
                     
@@ -1461,7 +1465,8 @@
                         const status = registro.STATUS || '';
                         const dataVencimento = registro.DATA_ARQ || '';
                         
-                        if (status === 'S' || status === 'Pago') return false;
+                        // Se está pago (STATUS = 'S'), não incluir nos vencidos
+                        if (status === 'S') return false;
                         
                         if (dataVencimento) {
                             const parts = dataVencimento.split('/');
