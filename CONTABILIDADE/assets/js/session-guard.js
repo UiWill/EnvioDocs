@@ -1,4 +1,4 @@
-// PROTEÇÃO DE SESSÃO - Detecta perda de sessão e redireciona automaticamente
+// PROTEÇÃO DE SESSÃO - Verificação inicial e em navegações apenas
 (function() {
     'use strict';
     
@@ -10,12 +10,7 @@
     // Se estiver na página de login, não fazer nada
     if (isLoginPage) return;
     
-    let verificacoesFalhas = 0;
-    const MAX_FALHAS = 4; // Aumentar para 4 falhas para ser ainda menos agressivo
-    let ultimaVerificacao = Date.now();
-    let paginaCarregando = true;
-    let tempoInicioCarregamento = Date.now();
-    let errosConsecutivos = 0;
+    let verificacaoInicial = false;
     
     // Lista de erros que são normais e não indicam perda de sessão
     const errosNormais = [
@@ -36,21 +31,6 @@
     
     // Função para redirecionar para login
     function redirecionarParaLogin(motivo = 'Sessão expirada') {
-        // Verificação extra de segurança para dashboard
-        if (window.location.href.includes('dashboard.html')) {
-            // Verificar se o dashboard está funcionando normalmente
-            const dashboardContent = document.querySelector('.dashboard-content');
-            const userInfo = document.querySelector('.user-info');
-            
-            if (dashboardContent && userInfo) {
-                console.log('⚠️ Dashboard parece estar funcionando, cancelando redirecionamento:', motivo);
-                // Reset das falhas quando o dashboard está OK
-                verificacoesFalhas = 0;
-                paginaCarregando = false;
-                return;
-            }
-        }
-        
         console.log('🔄 REDIRECIONANDO PARA LOGIN:', motivo);
         
         // Limpar dados da sessão
@@ -67,48 +47,12 @@
         }
     }
     
-    // Função para verificar se a página está carregando há muito tempo
-    function verificarCarregamentoTravado() {
-        const tempoCarregando = Date.now() - tempoInicioCarregamento;
-        
-        if (paginaCarregando && tempoCarregando > 25000) { // Aumentar para 25 segundos
-            console.log('⚠️ Página carregando há mais de 25 segundos, possível problema');
-            redirecionarParaLogin('Página travada no carregamento');
-            return true;
-        }
-        
-        // Verificar loaders específicos visíveis
-        const loaders = document.querySelectorAll('#clientesLoader, .loader-wrapper, .loading-data, [class*="loading"], [class*="loader"]');
-        let loaderVisivel = false;
-        
-        loaders.forEach(loader => {
-            if (loader && (loader.style.display === 'flex' || loader.style.display === 'block' || (!loader.style.display && loader.offsetParent !== null))) {
-                loaderVisivel = true;
-            }
-        });
-        
-        if (loaderVisivel && tempoCarregando > 20000) { // Aumentar para 20 segundos
-            console.log('⚠️ Loader visível há mais de 20 segundos');
-            redirecionarParaLogin('Loader travado - possível perda de sessão');
-            return true;
-        }
-        
-        return false;
-    }
-    
-    // Verificar estado da sessão de forma mais inteligente
-    async function verificarSessao() {
+    // Verificar estado da sessão (apenas quando necessário)
+    async function verificarSessao(contexto = 'manual') {
         try {
-            // Verificar se está travado no carregamento primeiro
-            if (verificarCarregamentoTravado()) {
-                return;
-            }
-            
             console.log('🔍 Verificando sessão...', {
-                contexto: isClientePage ? 'CLIENTE' : 'CONTABILIDADE',
-                falhas: verificacoesFalhas,
-                carregando: paginaCarregando,
-                errosConsecutivos: errosConsecutivos
+                contexto: contexto,
+                pagina: isClientePage ? 'CLIENTE' : 'CONTABILIDADE'
             });
             
             if (isClientePage) {
@@ -116,75 +60,36 @@
                 const clienteData = sessionStorage.getItem('clienteData');
                 const authToken = localStorage.getItem('sb-osnjsgleardkzrnddlgt-auth-token');
                 
-                console.log('Cliente - Estado:', {
-                    clienteData: !!clienteData,
-                    authToken: !!authToken
-                });
-                
-                if (!clienteData) {
-                    console.log('⚠️ clienteData perdido!');
-                    verificacoesFalhas++;
-                    if (verificacoesFalhas >= MAX_FALHAS) {
-                        redirecionarParaLogin('Dados do cliente perdidos');
-                        return;
-                    }
+                if (!clienteData || !authToken) {
+                    console.log('⚠️ Dados do cliente ou token perdidos');
+                    redirecionarParaLogin('Dados de autenticação perdidos');
+                    return false;
                 }
                 
-                if (!authToken) {
-                    console.log('⚠️ Token de autenticação perdido!');
-                    verificacoesFalhas++;
-                    if (verificacoesFalhas >= MAX_FALHAS) {
-                        redirecionarParaLogin('Token perdido');
-                        return;
-                    }
-                }
-                
-                // Verificar Supabase com tratamento de erros normais
+                // Verificar Supabase rapidamente
                 if (typeof supabase !== 'undefined') {
                     try {
                         const { data, error } = await Promise.race([
                             supabase.auth.getSession(),
-                            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout auth check')), 5000))
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
                         ]);
                         
-                        console.log('Cliente - Supabase Session:', {
-                            hasSession: !!data?.session,
-                            hasUser: !!data?.session?.user,
-                            error: error?.message || 'nenhum'
-                        });
-                        
                         if (error && !isErroNormalAPI(error)) {
-                            console.log('⚠️ Erro Supabase relevante:', error.message);
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Erro de autenticação Supabase');
-                                return;
-                            }
-                        } else if (!data?.session?.user && !error) {
+                            console.log('⚠️ Erro Supabase:', error.message);
+                            redirecionarParaLogin('Erro de autenticação');
+                            return false;
+                        }
+                        
+                        if (!data?.session?.user && !error) {
                             console.log('⚠️ Sessão Supabase não encontrada');
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Sessão Supabase expirada');
-                                return;
-                            }
+                            redirecionarParaLogin('Sessão expirada');
+                            return false;
                         }
                     } catch (error) {
-                        if (error.message === 'Timeout auth check') {
-                            console.log('⚠️ Timeout na verificação de autenticação');
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Timeout na autenticação');
-                                return;
-                            }
-                        } else if (!isErroNormalAPI(error)) {
-                            console.log('⚠️ Erro na verificação Supabase:', error.message);
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Falha na conexão com Supabase');
-                                return;
-                            }
-                        } else {
-                            console.log('📡 Erro normal de API ignorado:', error.message);
+                        if (error.message !== 'Timeout' && !isErroNormalAPI(error)) {
+                            console.log('⚠️ Falha na verificação:', error.message);
+                            redirecionarParaLogin('Falha na autenticação');
+                            return false;
                         }
                     }
                 }
@@ -193,266 +98,130 @@
                 // Para páginas de CONTABILIDADE
                 const authToken = localStorage.getItem('sb-osnjsgleardkzrnddlgt-auth-token');
                 
-                console.log('Contabilidade - Estado:', {
-                    authToken: !!authToken,
-                    contabilidadeData: !!window.contabilidadeData,
-                    currentUser: !!window.currentUser
-                });
-                
                 if (!authToken) {
-                    console.log('⚠️ Token de autenticação perdido!');
-                    verificacoesFalhas++;
-                    if (verificacoesFalhas >= MAX_FALHAS) {
-                        redirecionarParaLogin('Token de autenticação perdido');
-                        return;
-                    }
+                    console.log('⚠️ Token de autenticação perdido');
+                    redirecionarParaLogin('Token perdido');
+                    return false;
                 }
                 
-                // Verificar Supabase com tratamento de erros normais
+                // Verificar Supabase rapidamente
                 if (typeof supabase !== 'undefined') {
                     try {
                         const { data, error } = await Promise.race([
                             supabase.auth.getSession(),
-                            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout auth check')), 5000))
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
                         ]);
-                        
-                        console.log('Contabilidade - Supabase Session:', {
-                            hasSession: !!data?.session,
-                            hasUser: !!data?.session?.user,
-                            userEmail: data?.session?.user?.email,
-                            error: error?.message || 'nenhum'
-                        });
                         
                         if (error && !isErroNormalAPI(error)) {
-                            console.log('⚠️ Erro Supabase relevante:', error.message);
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Erro de autenticação Supabase');
-                                return;
-                            }
-                        } else if (!data?.session?.user && !error) {
+                            console.log('⚠️ Erro Supabase:', error.message);
+                            redirecionarParaLogin('Erro de autenticação');
+                            return false;
+                        }
+                        
+                        if (!data?.session?.user && !error) {
                             console.log('⚠️ Sessão Supabase não encontrada');
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Sessão Supabase expirada');
-                                return;
-                            }
+                            redirecionarParaLogin('Sessão expirada');
+                            return false;
                         }
                     } catch (error) {
-                        if (error.message === 'Timeout auth check') {
-                            console.log('⚠️ Timeout na verificação de autenticação');
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Timeout na autenticação');
-                                return;
-                            }
-                        } else if (!isErroNormalAPI(error)) {
-                            console.log('⚠️ Erro na verificação Supabase:', error.message);
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Falha na conexão com Supabase');
-                                return;
-                            }
-                        } else {
-                            console.log('📡 Erro normal de API ignorado:', error.message);
-                        }
-                    }
-                }
-                
-                // Teste de conectividade básica (apenas se necessário)
-                if (verificacoesFalhas > 0 && typeof getCurrentUser !== 'undefined') {
-                    try {
-                        const userCheck = await Promise.race([
-                            getCurrentUser(),
-                            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout user check')), 6000))
-                        ]);
-                        
-                        console.log('Contabilidade - getCurrentUser():', {
-                            success: !userCheck.error,
-                            hasUser: !!userCheck.data?.user,
-                            error: userCheck.error?.message || 'nenhum'
-                        });
-                        
-                        if (userCheck.error && !isErroNormalAPI(userCheck.error)) {
-                            console.log('⚠️ getCurrentUser() falhou com erro relevante');
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Falha na verificação de usuário');
-                                return;
-                            }
-                        }
-                    } catch (error) {
-                        if (error.message === 'Timeout user check') {
-                            console.log('⚠️ Timeout na verificação de usuário');
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Timeout na verificação de usuário');
-                                return;
-                            }
-                        } else if (!isErroNormalAPI(error)) {
-                            console.log('⚠️ Erro na verificação de usuário:', error.message);
-                            verificacoesFalhas++;
-                            if (verificacoesFalhas >= MAX_FALHAS) {
-                                redirecionarParaLogin('Erro na verificação de usuário');
-                                return;
-                            }
-                        } else {
-                            console.log('📡 Erro normal de API ignorado no getCurrentUser:', error.message);
+                        if (error.message !== 'Timeout' && !isErroNormalAPI(error)) {
+                            console.log('⚠️ Falha na verificação:', error.message);
+                            redirecionarParaLogin('Falha na autenticação');
+                            return false;
                         }
                     }
                 }
             }
             
-            // Se chegou até aqui, a sessão está OK
             console.log('✅ Sessão válida');
-            verificacoesFalhas = 0;
-            errosConsecutivos = 0;
-            ultimaVerificacao = Date.now();
-            
-            // Marcar que a página terminou de carregar se chegou até aqui
-            if (paginaCarregando) {
-                paginaCarregando = false;
-                console.log('✅ Página carregada com sucesso');
-            }
+            return true;
             
         } catch (error) {
             console.error('❌ Erro geral ao verificar sessão:', error);
             if (!isErroNormalAPI(error)) {
-                verificacoesFalhas++;
-                if (verificacoesFalhas >= MAX_FALHAS) {
-                    redirecionarParaLogin('Erro geral na verificação de sessão: ' + error.message);
-                }
-            } else {
-                console.log('📡 Erro normal de API ignorado no catch geral:', error.message);
+                redirecionarParaLogin('Erro na verificação: ' + error.message);
+                return false;
             }
+            return true; // Ignorar erros normais
         }
     }
     
-    // Monitorar navegação e eventos
-    function monitorarNavegacao() {
-        // Verificar sessão quando a página carrega
-        window.addEventListener('load', () => {
-            console.log('📄 Página carregada, marcando como não carregando...');
-            paginaCarregando = false; // Marcar como carregada imediatamente
-            setTimeout(() => {
-                console.log('📄 Verificando sessão após carregamento...');
-                verificarSessao();
-            }, 5000); // Aumentar delay
-        });
-        
-        // Detectar quando elementos são carregados (indicativo de que saiu do loading)
-        // TEMPORARIAMENTE DESABILITADO para evitar sensibilidade excessiva
-        /*
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    // Verificar se foram adicionados elementos que indicam carregamento completo
-                    const addedElements = Array.from(mutation.addedNodes).filter(node => node.nodeType === 1);
-                    if (addedElements.some(el => el.matches && (el.matches('tbody tr') || el.matches('.cliente-row') || el.matches('[data-loaded]')))) {
-                        paginaCarregando = false;
-                        console.log('✅ Conteúdo carregado detectado');
-                    }
-                }
-            });
-        });
-        
-        // Observar mudanças no DOM
-        observer.observe(document.body, { childList: true, subtree: true });
-        */
-        
-        // Verificar sessão quando a página fica visível novamente
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                console.log('👁️ Página ficou visível, verificando sessão...');
-                setTimeout(verificarSessao, 1000);
-            }
-        });
-        
-        // Interceptar navegação por links
-        document.addEventListener('click', (e) => {
-            const link = e.target.closest('a');
-            if (link && link.href && !link.href.includes('login.html')) {
-                console.log('🔗 Link clicado, verificando sessão...', link.href);
-                // Reset do estado de carregamento
-                paginaCarregando = true;
-                tempoInicioCarregamento = Date.now();
-                setTimeout(verificarSessao, 500);
-            }
-        });
-    }
-    
-    // Interceptar requests com filtragem inteligente
+    // Interceptar requests críticos apenas
     const originalFetch = window.fetch;
     window.fetch = function() {
         return originalFetch.apply(this, arguments)
             .then(response => {
                 if (response.status === 401) {
-                    console.log('🚫 Erro 401 - Não autorizado, redirecionando para login');
-                    redirecionarParaLogin('Acesso negado pelo servidor (401)');
+                    console.log('🚫 Erro 401 - redirecionando');
+                    redirecionarParaLogin('Acesso negado (401)');
                 } else if (response.status === 403) {
-                    console.log('🚫 Erro 403 - Proibido, redirecionando para login');
-                    redirecionarParaLogin('Acesso proibido pelo servidor (403)');
+                    console.log('🚫 Erro 403 - redirecionando');
+                    redirecionarParaLogin('Acesso proibido (403)');
                 }
                 return response;
             })
             .catch(error => {
-                // Apenas redirecionar para erros específicos de autenticação
                 if (error.message.includes('unauthorized') || error.message.includes('authentication')) {
-                    console.log('🚫 Erro de autenticação detectado');
                     redirecionarParaLogin('Erro de autenticação');
-                } else {
-                    console.log('📡 Erro normal de fetch ignorado:', error.message);
                 }
                 throw error;
             });
     };
     
-    // Interceptar auth state changes do Supabase
+    // Interceptar mudanças de auth do Supabase
     if (typeof supabase !== 'undefined') {
         supabase.auth.onAuthStateChange((event, session) => {
-            console.log('🔐 Auth state change:', event, !!session);
-            if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
-                console.log('🔄 Supabase detectou logout real, redirecionando...');
-                redirecionarParaLogin('Logout detectado pelo Supabase');
+            console.log('🔐 Auth state change:', event);
+            if (event === 'SIGNED_OUT') {
+                redirecionarParaLogin('Logout detectado');
             }
         });
     }
     
-    // Inicializar proteção
-    function iniciarProtecaoSessao() {
-        console.log('🛡️ Proteção de sessão ATIVADA (MODO INTELIGENTE)');
-        console.log('🔧 Configuração: MAX_FALHAS=2, Timeouts aumentados, Filtragem de erros normais');
+    // Verificar apenas em navegações
+    function monitorarNavegacao() {
+        // Interceptar cliques em links
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href && !link.href.includes('login.html') && !link.href.includes('#')) {
+                console.log('🔗 Navegação detectada, verificando sessão...');
+                setTimeout(() => verificarSessao('navegacao'), 1000);
+            }
+        });
+        
+        // Verificar quando volta do background
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && verificacaoInicial) {
+                console.log('👁️ Página voltou do background, verificando...');
+                setTimeout(() => verificarSessao('visibilidade'), 500);
+            }
+        });
+    }
+    
+    // Inicialização simples
+    function iniciarProtecao() {
+        console.log('🛡️ Proteção de sessão SIMPLIFICADA ativada');
+        console.log('📋 Modo: Verificação inicial + navegações apenas');
         
         monitorarNavegacao();
         
-        // Verificação moderada nos primeiros 60 segundos
-        const intervaloRapido = setInterval(() => {
-            console.log('⚡ Verificação inicial...');
-            verificarSessao();
-        }, 20000); // A cada 20 segundos - MENOS FREQUENTE
-        
-        // Depois de 60 segundos, verificação normal
-        setTimeout(() => {
-            clearInterval(intervaloRapido);
-            console.log('🔄 Mudando para verificação normal (45s)');
-            setInterval(() => {
-                console.log('⏰ Verificação periódica...');
-                verificarSessao();
-            }, 45000); // A cada 45 segundos - MUITO MENOS FREQUENTE
-        }, 60000);
-        
-        // Verificação inicial mais tardia
-        setTimeout(() => {
+        // Verificação inicial única
+        setTimeout(async () => {
             console.log('🚀 Verificação inicial da sessão...');
-            verificarSessao();
-        }, 5000);
+            const sessaoValida = await verificarSessao('inicial');
+            verificacaoInicial = true;
+            
+            if (sessaoValida) {
+                console.log('✅ Sessão inicial válida - monitoramento passivo ativo');
+            }
+        }, 3000);
     }
     
     // Aguardar DOM estar pronto
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', iniciarProtecaoSessao);
+        document.addEventListener('DOMContentLoaded', iniciarProtecao);
     } else {
-        iniciarProtecaoSessao();
+        iniciarProtecao();
     }
     
 })(); 
