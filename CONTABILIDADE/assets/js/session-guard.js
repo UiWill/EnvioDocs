@@ -11,7 +11,7 @@
     if (isLoginPage) return;
     
     let verificacoesFalhas = 0;
-    const MAX_FALHAS = 2; // Voltar para 2 falhas para ser menos agressivo
+    const MAX_FALHAS = 4; // Aumentar para 4 falhas para ser ainda menos agressivo
     let ultimaVerificacao = Date.now();
     let paginaCarregando = true;
     let tempoInicioCarregamento = Date.now();
@@ -36,6 +36,21 @@
     
     // Função para redirecionar para login
     function redirecionarParaLogin(motivo = 'Sessão expirada') {
+        // Verificação extra de segurança para dashboard
+        if (window.location.href.includes('dashboard.html')) {
+            // Verificar se o dashboard está funcionando normalmente
+            const dashboardContent = document.querySelector('.dashboard-content');
+            const userInfo = document.querySelector('.user-info');
+            
+            if (dashboardContent && userInfo) {
+                console.log('⚠️ Dashboard parece estar funcionando, cancelando redirecionamento:', motivo);
+                // Reset das falhas quando o dashboard está OK
+                verificacoesFalhas = 0;
+                paginaCarregando = false;
+                return;
+            }
+        }
+        
         console.log('🔄 REDIRECIONANDO PARA LOGIN:', motivo);
         
         // Limpar dados da sessão
@@ -52,12 +67,12 @@
         }
     }
     
-    // Verificar se a página está carregando há muito tempo
+    // Função para verificar se a página está carregando há muito tempo
     function verificarCarregamentoTravado() {
         const tempoCarregando = Date.now() - tempoInicioCarregamento;
         
-        if (paginaCarregando && tempoCarregando > 15000) { // Aumentar para 15 segundos
-            console.log('⚠️ Página carregando há mais de 15 segundos, possível problema');
+        if (paginaCarregando && tempoCarregando > 25000) { // Aumentar para 25 segundos
+            console.log('⚠️ Página carregando há mais de 25 segundos, possível problema');
             redirecionarParaLogin('Página travada no carregamento');
             return true;
         }
@@ -72,8 +87,8 @@
             }
         });
         
-        if (loaderVisivel && tempoCarregando > 12000) { // Aumentar para 12 segundos
-            console.log('⚠️ Loader visível há mais de 12 segundos');
+        if (loaderVisivel && tempoCarregando > 20000) { // Aumentar para 20 segundos
+            console.log('⚠️ Loader visível há mais de 20 segundos');
             redirecionarParaLogin('Loader travado - possível perda de sessão');
             return true;
         }
@@ -317,11 +332,17 @@
     function monitorarNavegacao() {
         // Verificar sessão quando a página carrega
         window.addEventListener('load', () => {
-            console.log('📄 Página carregada, verificando sessão em 3 segundos...');
-            setTimeout(verificarSessao, 3000);
+            console.log('📄 Página carregada, marcando como não carregando...');
+            paginaCarregando = false; // Marcar como carregada imediatamente
+            setTimeout(() => {
+                console.log('📄 Verificando sessão após carregamento...');
+                verificarSessao();
+            }, 5000); // Aumentar delay
         });
         
         // Detectar quando elementos são carregados (indicativo de que saiu do loading)
+        // TEMPORARIAMENTE DESABILITADO para evitar sensibilidade excessiva
+        /*
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -337,6 +358,7 @@
         
         // Observar mudanças no DOM
         observer.observe(document.body, { childList: true, subtree: true });
+        */
         
         // Verificar sessão quando a página fica visível novamente
         document.addEventListener('visibilitychange', () => {
@@ -403,27 +425,27 @@
         
         monitorarNavegacao();
         
-        // Verificação moderada nos primeiros 30 segundos
+        // Verificação moderada nos primeiros 60 segundos
         const intervaloRapido = setInterval(() => {
             console.log('⚡ Verificação inicial...');
             verificarSessao();
-        }, 8000); // A cada 8 segundos (menos frequente)
+        }, 20000); // A cada 20 segundos - MENOS FREQUENTE
         
-        // Depois de 30 segundos, verificação normal
+        // Depois de 60 segundos, verificação normal
         setTimeout(() => {
             clearInterval(intervaloRapido);
-            console.log('🔄 Mudando para verificação normal (15s)');
+            console.log('🔄 Mudando para verificação normal (45s)');
             setInterval(() => {
                 console.log('⏰ Verificação periódica...');
                 verificarSessao();
-            }, 15000); // A cada 15 segundos
-        }, 30000);
+            }, 45000); // A cada 45 segundos - MUITO MENOS FREQUENTE
+        }, 60000);
         
-        // Verificação inicial
+        // Verificação inicial mais tardia
         setTimeout(() => {
             console.log('🚀 Verificação inicial da sessão...');
             verificarSessao();
-        }, 2500);
+        }, 5000);
     }
     
     // Aguardar DOM estar pronto
