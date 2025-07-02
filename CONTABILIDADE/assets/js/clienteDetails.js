@@ -362,6 +362,7 @@ function renderizarRegistros(registros) {
             
             // Usar valores padrão se os campos não existirem
             const nome = registro.NOME_PDF || registro.nomePdf || registro.IMPOSTO || `Registro ${index + 1}`;
+            const dataEnvio = formatarDataEnvio(registro.created_at);
             const dataPagamento = registro.DATA_PAG || registro.dataPag || registro.DATA_PAGAMENTO || '-';
             const dataVencimento = registro.DATA_ARQ || registro.dataArq || registro.DATA_VENCIMENTO || '-';
             const valor = registro.VALOR_PFD || registro.valorPfd || registro.VALOR || '-';
@@ -404,6 +405,7 @@ function renderizarRegistros(registros) {
             
             row.innerHTML = `
                 <td>${nome}</td>
+                <td>${dataEnvio}</td>
                 <td>${dataPagamento}</td>
                 <td>R$ ${valor}</td>
                 <td>${dataVencimento}</td>
@@ -508,6 +510,28 @@ function atualizarTotalValores(total) {
     
     // Atualizar o valor formatado
     totalElement.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+}
+
+// Função para formatar data de envio (timestamp do Supabase)
+function formatarDataEnvio(dataEnvio) {
+    if (!dataEnvio) return '-';
+    
+    try {
+        // Se for um timestamp do Supabase (formato ISO)
+        const date = new Date(dataEnvio);
+        if (isNaN(date.getTime())) return '-';
+        
+        return date.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (error) {
+        console.error('Erro ao formatar data de envio:', error);
+        return '-';
+    }
 }
 
 // Função para formatar CNPJ
