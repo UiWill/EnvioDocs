@@ -208,12 +208,25 @@
 
             // Verificar se já está na página de login
             if (window.location.pathname.includes('login.html')) {
-                // Verificar se o usuário já está autenticado
-                const { data, error } = await getCurrentUser();
-                if (data && data.user && sessionStorage.getItem('clienteData')) {
-                    // Redirecionar para o dashboard do cliente
-                    window.location.href = 'clienteDetails.html';
-                    return;
+                // Verificar se o usuário já está autenticado de forma mais rigorosa
+                try {
+                    const clienteData = sessionStorage.getItem('clienteData');
+                    if (clienteData) {
+                        const { data, error } = await getCurrentUser();
+                        // Só redirecionar se tiver sessão válida E dados do cliente
+                        if (data && data.user && !error) {
+                            console.log('Usuário já autenticado, redirecionando...');
+                            window.location.href = 'clienteDetails.html';
+                            return;
+                        } else {
+                            // Limpar dados inválidos
+                            console.log('Sessão inválida, limpando dados...');
+                            sessionStorage.removeItem('clienteData');
+                        }
+                    }
+                } catch (error) {
+                    console.log('Erro ao verificar autenticação, continuando com login:', error);
+                    sessionStorage.removeItem('clienteData');
                 }
             }
             
