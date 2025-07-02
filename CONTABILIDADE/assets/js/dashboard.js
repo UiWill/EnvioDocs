@@ -1713,3 +1713,4 @@ function gerarNomeArquivo(nomeMes, ano, tipoFiltro) {
     return `${nomeBase}_${timestamp}.pdf`;
 }
 
+
