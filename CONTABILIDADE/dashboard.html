@@ -21,6 +21,10 @@
     
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- jsPDF para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Estilos específicos para esta página -->
     <style>
@@ -232,6 +236,41 @@
         .card-tooltip:hover {
             display: block;
         }
+        
+        /* Estilos para o botão de baixar relatório */
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        
+        .btn-success:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Ajustar layout dos filtros */
+        .filtro-grupo {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filtro-grupo .form-control {
+            min-width: 120px;
+        }
+        
+        #tipoRelatorioSelect {
+            min-width: 150px;
+        }
     </style>
 </head>
 
@@ -375,8 +414,22 @@
                                     <option value="2024">2024</option>
                                     <option value="2025">2025</option>
                                 </select>
+                                <select id="tipoRelatorioSelect" class="form-control">
+                                    <option value="">Todos os Tipos</option>
+                                    <option value="HONORARIOS">Honorários</option>
+                                    <option value="DARF">DARF</option>
+                                    <option value="FGTS">FGTS</option>
+                                    <option value="HOLERITE">Holerite</option>
+                                    <option value="DAE">DAE</option>
+                                    <option value="PGDAS">PGDAS</option>
+                                    <option value="ALVARA">Alvará</option>
+                                    <option value="ESOCIAL">eSocial</option>
+                                </select>
                                 <button id="buscarRelatoriosBtn" class="btn btn-primary">
                                     <i class="bi bi-search"></i> Pesquisar
+                                </button>
+                                <button id="baixarRelatorioBtn" class="btn btn-success" style="margin-left: 10px;" disabled>
+                                    <i class="bi bi-download"></i> Baixar Relatório
                                 </button>
                             </div>
                         </div>

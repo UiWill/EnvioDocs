@@ -485,6 +485,14 @@ function initVerificacaoRelatorios(cnpjContabilidade) {
         });
     }
     
+    // Adicionar evento ao botão de baixar relatório
+    const baixarBtn = document.getElementById('baixarRelatorioBtn');
+    if (baixarBtn) {
+        baixarBtn.addEventListener('click', function() {
+            baixarRelatorio(cnpjContabilidade);
+        });
+    }
+    
     // Ajustar altura da tabela dinamicamente
     ajustarAlturaTabela();
     
@@ -751,6 +759,20 @@ async function buscarRelatorios(cnpjContabilidade) {
         // 4. Contar e atualizar os documentos pendentes
         atualizarContadoresPendentes(resultadoClientes);
         
+        // 5. Armazenar dados para download e habilitar botão
+        window.dadosRelatorio = {
+            clientes: resultadoClientes,
+            mes: mes,
+            ano: ano,
+            cnpjContabilidade: cnpjContabilidade
+        };
+        
+        // Habilitar botão de baixar relatório
+        const baixarBtn = document.getElementById('baixarRelatorioBtn');
+        if (baixarBtn) {
+            baixarBtn.disabled = false;
+        }
+        
         // Esconder loader
         if (loaderElement) {
             loaderElement.style.display = 'none';
@@ -761,6 +783,12 @@ async function buscarRelatorios(cnpjContabilidade) {
     } catch (error) {
         console.error('Erro ao buscar relatórios:', error);
         mostrarErroRelatorios('Erro ao buscar relatórios: ' + error.message);
+        
+        // Desabilitar botão de baixar em caso de erro
+        const baixarBtn = document.getElementById('baixarRelatorioBtn');
+        if (baixarBtn) {
+            baixarBtn.disabled = true;
+        }
     }
 }
 
@@ -1443,4 +1471,245 @@ async function buscarDocumentosCamposFaltando() {
         console.error('Erro ao processar busca de documentos:', error);
         document.getElementById('docsCamposFaltandoCount').textContent = 'Erro';
     }
-} 
+}
+
+// Função para baixar relatório de documentos pendentes
+async function baixarRelatorio(cnpjContabilidade) {
+    try {
+        console.log('Iniciando download do relatório...');
+        
+        // Verificar se temos dados para baixar
+        if (!window.dadosRelatorio || !window.dadosRelatorio.clientes) {
+            alert('Nenhum dado disponível para download. Execute uma pesquisa primeiro.');
+            return;
+        }
+        
+        const mesSelect = document.getElementById('mesSelect');
+        const anoSelect = document.getElementById('anoSelect');
+        const tipoSelect = document.getElementById('tipoRelatorioSelect');
+        
+        const mes = mesSelect.value;
+        const ano = anoSelect.value;
+        const tipoFiltro = tipoSelect.value;
+        
+        // Obter nome do mês
+        const nomesMeses = {
+            '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril',
+            '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto',
+            '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'
+        };
+        
+        // Filtrar dados conforme seleção
+        const dadosFiltrados = filtrarDadosParaRelatorio(window.dadosRelatorio.clientes, tipoFiltro);
+        
+        if (dadosFiltrados.length === 0) {
+            alert('Nenhum documento pendente encontrado para os filtros selecionados.');
+            return;
+        }
+        
+        // Gerar PDF do relatório
+        const nomeArquivo = gerarNomeArquivo(nomesMeses[mes], ano, tipoFiltro);
+        gerarPDFRelatorio(dadosFiltrados, nomesMeses[mes], ano, tipoFiltro, nomeArquivo);
+        
+        console.log('Relatório baixado com sucesso:', nomeArquivo);
+        
+    } catch (error) {
+        console.error('Erro ao baixar relatório:', error);
+        alert('Erro ao gerar relatório: ' + error.message);
+    }
+}
+
+// Função para filtrar dados conforme tipo selecionado
+function filtrarDadosParaRelatorio(clientes, tipoFiltro) {
+    const clientesPendentes = [];
+    
+    clientes.forEach(cliente => {
+        const clientePendente = {
+            NOME_CLIENTE: cliente.NOME_CLIENTE,
+            CNPJ: cliente.CNPJ,
+            documentosPendentes: []
+        };
+        
+        // Tipos de documentos disponíveis
+        const tiposDocumentos = [
+            { campo: 'HONORARIOS', nome: 'Honorários' },
+            { campo: 'DARF', nome: 'DARF' },
+            { campo: 'FGTS', nome: 'FGTS' },
+            { campo: 'HOLERITE', nome: 'Holerite' },
+            { campo: 'DAE', nome: 'DAE' },
+            { campo: 'PGDAS', nome: 'PGDAS' },
+            { campo: 'ALVARA', nome: 'Alvará' },
+            { campo: 'ESOCIAL', nome: 'eSocial' }
+        ];
+        
+        // Verificar cada tipo de documento
+        tiposDocumentos.forEach(tipo => {
+            const valor = cliente[tipo.campo];
+            const isPendente = valor === 'Pendente' || valor === 'undefined' || valor === undefined || valor === null;
+            
+            // Se não há filtro de tipo ou o tipo atual corresponde ao filtro
+            if (!tipoFiltro || tipo.campo === tipoFiltro) {
+                if (isPendente) {
+                    clientePendente.documentosPendentes.push(tipo.nome);
+                }
+            }
+        });
+        
+        // Adicionar cliente apenas se tiver documentos pendentes
+        if (clientePendente.documentosPendentes.length > 0) {
+            clientesPendentes.push(clientePendente);
+        }
+    });
+    
+    return clientesPendentes;
+}
+
+// Função para gerar PDF do relatório
+function gerarPDFRelatorio(dadosFiltrados, nomeMes, ano, tipoFiltro, nomeArquivo) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Configurar fonte para suportar caracteres especiais
+    doc.setFont("helvetica", "normal");
+    
+    // Título principal
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text('RELATÓRIO DE DOCUMENTOS PENDENTES', 20, 20);
+    
+    // Informações do cabeçalho
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    const tituloFiltro = tipoFiltro ? getTipoNome(tipoFiltro) : 'Todos os Tipos';
+    const dataGeracao = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR');
+    
+    doc.text(`Período: ${nomeMes}/${ano}`, 20, 35);
+    doc.text(`Tipo de Documento: ${tituloFiltro}`, 20, 45);
+    doc.text(`Data de Geração: ${dataGeracao}`, 20, 55);
+    doc.text(`Total de Clientes com Pendências: ${dadosFiltrados.length}`, 20, 65);
+    
+    // Preparar dados para a tabela
+    const dadosTabela = [];
+    
+    dadosFiltrados.forEach((cliente, index) => {
+        // Juntar todos os documentos pendentes em uma string
+        const documentosPendentesTexto = cliente.documentosPendentes.join(', ');
+        
+        dadosTabela.push([
+            (index + 1).toString(),
+            cliente.NOME_CLIENTE,
+            formatCNPJ(cliente.CNPJ),
+            documentosPendentesTexto
+        ]);
+    });
+    
+    // Criar tabela usando autoTable
+    doc.autoTable({
+        startY: 80,
+        head: [['#', 'Nome do Cliente', 'CNPJ', 'Documentos Pendentes']],
+        body: dadosTabela,
+        theme: 'striped',
+        headStyles: {
+            fillColor: [41, 128, 185], // Azul
+            textColor: 255,
+            fontSize: 11,
+            fontStyle: 'bold',
+            halign: 'center'
+        },
+        bodyStyles: {
+            fontSize: 9,
+            cellPadding: 4,
+            textColor: [33, 33, 33]
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        },
+        columnStyles: {
+            0: { cellWidth: 15, halign: 'center' }, // Número
+            1: { cellWidth: 65, halign: 'left' }, // Nome do cliente
+            2: { cellWidth: 40, halign: 'center' }, // CNPJ
+            3: { cellWidth: 65, halign: 'left' } // Documentos pendentes
+        },
+        styles: {
+            overflow: 'linebreak',
+            cellPadding: 4,
+            fontSize: 9,
+            lineColor: [200, 200, 200],
+            lineWidth: 0.1
+        },
+        margin: { left: 15, right: 15 },
+        tableLineColor: [200, 200, 200],
+        tableLineWidth: 0.1
+    });
+    
+    // Adicionar resumo no final
+    let finalY = doc.lastAutoTable.finalY + 20;
+    
+    // Verificar se há espaço suficiente na página atual
+    if (finalY > 250) {
+        doc.addPage();
+        finalY = 30;
+    }
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text('RESUMO:', 20, finalY);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    
+    // Contar total de documentos pendentes
+    const totalDocumentos = dadosFiltrados.reduce((total, cliente) => {
+        return total + cliente.documentosPendentes.length;
+    }, 0);
+    
+    doc.text(`• Total de clientes com pendências: ${dadosFiltrados.length}`, 25, finalY + 10);
+    doc.text(`• Total de documentos pendentes: ${totalDocumentos}`, 25, finalY + 20);
+    
+    if (tipoFiltro) {
+        doc.text(`• Tipo filtrado: ${getTipoNome(tipoFiltro)}`, 25, finalY + 30);
+    }
+    
+    // Adicionar rodapé com data e hora
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Página ${i} de ${pageCount}`, 20, 285);
+        doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`, 120, 285);
+    }
+    
+    // Salvar o PDF
+    doc.save(nomeArquivo);
+}
+
+// Função para obter nome amigável do tipo
+function getTipoNome(tipo) {
+    const nomes = {
+        'HONORARIOS': 'Honorários',
+        'DARF': 'DARF',
+        'FGTS': 'FGTS',
+        'HOLERITE': 'Holerite',
+        'DAE': 'DAE',
+        'PGDAS': 'PGDAS',
+        'ALVARA': 'Alvará',
+        'ESOCIAL': 'eSocial'
+    };
+    return nomes[tipo] || tipo;
+}
+
+// Função para gerar nome do arquivo
+function gerarNomeArquivo(nomeMes, ano, tipoFiltro) {
+    const dataAtual = new Date();
+    const timestamp = dataAtual.toISOString().slice(0, 10).replace(/-/g, '');
+    
+    let nomeBase = `Relatorio_Pendencias_${nomeMes}_${ano}`;
+    
+    if (tipoFiltro) {
+        nomeBase += `_${getTipoNome(tipoFiltro).replace(/\s+/g, '_')}`;
+    }
+    
+    return `${nomeBase}_${timestamp}.pdf`;
+}
+
