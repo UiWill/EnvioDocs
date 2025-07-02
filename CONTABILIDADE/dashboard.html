@@ -242,6 +242,7 @@
             background-color: #28a745;
             border-color: #28a745;
             color: white;
+            transition: all 0.3s ease;
         }
         
         .btn-success:hover:not(:disabled) {
@@ -250,10 +251,16 @@
         }
         
         .btn-success:disabled {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            opacity: 0.6;
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #fff !important;
+            opacity: 0.65;
             cursor: not-allowed;
+        }
+        
+        .btn-success:disabled:hover {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
         }
         
         /* Ajustar layout dos filtros */

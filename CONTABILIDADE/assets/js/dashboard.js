@@ -493,6 +493,41 @@ function initVerificacaoRelatorios(cnpjContabilidade) {
         });
     }
     
+    // Adicionar eventos aos filtros para desabilitar o botão de baixar quando mudarem
+    const mesSelect = document.getElementById('mesSelect');
+    const anoSelect = document.getElementById('anoSelect');
+    const tipoSelect = document.getElementById('tipoRelatorioSelect');
+    
+    // Função para desabilitar botão de baixar quando filtros mudarem
+    function onFiltroChange() {
+        const baixarBtn = document.getElementById('baixarRelatorioBtn');
+        if (baixarBtn) {
+            baixarBtn.disabled = true;
+            baixarBtn.title = 'Execute uma pesquisa primeiro para baixar o relatório atualizado';
+            baixarBtn.innerHTML = '<i class="bi bi-download"></i> Baixar Relatório (Execute pesquisa primeiro)';
+        }
+        
+        // Limpar dados antigos
+        window.dadosRelatorio = null;
+        
+        // Atualizar mensagem na tabela
+        const tbody = document.getElementById('relatoriosTableBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-data">Filtros alterados. Clique em Pesquisar para atualizar os dados.</td></tr>';
+        }
+    }
+    
+    // Adicionar listeners aos filtros
+    if (mesSelect) {
+        mesSelect.addEventListener('change', onFiltroChange);
+    }
+    if (anoSelect) {
+        anoSelect.addEventListener('change', onFiltroChange);
+    }
+    if (tipoSelect) {
+        tipoSelect.addEventListener('change', onFiltroChange);
+    }
+    
     // Ajustar altura da tabela dinamicamente
     ajustarAlturaTabela();
     
@@ -767,10 +802,12 @@ async function buscarRelatorios(cnpjContabilidade) {
             cnpjContabilidade: cnpjContabilidade
         };
         
-        // Habilitar botão de baixar relatório
+        // Habilitar botão de baixar relatório e restaurar texto original
         const baixarBtn = document.getElementById('baixarRelatorioBtn');
         if (baixarBtn) {
             baixarBtn.disabled = false;
+            baixarBtn.title = 'Baixar relatório com os dados atuais';
+            baixarBtn.innerHTML = '<i class="bi bi-download"></i> Baixar Relatório';
         }
         
         // Esconder loader
@@ -1480,7 +1517,7 @@ async function baixarRelatorio(cnpjContabilidade) {
         
         // Verificar se temos dados para baixar
         if (!window.dadosRelatorio || !window.dadosRelatorio.clientes) {
-            alert('Nenhum dado disponível para download. Execute uma pesquisa primeiro.');
+            alert('Nenhum dado disponível para download.\n\nPor favor:\n1. Selecione o mês, ano e tipo de documento\n2. Clique em "Pesquisar" para carregar os dados\n3. Depois clique em "Baixar Relatório"');
             return;
         }
         
