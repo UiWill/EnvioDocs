@@ -1397,8 +1397,7 @@
         // Função auxiliar para verificar se um documento está pago
         function isDocumentoPago(registro) {
             const status = registro.STATUS || '';
-            const dataPagamento = registro.DATA_PAG || '';
-            return status === 'S' || status === 'Pago' || dataPagamento;
+            return status === 'S' || status === 'Pago';
         }
 
         // Função para navegar entre meses
@@ -1420,11 +1419,10 @@
         // Função para determinar a classe do status
         function getStatusClass(registro) {
             const status = registro.STATUS || '';
+            
+            if (status === 'S' || status === 'Pago') return 'pago';
+            
             const dataVencimento = registro.DATA_ARQ || '';
-            const dataPagamento = registro.DATA_PAG || '';
-            
-            if (status === 'S' || status === 'Pago' || dataPagamento) return 'pago';
-            
             if (dataVencimento) {
                 const parts = dataVencimento.split('/');
                 if (parts.length === 3) {
@@ -1442,11 +1440,10 @@
         // Função para determinar o texto do status
         function getStatusText(registro) {
             const status = registro.STATUS || '';
+            
+            if (status === 'S' || status === 'Pago') return 'Pago';
+            
             const dataVencimento = registro.DATA_ARQ || '';
-            const dataPagamento = registro.DATA_PAG || '';
-            
-            if (status === 'S' || status === 'Pago' || dataPagamento) return 'Pago';
-            
             if (dataVencimento) {
                 const parts = dataVencimento.split('/');
                 if (parts.length === 3) {
