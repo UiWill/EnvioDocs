@@ -2074,40 +2074,69 @@
             
             updateDownloadProgress(20, 'Fazendo download dos arquivos...');
             
+            // Primeiro, vamos agrupar os comprovantes por data
+            const comprovantesPorData = {};
+            
             for (const comprovante of comprovantes) {
-                try {
-                    // Buscar nome do cliente
-                    const cliente = clientesDisponiveis.find(c => c.CNPJ === comprovante.CNPJ);
-                    const nomeCliente = cliente ? cliente.NOME_CLIENTE : comprovante.CNPJ;
-                    
-                    // Fazer download do arquivo
-                    const response = await fetch(comprovante.URL_COMPROVANTE);
-                    if (!response.ok) {
-                        console.warn(`Erro ao baixar arquivo: ${comprovante.NOME || 'sem_nome'}`);
-                        continue;
+                const dataEnvio = new Date(comprovante.created_at);
+                const ano = dataEnvio.getFullYear();
+                const mes = String(dataEnvio.getMonth() + 1).padStart(2, '0');
+                const dia = String(dataEnvio.getDate()).padStart(2, '0');
+                const chaveData = `${ano}-${mes}-${dia}`;
+                
+                if (!comprovantesPorData[chaveData]) {
+                    comprovantesPorData[chaveData] = [];
+                }
+                comprovantesPorData[chaveData].push(comprovante);
+            }
+            
+            // Agora vamos processar cada data
+            for (const [chaveData, comprovantesData] of Object.entries(comprovantesPorData)) {
+                const [ano, mes, dia] = chaveData.split('-');
+                const dataEnvio = new Date(ano, parseInt(mes) - 1, dia);
+                const nomeMes = dataEnvio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                
+                // Contador para arquivos do mesmo dia
+                let contadorArquivos = 1;
+                
+                for (const comprovante of comprovantesData) {
+                    try {
+                        // Buscar nome do cliente
+                        const cliente = clientesDisponiveis.find(c => c.CNPJ === comprovante.CNPJ);
+                        const nomeCliente = cliente ? cliente.NOME_CLIENTE : comprovante.CNPJ;
+                        
+                        // Fazer download do arquivo
+                        const response = await fetch(comprovante.URL_COMPROVANTE);
+                        if (!response.ok) {
+                            console.warn(`Erro ao baixar arquivo: ${comprovante.NOME || 'sem_nome'}`);
+                            continue;
+                        }
+                        
+                        const blob = await response.blob();
+                        
+                        // Gerar nome único para o arquivo
+                        const horaEnvio = new Date(comprovante.created_at);
+                        const hora = String(horaEnvio.getHours()).padStart(2, '0');
+                        const minuto = String(horaEnvio.getMinutes()).padStart(2, '0');
+                        const segundo = String(horaEnvio.getSeconds()).padStart(2, '0');
+                        
+                        // Pegar o nome original do arquivo sem a extensão
+                        const nomeOriginal = (comprovante.NOME || 'comprovante').replace(/\.pdf$/i, '');
+                        
+                        // Criar nome único com timestamp e contador
+                        const nomeArquivo = `${nomeCliente}/${nomeMes}/dia_${dia}/${nomeOriginal}_${hora}-${minuto}-${segundo}_${contadorArquivos}.pdf`;
+                        
+                        // Adicionar ao ZIP
+                        zip.file(nomeArquivo, blob);
+                        
+                        contadorArquivos++;
+                        processedCount++;
+                        const progress = 20 + (processedCount / comprovantes.length) * 60;
+                        updateDownloadProgress(progress, `Processando: ${processedCount}/${comprovantes.length} arquivos`);
+                        
+                    } catch (error) {
+                        console.error('Erro ao processar comprovante:', comprovante, error);
                     }
-                    
-                    const blob = await response.blob();
-                    
-                    // Criar estrutura de pastas: Cliente/Mês/Dia/arquivo.pdf
-                    const dataEnvio = new Date(comprovante.created_at);
-                    const ano = dataEnvio.getFullYear();
-                    const mes = String(dataEnvio.getMonth() + 1).padStart(2, '0');
-                    const dia = String(dataEnvio.getDate()).padStart(2, '0');
-                    const nomeMes = dataEnvio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-                    const dataCompleta = `${dia}_${mes}_${ano}`;
-                    
-                    const nomeArquivo = `${nomeCliente}/${nomeMes}/dia_${dia}_${dataCompleta}/${comprovante.NOME || 'comprovante'}.pdf`;
-                    
-                    // Adicionar ao ZIP
-                    zip.file(nomeArquivo, blob);
-                    
-                    processedCount++;
-                    const progress = 20 + (processedCount / comprovantes.length) * 60;
-                    updateDownloadProgress(progress, `Processando: ${processedCount}/${comprovantes.length} arquivos`);
-                    
-                } catch (error) {
-                    console.error('Erro ao processar comprovante:', comprovante, error);
                 }
             }
             
