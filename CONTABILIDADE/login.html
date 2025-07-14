@@ -160,6 +160,22 @@
             pointer-events: none;
             user-select: none;
         }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
+            font-size: 1rem;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s ease;
+        }
+        
+        .password-toggle:hover {
+            color: #000;
+        }
     </style>
 
     <!-- Google Fonts -->
@@ -207,7 +223,10 @@
                 <div class="input-wrapper">
                     <input type="text" placeholder="CNPJ" id="cnpj" required>
                 </div>
-                <input type="password" placeholder="Senha" id="password" required>
+                <div class="input-wrapper">
+                    <input type="password" placeholder="Senha" id="password" required>
+                    <i class="bi bi-eye-slash password-toggle" id="togglePassword"></i>
+                </div>
                 <button type="submit" id="loginButton">Entrar</button>
             </form>
             <div class="login-options">
@@ -386,6 +405,24 @@
                     
                     // Redirecionar para a página de contato
                     window.location.href = 'index.html#contato';
+                });
+            }
+            
+            // Funcionalidade de mostrar/esconder senha
+            const passwordInput = document.getElementById('password');
+            const togglePassword = document.getElementById('togglePassword');
+            
+            if (passwordInput && togglePassword) {
+                togglePassword.addEventListener('click', function() {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        togglePassword.classList.remove('bi-eye-slash');
+                        togglePassword.classList.add('bi-eye');
+                    } else {
+                        passwordInput.type = 'password';
+                        togglePassword.classList.remove('bi-eye');
+                        togglePassword.classList.add('bi-eye-slash');
+                    }
                 });
             }
         });
