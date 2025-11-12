@@ -1,0 +1,129 @@
+================================================================================
+CORREÇÕES DE SEGURANÇA MULTI-TENANCY - EnvioDocs
+================================================================================
+
+ATENÇÃO: LEIA ESTE ARQUIVO ANTES DE APLICAR QUALQUER ALTERAÇÃO
+
+================================================================================
+RESUMO DAS CORREÇÕES
+================================================================================
+
+Este conjunto de arquivos corrige FALHAS CRÍTICAS DE SEGURANÇA que permitiriam
+que uma contabilidade visualize dados de outra contabilidade.
+
+PROBLEMAS CORRIGIDOS:
+- Funções que retornavam TODOS os dados sem filtrar por contabilidade
+- Falta de validação de propriedade ao acessar clientes
+- CNPJ da contabilidade não era verificado nas sessões
+
+================================================================================
+ARQUIVOS GERADOS
+================================================================================
+
+1. DATABASE_SECURITY_UPDATE.sql (ARQUIVO SQL)
+   - Adiciona colunas CNPJ_CONTABILIDADE nas tabelas
+   - Popula dados existentes
+   - Cria índices para performance
+   - Prepara políticas RLS (Row Level Security)
+
+   O QUE FAZER: Executar no SQL Editor do Supabase
+   QUANDO: Antes de atualizar o código JavaScript
+   TEMPO: ~5-10 minutos
+
+2. CONTABILIDADE/assets/js/supabase-security-fixes.js (JAVASCRIPT)
+   - Funções corrigidas com filtros de segurança
+   - Middleware de validação de propriedade
+   - Validações de CNPJ da contabilidade
+
+   O QUE FAZER: Integrar no supabase.js existente (substituir funções)
+   QUANDO: Após executar o script SQL
+   TEMPO: ~30-60 minutos
+
+3. CONTABILIDADE/assets/js/session-guard-enhanced.js (JAVASCRIPT)
+   - Session guard aprimorado
+   - Valida CNPJ da contabilidade logada
+   - Cache de CNPJ para performance
+
+   O QUE FAZER: Substituir o session-guard.js atual
+   QUANDO: Junto com as alterações no supabase.js
+   TEMPO: ~5 minutos
+
+4. GUIA_IMPLEMENTACAO_SEGURANCA.md (DOCUMENTAÇÃO)
+   - Guia passo-a-passo completo
+   - Instruções de testes
+   - Resolução de problemas
+
+   O QUE FAZER: Seguir à risca durante a implementação
+   QUANDO: Antes de começar qualquer alteração
+   TEMPO: 2-4 horas (incluindo testes)
+
+================================================================================
+ORDEM DE EXECUÇÃO
+================================================================================
+
+PASSO 1: BACKUP
+    Fazer backup completo do banco de dados Supabase
+    Copiar arquivos originais supabase.js e session-guard.js
+
+PASSO 2: BANCO DE DADOS
+    Executar DATABASE_SECURITY_UPDATE.sql no Supabase
+    Verificar resultados das queries de validação
+    Corrigir registros órfãos se houver
+
+PASSO 3: JAVASCRIPT
+    Integrar funções de supabase-security-fixes.js no supabase.js
+    Substituir session-guard.js pelo session-guard-enhanced.js
+    Atualizar chamadas das funções nas páginas
+
+PASSO 4: TESTES
+    Testar login
+    Testar isolamento de dados entre contabilidades
+    Testar comprovantes/contratos
+    Executar todos os testes do guia
+
+PASSO 5: RLS (OPCIONAL)
+    Habilitar Row Level Security no Supabase
+    Testar novamente todas as funcionalidades
+    Monitorar por alguns dias
+
+================================================================================
+AVISOS IMPORTANTES
+================================================================================
+
+⚠️ NÃO pule nenhum passo
+⚠️ NÃO aplique em produção sem testar antes
+⚠️ NÃO esqueça de fazer backup
+⚠️ NÃO habilite RLS antes de testar as funções JavaScript
+
+✅ FAÇA backup antes de começar
+✅ SIGA o guia passo-a-passo
+✅ TESTE em ambiente de desenvolvimento primeiro
+✅ VERIFIQUE todos os resultados das queries SQL
+
+================================================================================
+SUPORTE
+================================================================================
+
+Em caso de dúvidas:
+
+1. Consulte o GUIA_IMPLEMENTACAO_SEGURANCA.md
+2. Verifique a seção "Resolução de Problemas" do guia
+3. Revise os comentários nos arquivos JavaScript
+4. Verifique o Console do navegador (F12) para erros
+
+================================================================================
+PRÓXIMOS PASSOS APÓS IMPLEMENTAÇÃO
+================================================================================
+
+Depois de aplicar todas as correções e testar:
+
+1. Monitorar logs de acesso por 1-2 semanas
+2. Adicionar mais contabilidades gradualmente
+3. Implementar auditoria de acessos (futuro)
+4. Revisar permissões periodicamente
+
+================================================================================
+
+Para começar: Abra GUIA_IMPLEMENTACAO_SEGURANCA.md e siga o passo-a-passo
+
+================================================================================
