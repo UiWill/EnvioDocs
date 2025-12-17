@@ -29,11 +29,13 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
 
                 // Pular verificação de autenticação e ir direto para carregar dados
-                initCardNavigation();
-                initVerificacaoRelatorios(cnpjContabilidade);
-                initSidebarToggle();
-                initLogoutButton();
-                buscarDocumentosCamposFaltando();
+                setTimeout(() => {
+                    if (typeof initCardNavigation === 'function') initCardNavigation();
+                    if (typeof initVerificacaoRelatorios === 'function') initVerificacaoRelatorios(cnpjContabilidade);
+                    if (typeof initSidebarToggle === 'function') initSidebarToggle();
+                    if (typeof initLogoutButton === 'function') initLogoutButton();
+                    if (typeof buscarDocumentosCamposFaltando === 'function') buscarDocumentosCamposFaltando();
+                }, 100);
                 return;
             }
         } catch (e) {
