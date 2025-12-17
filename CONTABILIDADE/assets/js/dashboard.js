@@ -6,7 +6,43 @@ document.addEventListener('DOMContentLoaded', async function() {
         loader.classList.add('loader-hidden');
     }, 1500);
 
-    // Verificar autenticação
+    // ===== VERIFICAR BYPASS =====
+    const userData = sessionStorage.getItem('userData');
+    let cnpjContabilidade = null;
+
+    if (userData) {
+        try {
+            const userObj = JSON.parse(userData);
+            if (userObj.bypass === true) {
+                console.log('✅ BYPASS ATIVO - Usando dados fake');
+                cnpjContabilidade = userObj.CNPJ;
+
+                // Atualizar interface com dados fake
+                const userNameElements = document.querySelectorAll('#userName, .user-name');
+                userNameElements.forEach(el => {
+                    if (el) el.textContent = userObj.NOME || 'Contabilidade Principal';
+                });
+
+                const userRoleElements = document.querySelectorAll('#userRole, .user-role');
+                userRoleElements.forEach(el => {
+                    if (el) el.textContent = 'Administrador';
+                });
+
+                // Pular verificação de autenticação e ir direto para carregar dados
+                initCardNavigation();
+                initVerificacaoRelatorios(cnpjContabilidade);
+                initSidebarToggle();
+                initLogoutButton();
+                buscarDocumentosCamposFaltando();
+                return;
+            }
+        } catch (e) {
+            console.log('Erro ao parsear userData:', e);
+        }
+    }
+    // ===== FIM BYPASS =====
+
+    // Verificar autenticação normal
     const { data, error } = await getCurrentUser();
     if (error || !data || !data.user) {
         // Redirecionar para a página de login
@@ -15,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Carregar dados do usuário
-    const cnpjContabilidade = await loadUserData(data.user.id);
+    cnpjContabilidade = await loadUserData(data.user.id);
     
     // Inicializar a navegação dos cards
     initCardNavigation();
