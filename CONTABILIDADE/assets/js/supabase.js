@@ -6,25 +6,21 @@ const supabaseUrl = 'https://osnjsgleardkzrnddlgt.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zbmpzZ2xlYXJka3pybmRkbGd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzMTk3MTAsImV4cCI6MjA0Mzg5NTcxMH0.vsSkmzA6PGG09Kxsj1HAuHFhz-JxwimrtPCPV3E_aLg';
 
 // Criar o cliente Supabase e exportá-lo como variável global
-let supabase;
+var supabase;
 
 try {
     console.log('Criando cliente Supabase...');
-    
+
     // Verificar se a biblioteca Supabase está carregada
-    if (typeof supabaseClient === 'undefined') {
-        console.log('Verificando se o objeto global supabase está disponível...');
-        
-        if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
-            console.log('Usando objeto global window.supabase');
-            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        } else {
-            console.error('ERRO: Biblioteca Supabase não encontrada!');
-            alert('Erro: Biblioteca Supabase não foi carregada corretamente. Por favor, recarregue a página.');
-        }
-    } else {
+    if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+        console.log('Usando objeto global window.supabase');
+        supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    } else if (typeof supabaseClient !== 'undefined') {
         console.log('Usando objeto supabaseClient');
         supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+    } else {
+        console.error('ERRO: Biblioteca Supabase não encontrada!');
+        alert('Erro: Biblioteca Supabase não foi carregada corretamente. Por favor, recarregue a página.');
     }
     
     // Verificar se o cliente foi criado com sucesso
