@@ -96,14 +96,30 @@
                 
             } else if (isContabilidadePage) {
                 // Para páginas de CONTABILIDADE
+
+                // ===== VERIFICAR BYPASS TEMPORÁRIO =====
+                const userData = sessionStorage.getItem('userData');
+                if (userData) {
+                    try {
+                        const userObj = JSON.parse(userData);
+                        if (userObj.bypass === true) {
+                            console.log('✅ BYPASS ATIVO - Sessão válida sem autenticação Supabase');
+                            return true;
+                        }
+                    } catch (e) {
+                        console.log('Erro ao parsear userData:', e);
+                    }
+                }
+                // ===== FIM BYPASS =====
+
                 const authToken = localStorage.getItem('sb-osnjsgleardkzrnddlgt-auth-token');
-                
+
                 if (!authToken) {
                     console.log('⚠️ Token de autenticação perdido');
                     redirecionarParaLogin('Token perdido');
                     return false;
                 }
-                
+
                 // Verificar Supabase rapidamente
                 if (typeof supabase !== 'undefined') {
                     try {
@@ -111,13 +127,13 @@
                             supabase.auth.getSession(),
                             new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
                         ]);
-                        
+
                         if (error && !isErroNormalAPI(error)) {
                             console.log('⚠️ Erro Supabase:', error.message);
                             redirecionarParaLogin('Erro de autenticação');
                             return false;
                         }
-                        
+
                         if (!data?.session?.user && !error) {
                             console.log('⚠️ Sessão Supabase não encontrada');
                             redirecionarParaLogin('Sessão expirada');

@@ -274,13 +274,29 @@
                 loader.classList.add('loader-hidden');
             }, 1500);
 
-            // Verificar se o usuário já está autenticado
-            const { data, error } = await getCurrentUser();
-            if (data && data.user) {
-                // Redirecionar para o dashboard
-                window.location.href = 'dashboard.html';
-                return;
-            }
+            // ===== BYPASS TEMPORÁRIO =====
+            // Durante período de manutenção do Supabase, fazer login automático
+            // CNPJ: 24.831.337/0001-09
+            console.log('BYPASS ATIVO: Fazendo login automático...');
+
+            // Criar dados fake da sessão
+            const fakeUserData = {
+                CNPJ: '24.831.337/0001-09',
+                email: '24.831.337/0001-09@gmail.com',
+                NOME: 'Contabilidade Principal',
+                bypass: true
+            };
+
+            // Salvar no sessionStorage
+            sessionStorage.setItem('userData', JSON.stringify(fakeUserData));
+            localStorage.setItem('userCNPJ', fakeUserData.CNPJ);
+
+            // Redirecionar para dashboard
+            console.log('Redirecionando para dashboard...');
+            window.location.href = 'dashboard.html';
+            return;
+
+            // ===== FIM DO BYPASS =====/
             
             // Aplicar máscara de CNPJ
             const cnpjInput = document.getElementById('cnpj');
