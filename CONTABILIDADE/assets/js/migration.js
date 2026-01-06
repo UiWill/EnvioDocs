@@ -22,17 +22,32 @@ function inicializarClientesSupabase() {
     try {
         console.log('Inicializando clientes Supabase para migração...');
 
-        // Verificar se a biblioteca Supabase está carregada
-        if (typeof window.supabase === 'undefined' || typeof window.supabase.createClient !== 'function') {
-            throw new Error('Biblioteca Supabase não está carregada');
+        // Verificar se a biblioteca Supabase está carregada (mesma lógica do supabase.js)
+        let createClient = null;
+
+        if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+            console.log('Usando window.supabase.createClient');
+            createClient = window.supabase.createClient;
+        } else if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
+            console.log('Usando supabase.createClient (global)');
+            createClient = supabase.createClient;
+        } else if (typeof supabaseClient !== 'undefined' && typeof supabaseClient.createClient === 'function') {
+            console.log('Usando supabaseClient.createClient');
+            createClient = supabaseClient.createClient;
+        } else {
+            console.error('ERRO: Biblioteca Supabase não encontrada!');
+            console.log('window.supabase:', typeof window.supabase);
+            console.log('supabase (global):', typeof supabase);
+            console.log('supabaseClient:', typeof supabaseClient);
+            throw new Error('Biblioteca Supabase não está carregada. Por favor, recarregue a página.');
         }
 
         // Criar cliente para banco de origem
-        supabaseOrigem = window.supabase.createClient(BANCO_ORIGEM.url, BANCO_ORIGEM.key);
+        supabaseOrigem = createClient(BANCO_ORIGEM.url, BANCO_ORIGEM.key);
         console.log('Cliente Supabase ORIGEM criado com sucesso');
 
         // Criar cliente para banco de destino
-        supabaseDestino = window.supabase.createClient(BANCO_DESTINO.url, BANCO_DESTINO.key);
+        supabaseDestino = createClient(BANCO_DESTINO.url, BANCO_DESTINO.key);
         console.log('Cliente Supabase DESTINO criado com sucesso');
 
         return true;
