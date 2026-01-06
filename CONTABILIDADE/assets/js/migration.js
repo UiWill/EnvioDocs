@@ -25,6 +25,10 @@ function inicializarClientesSupabase() {
         // Verificar se a biblioteca Supabase está carregada (mesma lógica do supabase.js)
         let createClient = null;
 
+        // Debug: ver o que está disponível
+        console.log('window.supabase:', window.supabase);
+        console.log('supabase (global):', typeof supabase !== 'undefined' ? supabase : 'undefined');
+
         if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
             console.log('Usando window.supabase.createClient');
             createClient = window.supabase.createClient;
@@ -37,7 +41,9 @@ function inicializarClientesSupabase() {
         } else {
             console.error('ERRO: Biblioteca Supabase não encontrada!');
             console.log('window.supabase:', typeof window.supabase);
+            console.log('window.supabase.createClient:', typeof window.supabase?.createClient);
             console.log('supabase (global):', typeof supabase);
+            console.log('supabase.createClient:', typeof supabase?.createClient);
             console.log('supabaseClient:', typeof supabaseClient);
             throw new Error('Biblioteca Supabase não está carregada. Por favor, recarregue a página.');
         }
