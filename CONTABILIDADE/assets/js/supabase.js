@@ -2,8 +2,8 @@
 console.log('Carregando arquivo supabase.js...');
 
 // Inicialização do cliente Supabase
-const supabaseUrl = 'https://osnjsgleardkzrnddlgt.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zbmpzZ2xlYXJka3pybmRkbGd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgzMTk3MTAsImV4cCI6MjA0Mzg5NTcxMH0.vsSkmzA6PGG09Kxsj1HAuHFhz-JxwimrtPCPV3E_aLg';
+const supabaseUrl = 'https://jplshxnojablvnxuddcg.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwbHNoeG5vamFibHZueHVkZGNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc1NTI0MDksImV4cCI6MjA4MzEyODQwOX0.KbPYmb6Xx61mGO4u5ZRdsHLlE0dFPKZHGJODlSFl968';
 
 // Criar o cliente Supabase e exportá-lo como variável global
 var supabase;

@@ -9,8 +9,8 @@ const BANCO_ORIGEM = {
 
 const BANCO_DESTINO = {
     url: 'https://jplshxnojablvnxuddcg.supabase.co',
-    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwbHNoeG5vamFibHZueHVkZGNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc1NTI0MDksImV4cCI6MjA4MzEyODQwOX0.KbPYmb6Xx61mGO4u5ZRdsHLlE0dFPKZHGJODlSFl968',
-    serviceRole: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwbHNoeG5vamFibHZueHVkZGNnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzU1MjQwOSwiZXhwIjoyMDgzMTI4NDA5fQ.C5lObeKiYl1PRUSiw00BJ0QEhmxgK4X7695NfC9LZD4'
+    // Usar Service Role Key para ter limites maiores
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwbHNoeG5vamFibHZueHVkZGNnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzU1MjQwOSwiZXhwIjoyMDgzMTI4NDA5fQ.C5lObeKiYl1PRUSiw00BJ0QEhmxgK4X7695NfC9LZD4'
 };
 
 // Clientes Supabase
@@ -93,10 +93,37 @@ async function buscarClientesOrigem() {
     }
 }
 
+// Função para verificar se cliente já existe no banco destino
+async function verificarClienteExiste(cnpj) {
+    try {
+        const { data, error } = await supabaseDestino
+            .from('Clientes')
+            .select('CNPJ')
+            .eq('CNPJ', cnpj)
+            .single();
+
+        if (error && error.code !== 'PGRST116') { // PGRST116 = not found (ok)
+            console.error('Erro ao verificar cliente:', error);
+            return false;
+        }
+
+        return !!data; // true se encontrou, false se não encontrou
+    } catch (e) {
+        return false;
+    }
+}
+
 // Função para criar cliente no banco destino
 async function criarClienteDestino(clienteData) {
     try {
         console.log('Criando cliente no banco destino:', clienteData.NOME_CLIENTE);
+
+        // Verificar se cliente já existe
+        const jaExiste = await verificarClienteExiste(clienteData.CNPJ);
+        if (jaExiste) {
+            console.log('  ⏭️  Cliente já existe no banco destino, pulando...');
+            return { data: { skipped: true }, error: null };
+        }
 
         // Salvar informações da sessão atual
         const { data: sessionData } = await supabaseDestino.auth.getSession();
@@ -195,8 +222,17 @@ function atualizarProgressoMigração(atual, total, nomeCliente, status, mensage
         const item = document.createElement('div');
         item.className = `migration-item migration-${status}`;
 
-        const icone = status === 'success' ? '✓' : '✗';
-        const classe = status === 'success' ? 'text-success' : 'text-danger';
+        let icone, classe;
+        if (status === 'success') {
+            icone = '✓';
+            classe = 'text-success';
+        } else if (status === 'skipped') {
+            icone = '⏭️';
+            classe = 'text-warning';
+        } else {
+            icone = '✗';
+            classe = 'text-danger';
+        }
 
         item.innerHTML = `
             <span class="${classe}">${icone}</span>
@@ -238,6 +274,7 @@ async function executarMigração() {
         // 3. Migrar cada cliente
         let sucessos = 0;
         let erros = 0;
+        let pulados = 0;
 
         for (let i = 0; i < clientes.length; i++) {
             const cliente = clientes[i];
@@ -258,6 +295,15 @@ async function executarMigração() {
                     'error',
                     error.message
                 );
+            } else if (data?.skipped) {
+                pulados++;
+                console.log(`Cliente ${cliente.NOME_CLIENTE} já existe, pulado`);
+                atualizarProgressoMigração(
+                    clienteAtual,
+                    clientes.length,
+                    cliente.NOME_CLIENTE,
+                    'skipped'
+                );
             } else {
                 sucessos++;
                 console.log(`Cliente ${cliente.NOME_CLIENTE} migrado com sucesso`);
@@ -269,13 +315,14 @@ async function executarMigração() {
                 );
             }
 
-            // Pequeno delay para não sobrecarregar o servidor
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Delay de 3 segundos entre cada cliente para evitar rate limit
+            await new Promise(resolve => setTimeout(resolve, 3000));
         }
 
         // 4. Retornar resultado final
         console.log('\n=== MIGRAÇÃO CONCLUÍDA ===');
         console.log(`Sucessos: ${sucessos}`);
+        console.log(`Pulados (já existiam): ${pulados}`);
         console.log(`Erros: ${erros}`);
         console.log(`Total: ${clientes.length}`);
 
@@ -283,6 +330,7 @@ async function executarMigração() {
             success: true,
             total: clientes.length,
             sucessos,
+            pulados,
             erros
         };
 
@@ -375,7 +423,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (resultado.success) {
                 startBtn.textContent = 'Migração Concluída';
-                alert(`Migração concluída!\n\nTotal: ${resultado.total}\nSucessos: ${resultado.sucessos}\nErros: ${resultado.erros}`);
+                const mensagem = `Migração concluída!\n\nTotal: ${resultado.total}\n✅ Criados: ${resultado.sucessos}\n⏭️  Pulados (já existiam): ${resultado.pulados}\n❌ Erros: ${resultado.erros}`;
+
+                if (resultado.erros > 0) {
+                    alert(mensagem + '\n\n⚠️ Rode a migração novamente para tentar criar os que falharam!');
+                } else {
+                    alert(mensagem + '\n\n🎉 Todos os clientes foram migrados com sucesso!');
+                }
             } else {
                 startBtn.textContent = 'Erro na Migração';
                 alert(`Erro na migração:\n${resultado.error}`);

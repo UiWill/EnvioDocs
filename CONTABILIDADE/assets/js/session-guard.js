@@ -58,7 +58,7 @@
             if (isClientePage) {
                 // Para páginas de CLIENTES
                 const clienteData = sessionStorage.getItem('clienteData');
-                const authToken = localStorage.getItem('sb-osnjsgleardkzrnddlgt-auth-token');
+                const authToken = localStorage.getItem('sb-jplshxnojablvnxuddcg-auth-token');
                 
                 if (!clienteData || !authToken) {
                     console.log('⚠️ Dados do cliente ou token perdidos');
@@ -97,22 +97,7 @@
             } else if (isContabilidadePage) {
                 // Para páginas de CONTABILIDADE
 
-                // ===== VERIFICAR BYPASS TEMPORÁRIO =====
-                const userData = sessionStorage.getItem('userData');
-                if (userData) {
-                    try {
-                        const userObj = JSON.parse(userData);
-                        if (userObj.bypass === true) {
-                            console.log('✅ BYPASS ATIVO - Sessão válida sem autenticação Supabase');
-                            return true;
-                        }
-                    } catch (e) {
-                        console.log('Erro ao parsear userData:', e);
-                    }
-                }
-                // ===== FIM BYPASS =====
-
-                const authToken = localStorage.getItem('sb-osnjsgleardkzrnddlgt-auth-token');
+                const authToken = localStorage.getItem('sb-jplshxnojablvnxuddcg-auth-token');
 
                 if (!authToken) {
                     console.log('⚠️ Token de autenticação perdido');

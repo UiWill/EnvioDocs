@@ -172,7 +172,7 @@
             if (isClientePage) {
                 // Para páginas de CLIENTES
                 const clienteData = sessionStorage.getItem('clienteData');
-                const authToken = localStorage.getItem('sb-osnjsgleardkzrnddlgt-auth-token');
+                const authToken = localStorage.getItem('sb-jplshxnojablvnxuddcg-auth-token');
 
                 if (!clienteData || !authToken) {
                     console.log('⚠️ Dados do cliente ou token perdidos');
@@ -210,7 +210,7 @@
 
             } else if (isContabilidadePage) {
                 // Para páginas de CONTABILIDADE
-                const authToken = localStorage.getItem('sb-osnjsgleardkzrnddlgt-auth-token');
+                const authToken = localStorage.getItem('sb-jplshxnojablvnxuddcg-auth-token');
 
                 if (!authToken) {
                     console.log('⚠️ Token de autenticação perdido');
