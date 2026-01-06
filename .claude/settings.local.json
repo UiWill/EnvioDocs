@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(git checkout:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix: Remove script duplicado do Supabase no login\n\nCorrige erro \"Identifier 'supabase' has already been declared\" causado pelo carregamento duplo do script do Supabase CDN.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push)",
+      "Bash(python -c:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix: Converte supabase.js de UTF-16 para UTF-8\n\nCorrige erro de carregamento das funções do Supabase causado pelo encoding UTF-16. O arquivo agora está em UTF-8 e deve carregar corretamente no navegador.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(gh run list:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nTemp: Adiciona bypass de login para manutenção\n\nDurante período de manutenção do Supabase (storage excedido), implementa login automático para CNPJ 24.831.337/0001-09. \n\nAlterações:\n- login.html: Cria sessão fake e redireciona direto para dashboard\n- session-guard.js: Aceita sessões com flag bypass=true\n\nIMPORTANTE: Remover quando Supabase voltar ao normal!\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
