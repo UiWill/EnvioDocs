@@ -548,9 +548,21 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- IMPORTANTE: Salvar a biblioteca Supabase original ANTES de ser sobrescrita -->
+    <script>
+        console.log('Salvando biblioteca Supabase original...');
+        if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+            window.supabaseLib = window.supabase;
+            console.log('✓ Biblioteca Supabase original salva em window.supabaseLib');
+        } else {
+            console.error('✗ Biblioteca Supabase do CDN não encontrada!');
+        }
+    </script>
+
     <script src="assets/js/supabase.js"></script>
     <script src="assets/js/session-guard.js"></script>
-    <script src="assets/js/migration.js?v=5"></script>
+    <script src="assets/js/migration.js?v=6"></script>
     <script>
         // Aguardar o carregamento do DOM
         document.addEventListener('DOMContentLoaded', async function() {

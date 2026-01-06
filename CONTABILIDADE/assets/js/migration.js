@@ -23,52 +23,28 @@ function inicializarClientesSupabase() {
         console.log('===== INÍCIO DA INICIALIZAÇÃO =====');
         console.log('Inicializando clientes Supabase para migração...');
 
-        // Debug completo
-        console.log('1. Verificando window.supabase:');
-        console.log('   - Tipo:', typeof window.supabase);
-        console.log('   - Valor:', window.supabase);
-        if (window.supabase) {
-            const keys = Object.keys(window.supabase);
-            console.log('   - Chaves:', keys);
-            console.log('   - Número de chaves:', keys.length);
-            console.log('   - Primeiras chaves:', keys.slice(0, 5));
-            console.log('   - createClient:', window.supabase.createClient);
-            console.log('   - É um cliente Supabase? from:', typeof window.supabase.from);
-            console.log('   - É um cliente Supabase? auth:', typeof window.supabase.auth);
-        }
-
-        console.log('2. Verificando supabase global:');
-        if (typeof supabase !== 'undefined') {
-            console.log('   - Tipo:', typeof supabase);
-            console.log('   - Valor:', supabase);
-            console.log('   - Chaves:', Object.keys(supabase));
-            console.log('   - createClient:', supabase.createClient);
-        } else {
-            console.log('   - Não definido');
-        }
-
-        console.log('3. Verificando supabaseClient:');
-        if (typeof supabaseClient !== 'undefined') {
-            console.log('   - Tipo:', typeof supabaseClient);
-            console.log('   - Valor:', supabaseClient);
-        } else {
-            console.log('   - Não definido');
-        }
+        // Usar a biblioteca Supabase original salva (antes de ser sobrescrita)
+        console.log('1. Verificando window.supabaseLib (biblioteca original):');
+        console.log('   - Tipo:', typeof window.supabaseLib);
+        console.log('   - createClient:', typeof window.supabaseLib?.createClient);
 
         // Tentar encontrar createClient
         let createClient = null;
 
-        if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+        if (typeof window.supabaseLib !== 'undefined' && typeof window.supabaseLib.createClient === 'function') {
+            console.log('✓ Usando window.supabaseLib.createClient (biblioteca original salva)');
+            createClient = window.supabaseLib.createClient;
+        } else if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
             console.log('✓ Usando window.supabase.createClient');
             createClient = window.supabase.createClient;
         } else if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
             console.log('✓ Usando supabase.createClient (global)');
             createClient = supabase.createClient;
-        } else if (typeof supabaseClient !== 'undefined' && typeof supabaseClient.createClient === 'function') {
-            console.log('✓ Usando supabaseClient.createClient');
-            createClient = supabaseClient.createClient;
         } else {
             console.error('✗ ERRO: Nenhuma função createClient encontrada!');
+            console.error('   - window.supabaseLib:', typeof window.supabaseLib);
+            console.error('   - window.supabase:', typeof window.supabase);
+            console.error('   - supabase:', typeof supabase);
             throw new Error('Biblioteca Supabase não está carregada. Por favor, recarregue a página.');
         }
 
