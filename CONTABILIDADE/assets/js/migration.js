@@ -20,45 +20,71 @@ let supabaseDestino = null;
 // Função para inicializar os clientes Supabase
 function inicializarClientesSupabase() {
     try {
+        console.log('===== INÍCIO DA INICIALIZAÇÃO =====');
         console.log('Inicializando clientes Supabase para migração...');
 
-        // Verificar se a biblioteca Supabase está carregada (mesma lógica do supabase.js)
+        // Debug completo
+        console.log('1. Verificando window.supabase:');
+        console.log('   - Tipo:', typeof window.supabase);
+        console.log('   - Valor:', window.supabase);
+        if (window.supabase) {
+            console.log('   - Chaves:', Object.keys(window.supabase));
+            console.log('   - createClient:', window.supabase.createClient);
+        }
+
+        console.log('2. Verificando supabase global:');
+        if (typeof supabase !== 'undefined') {
+            console.log('   - Tipo:', typeof supabase);
+            console.log('   - Valor:', supabase);
+            console.log('   - Chaves:', Object.keys(supabase));
+            console.log('   - createClient:', supabase.createClient);
+        } else {
+            console.log('   - Não definido');
+        }
+
+        console.log('3. Verificando supabaseClient:');
+        if (typeof supabaseClient !== 'undefined') {
+            console.log('   - Tipo:', typeof supabaseClient);
+            console.log('   - Valor:', supabaseClient);
+        } else {
+            console.log('   - Não definido');
+        }
+
+        // Tentar encontrar createClient
         let createClient = null;
 
-        // Debug: ver o que está disponível
-        console.log('window.supabase:', window.supabase);
-        console.log('supabase (global):', typeof supabase !== 'undefined' ? supabase : 'undefined');
-
         if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
-            console.log('Usando window.supabase.createClient');
+            console.log('✓ Usando window.supabase.createClient');
             createClient = window.supabase.createClient;
         } else if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
-            console.log('Usando supabase.createClient (global)');
+            console.log('✓ Usando supabase.createClient (global)');
             createClient = supabase.createClient;
         } else if (typeof supabaseClient !== 'undefined' && typeof supabaseClient.createClient === 'function') {
-            console.log('Usando supabaseClient.createClient');
+            console.log('✓ Usando supabaseClient.createClient');
             createClient = supabaseClient.createClient;
         } else {
-            console.error('ERRO: Biblioteca Supabase não encontrada!');
-            console.log('window.supabase:', typeof window.supabase);
-            console.log('window.supabase.createClient:', typeof window.supabase?.createClient);
-            console.log('supabase (global):', typeof supabase);
-            console.log('supabase.createClient:', typeof supabase?.createClient);
-            console.log('supabaseClient:', typeof supabaseClient);
+            console.error('✗ ERRO: Nenhuma função createClient encontrada!');
             throw new Error('Biblioteca Supabase não está carregada. Por favor, recarregue a página.');
         }
 
+        console.log('4. Criando clientes Supabase:');
+
         // Criar cliente para banco de origem
+        console.log('   - Criando cliente ORIGEM...');
         supabaseOrigem = createClient(BANCO_ORIGEM.url, BANCO_ORIGEM.key);
-        console.log('Cliente Supabase ORIGEM criado com sucesso');
+        console.log('   - Cliente ORIGEM criado:', supabaseOrigem);
 
         // Criar cliente para banco de destino
+        console.log('   - Criando cliente DESTINO...');
         supabaseDestino = createClient(BANCO_DESTINO.url, BANCO_DESTINO.key);
-        console.log('Cliente Supabase DESTINO criado com sucesso');
+        console.log('   - Cliente DESTINO criado:', supabaseDestino);
 
+        console.log('===== INICIALIZAÇÃO CONCLUÍDA COM SUCESSO =====');
         return true;
     } catch (error) {
-        console.error('Erro ao inicializar clientes Supabase:', error);
+        console.error('===== ERRO NA INICIALIZAÇÃO =====');
+        console.error('Erro:', error);
+        console.error('Stack:', error.stack);
         return false;
     }
 }
