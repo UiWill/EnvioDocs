@@ -28,8 +28,13 @@ function inicializarClientesSupabase() {
         console.log('   - Tipo:', typeof window.supabase);
         console.log('   - Valor:', window.supabase);
         if (window.supabase) {
-            console.log('   - Chaves:', Object.keys(window.supabase));
+            const keys = Object.keys(window.supabase);
+            console.log('   - Chaves:', keys);
+            console.log('   - Número de chaves:', keys.length);
+            console.log('   - Primeiras chaves:', keys.slice(0, 5));
             console.log('   - createClient:', window.supabase.createClient);
+            console.log('   - É um cliente Supabase? from:', typeof window.supabase.from);
+            console.log('   - É um cliente Supabase? auth:', typeof window.supabase.auth);
         }
 
         console.log('2. Verificando supabase global:');
