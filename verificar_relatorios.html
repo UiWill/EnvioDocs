@@ -262,17 +262,22 @@
         function setCurrentMonth() {
             const now = new Date();
             const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
-            const currentYear = now.getFullYear().toString();
-            
+            const currentYear = now.getFullYear();
+
             document.getElementById("mesSelect").value = currentMonth;
-            
-            // Encontrar e selecionar o ano atual ou o mais próximo disponível
+
+            // Preencher anos dinamicamente (do ano atual até 2023)
             const anoSelect = document.getElementById("anoSelect");
-            const anos = Array.from(anoSelect.options).map(opt => opt.value);
-            
-            if (anos.includes(currentYear)) {
-                anoSelect.value = currentYear;
+            anoSelect.innerHTML = '';
+            for (let ano = 2023; ano <= currentYear; ano++) {
+                const option = document.createElement('option');
+                option.value = ano.toString();
+                option.textContent = ano.toString();
+                anoSelect.appendChild(option);
             }
+
+            // Selecionar o ano atual
+            anoSelect.value = currentYear.toString();
         }
 
         window.onload = function() {
@@ -304,9 +309,7 @@
             </select>
 
             <select id="anoSelect">
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
+                <!-- Anos serão preenchidos dinamicamente -->
             </select>
 
             <button onclick="buscarClientes()">

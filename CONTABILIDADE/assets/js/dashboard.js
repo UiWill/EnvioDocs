@@ -568,22 +568,27 @@ function ajustarAlturaTabela() {
 function setCurrentMonth() {
     const now = new Date();
     const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
-    const currentYear = now.getFullYear().toString();
-    
+    const currentYear = now.getFullYear();
+
     const mesSelect = document.getElementById('mesSelect');
     const anoSelect = document.getElementById('anoSelect');
-    
+
     if (mesSelect) {
         mesSelect.value = currentMonth;
     }
-    
+
     if (anoSelect) {
-        // Encontrar e selecionar o ano atual ou o mais próximo disponível
-        const anos = Array.from(anoSelect.options).map(opt => opt.value);
-        
-        if (anos.includes(currentYear)) {
-            anoSelect.value = currentYear;
+        // Preencher anos dinamicamente (do ano atual até 2023)
+        anoSelect.innerHTML = '';
+        for (let ano = 2023; ano <= currentYear; ano++) {
+            const option = document.createElement('option');
+            option.value = ano.toString();
+            option.textContent = ano.toString();
+            anoSelect.appendChild(option);
         }
+
+        // Selecionar o ano atual
+        anoSelect.value = currentYear.toString();
     }
 }
 
