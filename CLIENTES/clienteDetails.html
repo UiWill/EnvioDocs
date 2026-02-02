@@ -1082,11 +1082,36 @@
             vencimentosPorData = {};
             registros.forEach(registro => {
                 if (!registro.DATA_ARQ) return;
-                let dataParts = registro.DATA_ARQ.split('/');
-                let dataVenc = new Date(dataParts[2], dataParts[1] - 1, dataParts[0]);
-                let key = dataVenc.toISOString().slice(0, 10);
-                if (!vencimentosPorData[key]) vencimentosPorData[key] = [];
-                vencimentosPorData[key].push(registro);
+                try {
+                    let dataParts = registro.DATA_ARQ.split('/');
+                    if (dataParts.length !== 3) {
+                        console.warn('Formato de data inválido:', registro.DATA_ARQ);
+                        return;
+                    }
+                    let dia = parseInt(dataParts[0], 10);
+                    let mes = parseInt(dataParts[1], 10) - 1;
+                    let ano = parseInt(dataParts[2], 10);
+
+                    // Verificar se os valores são números válidos
+                    if (isNaN(dia) || isNaN(mes) || isNaN(ano)) {
+                        console.warn('Valores de data inválidos:', registro.DATA_ARQ);
+                        return;
+                    }
+
+                    let dataVenc = new Date(ano, mes, dia);
+
+                    // Verificar se a data é válida
+                    if (isNaN(dataVenc.getTime())) {
+                        console.warn('Data inválida criada a partir de:', registro.DATA_ARQ);
+                        return;
+                    }
+
+                    let key = dataVenc.toISOString().slice(0, 10);
+                    if (!vencimentosPorData[key]) vencimentosPorData[key] = [];
+                    vencimentosPorData[key].push(registro);
+                } catch (error) {
+                    console.error('Erro ao processar data:', registro.DATA_ARQ, error);
+                }
             });
 
             // Lógica para avisos da semana (apenas documentos não pagos que vencem a partir de hoje)
@@ -1419,107 +1444,140 @@
         // Função para determinar a classe do status
         function getStatusClass(registro) {
             const status = registro.STATUS || '';
-            
+
             if (status === 'S' || status === 'Pago') return 'pago';
-            
+
             const dataVencimento = registro.DATA_ARQ || '';
             if (dataVencimento) {
-                const parts = dataVencimento.split('/');
-                if (parts.length === 3) {
-                    const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
-                    const hoje = new Date();
-                    hoje.setHours(0, 0, 0, 0);
-                    
-                    if (dataVenc < hoje) return 'vencido';
+                try {
+                    const parts = dataVencimento.split('/');
+                    if (parts.length === 3) {
+                        const dia = parseInt(parts[0], 10);
+                        const mes = parseInt(parts[1], 10) - 1;
+                        const ano = parseInt(parts[2], 10);
+
+                        if (!isNaN(dia) && !isNaN(mes) && !isNaN(ano)) {
+                            const dataVenc = new Date(ano, mes, dia);
+                            if (!isNaN(dataVenc.getTime())) {
+                                const hoje = new Date();
+                                hoje.setHours(0, 0, 0, 0);
+
+                                if (dataVenc < hoje) return 'vencido';
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Erro ao processar data de vencimento:', dataVencimento, error);
                 }
             }
-            
+
             return 'pendente';
         }
 
         // Função para determinar o texto do status
         function getStatusText(registro) {
             const status = registro.STATUS || '';
-            
+
             if (status === 'S' || status === 'Pago') return 'Pago';
-            
+
             const dataVencimento = registro.DATA_ARQ || '';
             if (dataVencimento) {
-                const parts = dataVencimento.split('/');
-                if (parts.length === 3) {
-                    const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
-                    const hoje = new Date();
-                    hoje.setHours(0, 0, 0, 0);
-                    
-                    if (dataVenc < hoje) return 'Vencido';
+                try {
+                    const parts = dataVencimento.split('/');
+                    if (parts.length === 3) {
+                        const dia = parseInt(parts[0], 10);
+                        const mes = parseInt(parts[1], 10) - 1;
+                        const ano = parseInt(parts[2], 10);
+
+                        if (!isNaN(dia) && !isNaN(mes) && !isNaN(ano)) {
+                            const dataVenc = new Date(ano, mes, dia);
+                            if (!isNaN(dataVenc.getTime())) {
+                                const hoje = new Date();
+                                hoje.setHours(0, 0, 0, 0);
+
+                                if (dataVenc < hoje) return 'Vencido';
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Erro ao processar data de vencimento:', dataVencimento, error);
                 }
             }
-            
+
             return 'Pendente';
+        }
+
+        // Função auxiliar para parsear data de forma segura
+        function parseDateSafe(dataStr) {
+            if (!dataStr) return null;
+            try {
+                const parts = dataStr.split('/');
+                if (parts.length !== 3) return null;
+
+                const dia = parseInt(parts[0], 10);
+                const mes = parseInt(parts[1], 10) - 1;
+                const ano = parseInt(parts[2], 10);
+
+                if (isNaN(dia) || isNaN(mes) || isNaN(ano)) return null;
+
+                const date = new Date(ano, mes, dia);
+                if (isNaN(date.getTime())) return null;
+
+                return date;
+            } catch (error) {
+                console.warn('Erro ao parsear data:', dataStr, error);
+                return null;
+            }
         }
 
         // Função para filtrar registros
         function filterRegistros(filter) {
             console.log('Aplicando filtro:', filter);
-            
+
             let registrosFiltrados = [];
-            
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
             switch (filter) {
                 case 'pending':
                     registrosFiltrados = registrosEncontrados.filter(registro => {
                         const status = registro.STATUS || '';
-                        const dataVencimento = registro.DATA_ARQ || '';
-                        
                         if (status === 'S' || status === 'Pago') return false;
-                        
-                        if (dataVencimento) {
-                            const parts = dataVencimento.split('/');
-                            if (parts.length === 3) {
-                                const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
-                                const hoje = new Date();
-                                hoje.setHours(0, 0, 0, 0);
-                                
-                                return dataVenc >= hoje;
-                            }
+
+                        const dataVenc = parseDateSafe(registro.DATA_ARQ);
+                        if (dataVenc) {
+                            return dataVenc >= hoje;
                         }
-                        
+
                         return true;
                     });
                     break;
-                    
+
                 case 'paid':
                     registrosFiltrados = registrosEncontrados.filter(registro => {
                         const status = registro.STATUS || '';
                         return status === 'S' || status === 'Pago';
                     });
                     break;
-                    
+
                 case 'overdue':
                     registrosFiltrados = registrosEncontrados.filter(registro => {
                         const status = registro.STATUS || '';
-                        const dataVencimento = registro.DATA_ARQ || '';
-                        
                         if (status === 'S' || status === 'Pago') return false;
-                        
-                        if (dataVencimento) {
-                            const parts = dataVencimento.split('/');
-                            if (parts.length === 3) {
-                                const dataVenc = new Date(parts[2], parts[1] - 1, parts[0]);
-                                const hoje = new Date();
-                                hoje.setHours(0, 0, 0, 0);
-                                
-                                return dataVenc < hoje;
-                            }
+
+                        const dataVenc = parseDateSafe(registro.DATA_ARQ);
+                        if (dataVenc) {
+                            return dataVenc < hoje;
                         }
-                        
+
                         return false;
                     });
                     break;
-                    
+
                 default:
                     registrosFiltrados = registrosEncontrados;
             }
-            
+
             console.log(`Filtro "${filter}" aplicado: ${registrosFiltrados.length} registros de ${registrosEncontrados.length}`);
             renderizarCalendario(registrosFiltrados);
         }
