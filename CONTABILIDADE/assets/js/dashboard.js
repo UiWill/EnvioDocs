@@ -578,17 +578,13 @@ function setCurrentMonth() {
     }
 
     if (anoSelect) {
-        // Preencher anos dinamicamente (do ano atual até 2023)
+        // Mostrar apenas 2026
         anoSelect.innerHTML = '';
-        for (let ano = 2023; ano <= currentYear; ano++) {
-            const option = document.createElement('option');
-            option.value = ano.toString();
-            option.textContent = ano.toString();
-            anoSelect.appendChild(option);
-        }
-
-        // Selecionar o ano atual
-        anoSelect.value = currentYear.toString();
+        const option = document.createElement('option');
+        option.value = '2026';
+        option.textContent = '2026';
+        anoSelect.appendChild(option);
+        anoSelect.value = '2026';
     }
 }
 
