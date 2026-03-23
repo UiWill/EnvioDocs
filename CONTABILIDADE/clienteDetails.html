@@ -231,7 +231,7 @@
                     
                     <div class="form-group">
                         <label for="editDataArq" class="form-label">Data de Vencimento</label>
-                        <input type="text" id="editDataArq" class="form-control" required>
+                        <input type="text" id="editDataArq" class="form-control" placeholder="DD/MM/AAAA" maxlength="10" required>
                         <small class="form-text">Formato: DD/MM/AAAA</small>
                     </div>
                     
@@ -273,7 +273,7 @@
                     
                     <div class="form-group">
                         <label for="enviarDataArq" class="form-label">Data de Vencimento</label>
-                        <input type="text" id="enviarDataArq" class="form-control" required>
+                        <input type="text" id="enviarDataArq" class="form-control" placeholder="DD/MM/AAAA" maxlength="10" required>
                         <small class="form-text">Formato: DD/MM/AAAA</small>
                     </div>
                     
@@ -311,5 +311,23 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Máscara automática para campos de data (DD/MM/AAAA)
+        function aplicarMascaraData(input) {
+            input.addEventListener('input', function() {
+                let v = this.value.replace(/\D/g, '').substring(0, 8);
+                if (v.length >= 5) v = v.substring(0,2) + '/' + v.substring(2,4) + '/' + v.substring(4);
+                else if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+                this.value = v;
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const enviarDataArq = document.getElementById('enviarDataArq');
+            const editDataArq = document.getElementById('editDataArq');
+            if (enviarDataArq) aplicarMascaraData(enviarDataArq);
+            if (editDataArq) aplicarMascaraData(editDataArq);
+        });
+    </script>
 </body>
 </html> 

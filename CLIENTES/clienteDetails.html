@@ -1085,8 +1085,14 @@
                 try {
                     let dataParts = registro.DATA_ARQ.split('/');
                     if (dataParts.length !== 3) {
-                        console.warn('Formato de data inválido:', registro.DATA_ARQ);
-                        return;
+                        // Tentar formato DDMMYYYY (sem separadores)
+                        const raw = registro.DATA_ARQ.replace(/\D/g, '');
+                        if (raw.length === 8) {
+                            dataParts = [raw.substring(0, 2), raw.substring(2, 4), raw.substring(4, 8)];
+                        } else {
+                            console.warn('Formato de data inválido:', registro.DATA_ARQ);
+                            return;
+                        }
                     }
                     let dia = parseInt(dataParts[0], 10);
                     let mes = parseInt(dataParts[1], 10) - 1;
